@@ -22,7 +22,7 @@
           <div
             :class="[
               'w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold transition-all',
-              step >= 1 ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-500'
+              step >= 1 ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-500',
             ]"
           >
             1
@@ -33,7 +33,7 @@
         <div
           :class="[
             'h-1 flex-1 rounded-full mx-2 transition-all',
-            step >= 2 ? 'bg-blue-600' : 'bg-gray-200'
+            step >= 2 ? 'bg-blue-600' : 'bg-gray-200',
           ]"
         />
 
@@ -41,7 +41,7 @@
           <div
             :class="[
               'w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold transition-all',
-              step >= 2 ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-500'
+              step >= 2 ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-500',
             ]"
           >
             2
@@ -52,7 +52,21 @@
     </div>
 
     <!-- Card Container -->
-    <div class="bg-white border border-gray-100 shadow-2xl rounded-[2rem] p-6 sm:p-8">
+    <div class="bg-white border border-gray-100 shadow-2xl rounded-4xl p-6 sm:p-8">
+      <div
+        v-if="submitError"
+        class="mb-6 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
+      >
+        {{ submitError }}
+      </div>
+
+      <div
+        v-if="submitSuccess"
+        class="mb-6 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700"
+      >
+        {{ submitSuccess }}
+      </div>
+
       <!-- Step 1: Basic Info -->
       <div v-if="step === 1" class="space-y-5">
         <h2 class="text-2xl font-bold text-gray-900 mb-6">Datos básicos</h2>
@@ -287,7 +301,7 @@
           <div
             class="flex items-center h-14 rounded-2xl border bg-gray-50 px-4 transition-all"
             :class="
-              errors.location ? 'border-red-400' : 'border-gray-200 focus-within:border-blue-600'
+              errors.commune ? 'border-red-400' : 'border-gray-200 focus-within:border-blue-600'
             "
           >
             <svg
@@ -310,14 +324,14 @@
               />
             </svg>
             <input
-              v-model="form.location"
-              @input="clearError('location')"
+              v-model="form.commune"
+              @input="clearError('commune')"
               type="text"
               placeholder="Tu comuna"
               class="w-full bg-transparent outline-none text-sm text-gray-800 placeholder:text-gray-400"
             />
           </div>
-          <p v-if="errors.location" class="text-red-500 text-sm mt-2">{{ errors.location }}</p>
+          <p v-if="errors.commune" class="text-red-500 text-sm mt-2">{{ errors.commune }}</p>
         </div>
 
         <!-- Selfie Upload -->
@@ -354,7 +368,7 @@
           </label>
           <p v-if="errors.selfie" class="text-red-500 text-sm mt-2">{{ errors.selfie }}</p>
           <p v-if="form.selfie" class="text-green-600 text-sm mt-2">
-            ✓ Archivo seleccionado: {{ (form.selfie as any).name }}
+            ✓ Archivo seleccionado: {{ form.selfie.name }}
           </p>
         </div>
 
@@ -390,7 +404,7 @@
           </label>
           <p v-if="errors.document" class="text-red-500 text-sm mt-2">{{ errors.document }}</p>
           <p v-if="form.document" class="text-green-600 text-sm mt-2">
-            ✓ Archivo seleccionado: {{ (form.document as any).name }}
+            ✓ Archivo seleccionado: {{ form.document.name }}
           </p>
         </div>
 
@@ -399,16 +413,18 @@
           <button
             @click="step = 1"
             type="button"
-            class="flex-1 border border-gray-300 text-gray-700 font-medium py-3 rounded-2xl transition-all duration-300 hover:bg-gray-50"
+            class="flex-1 border border-gray-200 text-gray-700 font-medium py-3 rounded-2xl transition-all duration-300 hover:bg-gray-50"
+            :disabled="isSubmitting"
           >
             Volver
           </button>
           <button
             @click="handleSubmit"
             type="button"
-            class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 rounded-2xl transition-all duration-300 flex items-center justify-center gap-2"
+            :disabled="isSubmitting"
+            class="flex-1 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-medium py-3 rounded-2xl transition-all duration-300 flex items-center justify-center gap-2"
           >
-            <span>Registrarse</span>
+            <span>{{ isSubmitting ? 'Registrando...' : 'Registrarse' }}</span>
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
                 stroke-linecap="round"
@@ -436,124 +452,204 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
+import { useRouter } from 'vue-router'
+
+import { ApiError, registerClient } from '@/api/auth'
+import { useAuthStore } from '@/stores/auth'
+
+const router = useRouter()
+const authStore = useAuthStore()
 
 const step = ref(1)
+const isSubmitting = ref(false)
+const submitError = ref('')
+const submitSuccess = ref('')
 const showPassword = ref(false)
 const showConfirmPassword = ref(false)
 
-const form = ref({
+type ClientForm = {
+  name: string
+  email: string
+  password: string
+  confirmPassword: string
+  commune: string
+  selfie: File | null
+  document: File | null
+}
+
+type ClientErrors = {
+  name: string
+  email: string
+  password: string
+  confirmPassword: string
+  commune: string
+  selfie: string
+  document: string
+}
+
+type ValidationPayload = {
+  message?: string
+  errors?: Record<string, string[]>
+}
+
+const form = ref<ClientForm>({
   name: '',
   email: '',
   password: '',
   confirmPassword: '',
-  location: '',
+  commune: '',
   selfie: null,
   document: null,
 })
 
-const errors = ref({
+const errors = ref<ClientErrors>({
   name: '',
   email: '',
   password: '',
   confirmPassword: '',
-  location: '',
+  commune: '',
   selfie: '',
   document: '',
 })
 
-const validateEmail = (email: string) => {
-  return /^\S+@\S+\.\S+$/.test(email)
+const clearError = (field: keyof ClientErrors) => {
+  errors.value[field] = ''
 }
 
-const clearError = (field: string) => {
-  errors.value[field as keyof typeof errors.value] = ''
+const resetSubmissionState = () => {
+  submitError.value = ''
+  submitSuccess.value = ''
 }
+
+const validateEmail = (email: string) => /^\S+@\S+\.\S+$/.test(email)
 
 const validateStep1 = () => {
-  const newErrors = {
+  const nextErrors = {
     name: '',
     email: '',
     password: '',
     confirmPassword: '',
-    location: '',
+    commune: '',
     selfie: '',
     document: '',
   }
 
-  if (!form.value.name) {
-    newErrors.name = 'Ingresa tu nombre'
-  }
+  if (!form.value.name) nextErrors.name = 'Ingresa tu nombre completo'
+  if (!form.value.email) nextErrors.email = 'Ingresa tu correo electrónico'
+  else if (!validateEmail(form.value.email)) nextErrors.email = 'Correo electrónico inválido'
+  if (!form.value.password) nextErrors.password = 'Ingresa una contraseña'
+  else if (form.value.password.length < 8)
+    nextErrors.password = 'La contraseña debe tener mínimo 8 caracteres'
+  if (!form.value.confirmPassword) nextErrors.confirmPassword = 'Confirma tu contraseña'
+  else if (form.value.password !== form.value.confirmPassword)
+    nextErrors.confirmPassword = 'Las contraseñas no coinciden'
 
-  if (!form.value.email) {
-    newErrors.email = 'Ingresa tu correo'
-  } else if (!validateEmail(form.value.email)) {
-    newErrors.email = 'Correo inválido'
-  }
-
-  if (!form.value.password) {
-    newErrors.password = 'Ingresa una contraseña'
-  } else if (form.value.password.length < 6) {
-    newErrors.password = 'La contraseña debe tener mínimo 6 caracteres'
-  }
-
-  if (!form.value.confirmPassword) {
-    newErrors.confirmPassword = 'Confirma tu contraseña'
-  } else if (form.value.password !== form.value.confirmPassword) {
-    newErrors.confirmPassword = 'Las contraseñas no coinciden'
-  }
-
-  errors.value = newErrors
-  return Object.keys(newErrors).filter((k) => newErrors[k as keyof typeof newErrors]).length === 0
+  errors.value = nextErrors
+  return (
+    !nextErrors.name && !nextErrors.email && !nextErrors.password && !nextErrors.confirmPassword
+  )
 }
 
 const validateStep2 = () => {
-  const newErrors = {
+  const nextErrors = {
     name: '',
     email: '',
     password: '',
     confirmPassword: '',
-    location: '',
+    commune: '',
     selfie: '',
     document: '',
   }
 
-  if (!form.value.location) {
-    newErrors.location = 'Ingresa tu ubicación'
-  }
+  if (!form.value.commune) nextErrors.commune = 'Ingresa tu comuna'
+  if (!form.value.selfie) nextErrors.selfie = 'Sube una selfie'
+  if (!form.value.document) nextErrors.document = 'Sube tu documento'
 
-  if (!form.value.selfie) {
-    newErrors.selfie = 'Sube una selfie'
-  }
-
-  if (!form.value.document) {
-    newErrors.document = 'Sube una foto del documento'
-  }
-
-  errors.value = newErrors
-  return Object.keys(newErrors).filter((k) => newErrors[k as keyof typeof newErrors]).length === 0
+  errors.value = nextErrors
+  return !nextErrors.commune && !nextErrors.selfie && !nextErrors.document
 }
 
 const nextStep = () => {
+  resetSubmissionState()
+
   if (validateStep1()) {
     step.value = 2
   }
 }
 
-const handleFileUpload = (field: string, event: Event) => {
+const handleFileUpload = (field: 'selfie' | 'document', event: Event) => {
   const target = event.target as HTMLInputElement
-  const file = target.files?.[0]
+  const file = target.files?.[0] ?? null
+
   if (file) {
-    form.value[field as keyof typeof form.value] = file as any
+    form.value[field] = file
     clearError(field)
   }
 }
 
-const handleSubmit = () => {
-  if (validateStep2()) {
-    console.log('Registro completado:', form.value)
-    // TODO: Llamar a API
+const applyValidationErrors = (validationErrors: ValidationPayload['errors']) => {
+  const fieldMap: Record<string, keyof ClientErrors> = {
+    name: 'name',
+    email: 'email',
+    password: 'password',
+    password_confirmation: 'confirmPassword',
+    commune: 'commune',
+    selfie: 'selfie',
+    document: 'document',
+  }
+
+  Object.entries(validationErrors ?? {}).forEach(([field, messages]) => {
+    const targetField = fieldMap[field]
+    if (targetField && messages?.length) {
+      errors.value[targetField] = messages[0]
+    }
+  })
+}
+
+const handleSubmit = async () => {
+  resetSubmissionState()
+
+  if (!validateStep2()) {
+    return
+  }
+
+  isSubmitting.value = true
+
+  try {
+    const response = await registerClient({
+      name: form.value.name,
+      email: form.value.email,
+      password: form.value.password,
+      passwordConfirmation: form.value.confirmPassword,
+      selfie: form.value.selfie as File,
+      document: form.value.document as File,
+      commune: form.value.commune,
+    })
+
+    authStore.setSession(response.data)
+    submitSuccess.value = response.message ?? 'Registro completado correctamente.'
+    await router.push('/client/dashboard')
+  } catch (error) {
+    if (
+      error instanceof ApiError &&
+      error.status === 422 &&
+      error.data &&
+      typeof error.data === 'object'
+    ) {
+      const payload = error.data as ValidationPayload
+      if (payload.errors) {
+        applyValidationErrors(payload.errors)
+      }
+      submitError.value = payload.message ?? 'Revisa los campos marcados.'
+    } else if (error instanceof ApiError) {
+      submitError.value = error.message
+    } else if (error instanceof Error) {
+      submitError.value = error.message
+    } else {
+      submitError.value = 'No se pudo completar el registro.'
+    }
+  } finally {
+    isSubmitting.value = false
   }
 }
 </script>
-
-<style scoped></style>

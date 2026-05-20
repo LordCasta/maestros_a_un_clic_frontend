@@ -198,6 +198,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { User, Briefcase } from '@lucide/vue'
+import { useRouter } from 'vue-router'
 
 const form = ref({
   email: '',
@@ -211,6 +212,8 @@ const errors = ref({
 })
 
 const showPassword = ref(false)
+
+const router = useRouter()
 
 const validateEmail = (email: string) => {
   return /^\S+@\S+\.\S+$/.test(email)
@@ -241,8 +244,7 @@ const handleSubmit = () => {
   errors.value = newErrors
 
   if (!newErrors.email && !newErrors.password) {
-    console.log('Login exitoso:', form.value)
-    // TODO: Llamar a API
+    router.push('client/dashboard')
   }
 }
 </script>
