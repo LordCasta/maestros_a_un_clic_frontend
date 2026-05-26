@@ -17,7 +17,7 @@ export class ApiError extends Error {
 
 type RequestOptions = {
   method?: string
-  body?: BodyInit | Record<string, unknown> | null
+  body?: BodyInit | object | null
   headers?: Record<string, string>
   auth?: boolean
 }

@@ -1,6 +1,5 @@
 <template>
   <div>
-    <!-- Header -->
     <div class="mb-8">
       <div
         class="inline-flex items-center gap-2 bg-blue-50 text-blue-600 px-4 py-2 rounded-full text-sm font-medium mb-5"
@@ -21,9 +20,7 @@
       </p>
     </div>
 
-    <!-- Form -->
     <form @submit.prevent="handleSubmit" class="space-y-5">
-      <!-- Email -->
       <div>
         <label class="block text-sm font-medium text-gray-700 mb-2">Correo electrónico</label>
         <div
@@ -56,13 +53,12 @@
         <p v-if="errors.email" class="text-red-500 text-sm mt-2">{{ errors.email }}</p>
       </div>
 
-      <!-- Password -->
       <div>
         <div class="flex items-center justify-between mb-2">
           <label class="block text-sm font-medium text-gray-700">Contraseña</label>
-          <router-link to="#" class="text-sm text-blue-600 hover:text-blue-700 font-medium"
-            >¿Olvidaste tu contraseña?</router-link
-          >
+          <router-link to="#" class="text-sm text-blue-600 hover:text-blue-700 font-medium">
+            ¿Olvidaste tu contraseña?
+          </router-link>
         </div>
         <div
           :class="[
@@ -128,7 +124,6 @@
         <p v-if="errors.password" class="text-red-500 text-sm mt-2">{{ errors.password }}</p>
       </div>
 
-      <!-- Remember Me -->
       <div class="flex items-center justify-between text-sm">
         <label class="flex items-center gap-2 text-gray-600 cursor-pointer">
           <input
@@ -141,12 +136,12 @@
         <span class="text-gray-400">Acceso rápido y seguro</span>
       </div>
 
-      <!-- Submit Button -->
       <button
         type="submit"
-        class="w-full h-14 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-2xl transition-all duration-300 mt-6 flex items-center justify-center gap-2 shadow-lg hover:shadow-xl"
+        :disabled="isSubmitting"
+        class="w-full h-14 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-medium rounded-2xl transition-all duration-300 mt-6 flex items-center justify-center gap-2 shadow-lg hover:shadow-xl"
       >
-        <span>Iniciar sesión</span>
+        <span>{{ isSubmitting ? 'Ingresando...' : 'Iniciar sesión' }}</span>
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path
             stroke-linecap="round"
@@ -158,7 +153,13 @@
       </button>
     </form>
 
-    <!-- Divider -->
+    <p
+      v-if="submitError"
+      class="mt-4 rounded-2xl border border-red-100 bg-red-50 px-4 py-3 text-sm text-red-700"
+    >
+      {{ submitError }}
+    </p>
+
     <div class="relative my-8">
       <div class="border-t border-gray-200"></div>
       <div class="absolute inset-0 flex justify-center">
@@ -166,7 +167,6 @@
       </div>
     </div>
 
-    <!-- Register Buttons -->
     <div class="space-y-4">
       <router-link
         to="/register/client"
@@ -185,7 +185,6 @@
       </router-link>
     </div>
 
-    <!-- Footer -->
     <p class="text-center text-sm text-gray-500 mt-8 leading-relaxed">
       Al continuar aceptas nuestros
       <a href="#" class="text-blue-600 hover:text-blue-700 font-medium">Términos y Condiciones</a>
@@ -195,10 +194,13 @@
   </div>
 </template>
 
-<script setup lang="ts">
+<script setup>
 import { ref } from 'vue'
 import { User, Briefcase } from '@lucide/vue'
 import { useRouter } from 'vue-router'
+
+import { ApiError, login } from '@/api/auth'
+import { useAuthStore } from '@/stores/auth'
 
 const form = ref({
   email: '',
@@ -212,18 +214,33 @@ const errors = ref({
 })
 
 const showPassword = ref(false)
+const isSubmitting = ref(false)
+const submitError = ref('')
 
 const router = useRouter()
+const authStore = useAuthStore()
 
-const validateEmail = (email: string) => {
-  return /^\S+@\S+\.\S+$/.test(email)
+const validateEmail = (email) => /^\S+@\S+\.\S+$/.test(email)
+
+const clearError = (field) => {
+  errors.value[field] = ''
 }
 
-const clearError = (field: string) => {
-  errors.value[field as keyof typeof errors.value] = ''
+const resetSubmissionState = () => {
+  submitError.value = ''
 }
 
-const handleSubmit = () => {
+const getDashboardRoute = (role) => {
+  if (role === 'professional') {
+    return { name: 'ProfessionalDashboard' }
+  }
+
+  return { name: 'ClientDashboard' }
+}
+
+const handleSubmit = async () => {
+  resetSubmissionState()
+
   const newErrors = {
     email: '',
     password: '',
@@ -243,8 +260,40 @@ const handleSubmit = () => {
 
   errors.value = newErrors
 
-  if (!newErrors.email && !newErrors.password) {
-    router.push('client/dashboard')
+  if (newErrors.email || newErrors.password) {
+    return
+  }
+
+  isSubmitting.value = true
+
+  try {
+    const response = await login({
+      email: form.value.email,
+      password: form.value.password,
+    })
+
+    const role = response.data.user.role ?? response.data.role
+
+    if (role !== 'client' && role !== 'professional') {
+      throw new Error('No se pudo validar el rol del usuario.')
+    }
+
+    authStore.setSession({
+      token: response.data.token,
+      user: response.data.user,
+    })
+
+    await router.push(getDashboardRoute(role))
+  } catch (error) {
+    if (error instanceof ApiError) {
+      submitError.value = error.message
+    } else if (error instanceof Error) {
+      submitError.value = error.message
+    } else {
+      submitError.value = 'No se pudo iniciar sesión.'
+    }
+  } finally {
+    isSubmitting.value = false
   }
 }
 </script>

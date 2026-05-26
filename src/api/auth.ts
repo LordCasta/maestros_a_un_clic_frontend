@@ -35,11 +35,22 @@ export interface RegisterProfessionalPayload {
   phone?: string
 }
 
+export interface LoginPayload {
+  email: string
+  password: string
+}
+
 type AuthResponse<T> = {
   success: boolean
   message?: string
   data: T
 }
+
+type LoginResponse = AuthResponse<{
+  token: string
+  user: AuthUser
+  role?: AuthUser['role']
+}>
 
 const appendValue = (formData: FormData, key: string, value: unknown) => {
   if (value === undefined || value === null || value === '') {
@@ -105,6 +116,14 @@ export const registerProfessional = (payload: RegisterProfessionalPayload) => {
   return request<AuthResponse<{ user: AuthUser; token: string }>>('/auth/register/professional', {
     method: 'POST',
     body: buildProfessionalFormData(payload),
+    auth: false,
+  })
+}
+
+export const login = (payload: LoginPayload) => {
+  return request<LoginResponse>('/auth/login', {
+    method: 'POST',
+    body: payload,
     auth: false,
   })
 }
