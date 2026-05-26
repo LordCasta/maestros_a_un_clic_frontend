@@ -12,7 +12,7 @@ import {
   Star,
 } from 'lucide-vue-next'
 
-import { listProfessionals, type ProfessionalSummary } from '@/api/professional'
+import { listProfessionals } from '@/api/professional'
 import { SPECIALTIES } from '@/constants/specialties'
 
 const route = useRoute()
@@ -20,7 +20,7 @@ const router = useRouter()
 
 const loading = ref(false)
 const error = ref('')
-const professionals = ref<ProfessionalSummary[]>([])
+const professionals = ref([])
 
 const search = ref(String(route.query.q ?? ''))
 const filters = reactive({
@@ -86,7 +86,7 @@ const loadProfessionals = async () => {
       per_page: 24,
     })
 
-    professionals.value = response.data ?? []
+    ;(professionals as any).value = response.data ?? []
   } catch (loadError) {
     error.value =
       loadError instanceof Error ? loadError.message : 'No se pudieron cargar los resultados.'
@@ -102,7 +102,7 @@ const visibleProfessionals = computed(() => {
   return professionals.value.filter((professional) => {
     const haystack = [
       professional.name,
-      professional.specialty ?? professional.specialties?.map((item) => item.name).join(' '),
+      professional.specialty ?? professional.specialties?.map((item: any) => item.name).join(' '),
       professional.commune,
     ]
       .filter(Boolean)

@@ -97,3 +97,65 @@ export const listProfessionals = (filters: ProfessionalFilters = {}) => {
 export const getProfessional = (id: number | string) => {
   return request<ProfessionalDetailResponse>(`/professionals/${id}`)
 }
+
+// Professional (owner) endpoints for services and availability
+export type ServicePayload = {
+  name: string
+  description?: string
+  price?: number | string
+}
+
+type ServiceResponse = {
+  success: boolean
+  data: {
+    id: number
+    name: string
+    description?: string
+    price?: string | number
+  }
+}
+
+type ServiceListResponse = {
+  success: boolean
+  data: ProfessionalDetail['services']
+}
+
+export const listMyServices = () => {
+  return request<ServiceListResponse>('/professional/services')
+}
+
+export const createService = (payload: ServicePayload) => {
+  return request<ServiceResponse>('/professional/services', {
+    method: 'POST',
+    body: payload,
+  })
+}
+
+export const updateService = (id: number | string, payload: ServicePayload) => {
+  return request<ServiceResponse>(`/professional/services/${id}`, {
+    method: 'PUT',
+    body: payload,
+  })
+}
+
+export const deleteService = (id: number | string) => {
+  return request<{ success: boolean }>(`/professional/services/${id}`, {
+    method: 'DELETE',
+  })
+}
+
+type AvailabilityResponse = {
+  success: boolean
+  data: ProfessionalDetail['availability']
+}
+
+export const getAvailability = () => {
+  return request<AvailabilityResponse>('/professional/availability')
+}
+
+export const setAvailability = (availability: ProfessionalDetail['availability']) => {
+  return request<{ success: boolean }>('/professional/availability', {
+    method: 'POST',
+    body: { availability },
+  })
+}

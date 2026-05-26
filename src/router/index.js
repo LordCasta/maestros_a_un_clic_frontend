@@ -26,6 +26,7 @@ const MyFavorites = () => import('@/views/client/MyFavorites.vue')
 const ProfessionalDashboard = () => import('@/views/professional/Dashboard.vue')
 const MyServices = () => import('@/views/professional/MyServices.vue')
 const Availability = () => import('@/views/professional/Availability.vue')
+const ProfessionalBookings = () => import('@/views/professional/ProfessionalBookings.vue')
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -147,6 +148,11 @@ const router = createRouter({
           path: 'services',
           name: 'MyServices',
           component: MyServices,
+        },
+        {
+          path: 'bookings',
+          name: 'ProfessionalBookings',
+          component: ProfessionalBookings,
         },
         {
           path: 'availability',

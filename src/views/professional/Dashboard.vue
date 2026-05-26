@@ -77,6 +77,12 @@ const quickActions = [
     cta: 'Editar servicios',
   },
   {
+    title: 'Ver reservas',
+    description: 'Revisa las reservas asignadas y el estado de cada una.',
+    to: '/professional/bookings',
+    cta: 'Ir a reservas',
+  },
+  {
     title: 'Crear bloque',
     description: 'Añade un turno especial, una pausa o una reserva interna.',
     to: '/professional/availability',
@@ -214,6 +220,13 @@ const services = [
                 <Plus class="h-4 w-4" />
                 Gestionar servicios
               </RouterLink>
+              <RouterLink
+                to="/professional/bookings"
+                class="inline-flex items-center gap-2 rounded-2xl border border-white/15 bg-white/10 px-5 py-3 font-semibold text-white backdrop-blur-md transition hover:-translate-y-0.5 hover:bg-white/20"
+              >
+                <CalendarDays class="h-4 w-4" />
+                Ver reservas
+              </RouterLink>
             </div>
           </div>
 
@@ -282,7 +295,7 @@ const services = [
                 <h2 class="mt-1 text-2xl font-black text-gray-900">Citas de hoy</h2>
               </div>
               <RouterLink
-                to="/professional/availability"
+                to="/professional/bookings"
                 class="inline-flex items-center gap-1 text-sm font-semibold text-blue-600 transition hover:text-blue-700"
               >
                 Ver agenda completa

@@ -65,6 +65,20 @@ const formatDateTime = (value?: string) => {
   }).format(new Date(value))
 }
 
+const servicesList = computed(() => {
+  if (!professional.value) return []
+  if (professional.value.services && professional.value.services.length)
+    return professional.value.services
+
+  return (
+    professional.value.specialties?.map((s) => ({
+      name: s.name,
+      description: (s as any).description ?? '',
+      price: (s as any).price ?? professional.value?.hourly_rate ?? professional.value?.price,
+    })) ?? []
+  )
+})
+
 const loadProfessional = async () => {
   loading.value = true
   error.value = ''
@@ -148,7 +162,7 @@ const submitBooking = async () => {
       total: Number(bookingForm.total),
     })
 
-    bookingSuccess.value = response.message ?? 'Reserva creada correctamente.'
+    bookingSuccess.value = 'Reserva creada correctamente.'
     bookingForm.serviceDescription = ''
     bookingForm.scheduledDate = ''
     bookingForm.total = String(professional.value.hourly_rate ?? professional.value.price ?? '')
@@ -344,10 +358,8 @@ onMounted(() => {
 
             <div class="space-y-3">
               <article
-                v-for="service in professional.services?.length
-                  ? professional.services
-                  : (professional.specialties?.map((item) => ({ name: item.name })) ?? [])"
-                :key="service.id ?? service.name"
+                v-for="service in servicesList"
+                :key="service.name"
                 class="rounded-3xl border border-gray-100 bg-[#F8FAFF] p-4"
               >
                 <div class="flex items-center justify-between gap-4">
@@ -471,7 +483,7 @@ onMounted(() => {
                           'https://images.unsplash.com/photo-1500648767791-00dcc994a43e',
                       },
                     ]"
-                :key="item.id ?? item.url"
+                :key="item.url"
                 :src="item.url"
                 alt="Portfolio"
                 class="h-28 w-full rounded-3xl object-cover"
