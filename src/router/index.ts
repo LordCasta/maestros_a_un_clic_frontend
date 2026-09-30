@@ -1,1 +1,1 @@
-// Configuración de rutas
+export { default } from './index.js'

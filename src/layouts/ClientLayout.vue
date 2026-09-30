@@ -6,10 +6,12 @@
         <router-view />
       </main>
     </div>
+    <AppFooter />
   </div>
 </template>
 
 <script setup lang="ts">
+import AppFooter from '@/components/common/AppFooter.vue'
 import Navbar from '@/components/layout/Navbar.vue'
 </script>
 

@@ -6,18 +6,11 @@
         <div class="h-16 flex items-center justify-between">
           <!-- LOGO -->
           <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center shadow-sm">
-              <Wrench class="text-white w-5 h-5" />
-            </div>
-
-            <div>
-              <h1 class="font-bold text-lg leading-none">
-                Maestros a un clic
-              </h1>
-              <p class="text-xs text-gray-500">
-                Servicios confiables para tu hogar
-              </p>
-            </div>
+            <BrandMark
+              size="sm"
+              title="Maestros a un clic"
+              subtitle="Servicios confiables para tu hogar"
+            />
           </div>
 
           <!-- DESKTOP MENU -->
@@ -59,20 +52,18 @@
           </div>
 
           <!-- MOBILE BUTTON -->
-          <button
-            class="lg:hidden"
-            @click="mobileMenu = !mobileMenu"
-          >
+          <button class="lg:hidden" @click="mobileMenu = !mobileMenu">
             <X v-if="mobileMenu" class="w-6 h-6" />
             <Menu v-else class="w-6 h-6" />
           </button>
         </div>
 
         <!-- MOBILE MENU -->
-        <div v-if="mobileMenu" class="lg:hidden pb-5 flex flex-col gap-4 border-t border-gray-100 pt-4">
-          <a href="#servicios" class="text-gray-700" @click="mobileMenu = false">
-            Servicios
-          </a>
+        <div
+          v-if="mobileMenu"
+          class="lg:hidden pb-5 flex flex-col gap-4 border-t border-gray-100 pt-4"
+        >
+          <a href="#servicios" class="text-gray-700" @click="mobileMenu = false"> Servicios </a>
           <a href="#profesionales" class="text-gray-700" @click="mobileMenu = false">
             Profesionales
           </a>
@@ -101,13 +92,15 @@
 
     <!-- HERO -->
     <section class="relative overflow-hidden">
-      <div class="absolute inset-0 bg-gradient-to-br from-blue-50 via-white to-gray-100" />
+      <div class="absolute inset-0 bg-linear-to-br from-blue-50 via-white to-gray-100" />
 
       <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-28">
         <div class="grid lg:grid-cols-2 gap-16 items-center">
           <!-- LEFT -->
           <div>
-            <div class="inline-flex items-center gap-2 bg-blue-50 border border-blue-100 text-blue-700 px-4 py-2 rounded-full text-sm font-medium mb-6">
+            <div
+              class="inline-flex items-center gap-2 bg-blue-50 border border-blue-100 text-blue-700 px-4 py-2 rounded-full text-sm font-medium mb-6"
+            >
               <CheckCircle class="w-4 h-4" />
               Profesionales verificados
             </div>
@@ -117,15 +110,18 @@
             </h1>
 
             <p class="mt-6 text-lg text-gray-600 leading-relaxed max-w-xl">
-              Conecta con plomeros, electricistas, carpinteros y más
-              profesionales confiables cerca de ti.
+              Conecta con plomeros, electricistas, carpinteros y más profesionales confiables cerca
+              de ti.
             </p>
 
             <!-- SEARCH BOX -->
             <div class="mt-10 bg-white rounded-3xl shadow-2xl border border-gray-100 p-4">
-              <form @submit.prevent="handleSearch" class="grid grid-cols-1 md:grid-cols-[1fr_1fr_auto] gap-4">
+              <form
+                @submit.prevent="handleSearch"
+                class="grid grid-cols-1 md:grid-cols-[1fr_1fr_auto] gap-4"
+              >
                 <div class="flex items-center bg-gray-50 rounded-2xl px-4 h-14">
-                  <Search class="w-5 h-5 text-gray-400 mr-3 flex-shrink-0" />
+                  <Search class="w-5 h-5 text-gray-400 mr-3 shrink-0" />
 
                   <input
                     type="text"
@@ -136,7 +132,7 @@
                 </div>
 
                 <div class="flex items-center bg-gray-50 rounded-2xl px-4 h-14">
-                  <MapPin class="w-5 h-5 text-gray-400 mr-3 flex-shrink-0" />
+                  <MapPin class="w-5 h-5 text-gray-400 mr-3 shrink-0" />
 
                   <input
                     type="text"
@@ -146,7 +142,10 @@
                   />
                 </div>
 
-                <button type="submit" class="h-14 px-8 rounded-2xl bg-blue-600 hover:bg-blue-700 transition text-white font-semibold flex items-center justify-center gap-2">
+                <button
+                  type="submit"
+                  class="h-14 px-8 rounded-2xl bg-blue-600 hover:bg-blue-700 transition text-white font-semibold flex items-center justify-center gap-2"
+                >
                   Buscar
                   <ArrowRight class="w-4 h-4" />
                 </button>
@@ -174,7 +173,7 @@
 
           <!-- RIGHT -->
           <div class="relative">
-            <div class="rounded-[2rem] overflow-hidden shadow-2xl">
+            <div class="rounded-4xl overflow-hidden shadow-2xl">
               <ImageWithFallback
                 src="https://images.unsplash.com/photo-1621905252507-b35492cc74b4?auto=format&fit=crop&w=1200&q=80"
                 alt="Profesional trabajando"
@@ -182,7 +181,9 @@
               />
             </div>
 
-            <div class="absolute -bottom-6 -left-6 bg-white rounded-2xl shadow-xl p-5 w-64 hidden sm:block">
+            <div
+              class="absolute -bottom-6 -left-6 bg-white rounded-2xl shadow-xl p-5 w-64 hidden sm:block"
+            >
               <div class="flex items-center gap-3">
                 <div class="bg-emerald-100 p-3 rounded-xl">
                   <Star class="w-6 h-6 text-emerald-500 fill-current" />
@@ -190,9 +191,7 @@
 
                 <div>
                   <h3 class="font-bold text-lg">4.9/5</h3>
-                  <p class="text-sm text-gray-500">
-                    Más de 2.000 reseñas
-                  </p>
+                  <p class="text-sm text-gray-500">Más de 2.000 reseñas</p>
                 </div>
               </div>
             </div>
@@ -202,25 +201,17 @@
     </section>
 
     <!-- CATEGORIES -->
-    <section
-      id="servicios"
-      class="py-20 bg-gray-50"
-    >
+    <section id="servicios" class="py-20 bg-gray-50">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-12">
           <div>
-            <p class="text-blue-600 font-semibold mb-2">
-              Servicios populares
-            </p>
+            <p class="text-blue-600 font-semibold mb-2">Servicios populares</p>
 
-            <h2 class="text-3xl md:text-4xl font-bold">
-              Todo lo que necesitas para tu hogar
-            </h2>
+            <h2 class="text-3xl md:text-4xl font-bold">Todo lo que necesitas para tu hogar</h2>
           </div>
 
           <p class="text-gray-600 max-w-lg">
-            Encuentra profesionales confiables para reparaciones,
-            remodelaciones y mantenimiento.
+            Encuentra profesionales confiables para reparaciones, remodelaciones y mantenimiento.
           </p>
         </div>
 
@@ -238,20 +229,18 @@
                 class-name="w-full h-full object-cover group-hover:scale-110 transition duration-500"
               />
 
-              <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
+              <div class="absolute inset-0 bg-linear-to-t from-black/70 to-transparent" />
 
               <div class="absolute bottom-5 left-5 text-white">
-                <div class="bg-white/20 backdrop-blur-md w-12 h-12 rounded-xl flex items-center justify-center mb-3">
+                <div
+                  class="bg-white/20 backdrop-blur-md w-12 h-12 rounded-xl flex items-center justify-center mb-3"
+                >
                   <component :is="category.icon" class="w-6 h-6" />
                 </div>
 
-                <h3 class="text-2xl font-bold">
-                  {{"\u00A0"}}{{ category.name }}
-                </h3>
+                <h3 class="text-2xl font-bold">{{ '\u00A0' }}{{ category.name }}</h3>
 
-                <p class="text-sm text-white/80">
-                  {{"\u00A0"}}{{ category.count }}
-                </p>
+                <p class="text-sm text-white/80">{{ '\u00A0' }}{{ category.count }}</p>
               </div>
             </div>
           </div>
@@ -260,23 +249,15 @@
     </section>
 
     <!-- PROFESSIONALS -->
-    <section
-      id="profesionales"
-      class="py-20"
-    >
+    <section id="profesionales" class="py-20">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center mb-14">
-          <p class="text-blue-600 font-semibold mb-3">
-            Profesionales destacados
-          </p>
+          <p class="text-blue-600 font-semibold mb-3">Profesionales destacados</p>
 
-          <h2 class="text-3xl md:text-4xl font-bold mb-4">
-            Expertos cerca de ti
-          </h2>
+          <h2 class="text-3xl md:text-4xl font-bold mb-4">Expertos cerca de ti</h2>
 
           <p class="text-gray-600 max-w-2xl mx-auto">
-            Contrata profesionales verificados con experiencia y excelentes
-            valoraciones.
+            Contrata profesionales verificados con experiencia y excelentes valoraciones.
           </p>
         </div>
 
@@ -293,7 +274,9 @@
                 class-name="w-full h-72 object-cover"
               />
 
-              <div class="absolute top-4 left-4 bg-white px-3 py-1 rounded-full text-sm font-medium shadow">
+              <div
+                class="absolute top-4 left-4 bg-white px-3 py-1 rounded-full text-sm font-medium shadow"
+              >
                 {{ professional.available }}
               </div>
             </div>
@@ -310,7 +293,9 @@
                   </p>
                 </div>
 
-                <div class="flex items-center bg-emerald-50 text-emerald-600 px-3 py-1 rounded-full text-sm font-semibold">
+                <div
+                  class="flex items-center bg-emerald-50 text-emerald-600 px-3 py-1 rounded-full text-sm font-semibold"
+                >
                   <Star class="w-4 h-4 fill-current mr-1 text-emerald-500" />
                   {{ professional.rating }}
                 </div>
@@ -327,9 +312,7 @@
 
               <div class="mt-6 flex items-center justify-between">
                 <div>
-                  <p class="text-sm text-gray-500">
-                    Precio inicial
-                  </p>
+                  <p class="text-sm text-gray-500">Precio inicial</p>
 
                   <p class="text-xl font-bold text-blue-600">
                     {{ professional.price }}
@@ -359,19 +342,12 @@
     </section>
 
     <!-- HOW IT WORKS -->
-    <section
-      id="como-funciona"
-      class="py-20 bg-gray-50"
-    >
+    <section id="como-funciona" class="py-20 bg-gray-50">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center mb-16">
-          <p class="text-blue-600 font-semibold mb-3">
-            Proceso sencillo
-          </p>
+          <p class="text-blue-600 font-semibold mb-3">Proceso sencillo</p>
 
-          <h2 class="text-3xl md:text-4xl font-bold mb-4">
-            ¿Cómo funciona?
-          </h2>
+          <h2 class="text-3xl md:text-4xl font-bold mb-4">¿Cómo funciona?</h2>
 
           <p class="text-gray-600 max-w-2xl mx-auto">
             Solicita servicios para tu hogar en pocos minutos.
@@ -389,7 +365,9 @@
             </div>
 
             <div class="flex items-center gap-3 mb-4">
-              <span class="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center text-sm font-bold">
+              <span
+                class="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center text-sm font-bold"
+              >
                 {{ step.id }}
               </span>
 
@@ -419,8 +397,8 @@
         </h2>
 
         <p class="mt-6 text-lg text-blue-100 max-w-2xl mx-auto">
-          Regístrate en Maestros a un clic y conecta con cientos de clientes
-          que buscan tus servicios todos los días.
+          Regístrate en Maestros a un clic y conecta con cientos de clientes que buscan tus
+          servicios todos los días.
         </p>
 
         <div class="mt-10 flex flex-col sm:flex-row justify-center gap-4">
@@ -441,131 +419,20 @@
       </div>
     </section>
 
-    <!-- FOOTER -->
-    <footer class="bg-gray-950 text-gray-400">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-10">
-          <div>
-            <div class="flex items-center gap-3 mb-5">
-              <div class="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center">
-                <Wrench class="w-5 h-5 text-white" />
-              </div>
-
-              <div>
-                <h3 class="text-white font-bold text-lg">
-                  Maestros a un clic
-                </h3>
-              </div>
-            </div>
-
-            <p class="text-sm leading-relaxed">
-              Plataforma moderna para conectar clientes con profesionales
-              confiables del hogar.
-            </p>
-          </div>
-
-          <div>
-            <h3 class="text-white font-semibold mb-5">
-              Servicios
-            </h3>
-
-            <ul class="space-y-3 text-sm">
-              <li>
-                <a href="#servicios" class="hover:text-white transition">
-                  Plomería
-                </a>
-              </li>
-
-              <li>
-                <a href="#servicios" class="hover:text-white transition">
-                  Electricidad
-                </a>
-              </li>
-
-              <li>
-                <a href="#servicios" class="hover:text-white transition">
-                  Carpintería
-                </a>
-              </li>
-
-              <li>
-                <a href="#servicios" class="hover:text-white transition">
-                  Pintura
-                </a>
-              </li>
-            </ul>
-          </div>
-
-          <div>
-            <h3 class="text-white font-semibold mb-5">
-              Empresa
-            </h3>
-
-            <ul class="space-y-3 text-sm">
-              <li>
-                <a href="#" class="hover:text-white transition">
-                  Sobre nosotros
-                </a>
-              </li>
-
-              <li>
-                <a href="#" class="hover:text-white transition">
-                  Blog
-                </a>
-              </li>
-
-              <li>
-                <a href="#" class="hover:text-white transition">
-                  Soporte
-                </a>
-              </li>
-
-              <li>
-                <a href="#" class="hover:text-white transition">
-                  Contacto
-                </a>
-              </li>
-            </ul>
-          </div>
-
-          <div>
-            <h3 class="text-white font-semibold mb-5">
-              Seguridad
-            </h3>
-
-            <div class="space-y-4 text-sm">
-              <div class="flex items-start gap-3">
-                <ShieldCheck class="w-5 h-5 text-emerald-500 mt-0.5 flex-shrink-0" />
-
-                <p>
-                  Profesionales validados y con reseñas verificadas.
-                  {{"\u00A0"}}
-                </p>
-              </div>
-
-              <div class="flex items-start gap-3">
-                <CheckCircle class="w-5 h-5 text-emerald-500 mt-0.5 flex-shrink-0" />
-
-                <p>
-                  Protección y soporte durante todo el proceso.
-                  {{"\u00A0"}}
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="border-t border-gray-800 mt-14 pt-8 text-sm text-center">
-          © 2026 Maestros a un clic. Todos los derechos reservados.
-        </div>
-      </div>
-    </footer>
+    <AppFooter />
   </div>
 </template>
 
-<script setup lang="ts">
+<script setup>
+defineOptions({
+  name: 'PublicHome',
+})
+
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+
+import AppFooter from '@/components/common/AppFooter.vue'
+import BrandMark from '@/components/common/BrandMark.vue'
 import ImageWithFallback from '@/components/common/ImageWithFallback.vue'
 import {
   Search,
@@ -580,7 +447,7 @@ import {
   Menu,
   X,
   ShieldCheck,
-  ArrowRight
+  ArrowRight,
 } from '@lucide/vue'
 
 const searchQuery = ref('')
@@ -694,7 +561,7 @@ const handleSearch = () => {
   })
 }
 
-const handleCategoryClick = (categoryName: string) => {
+const handleCategoryClick = (categoryName) => {
   router.push({
     name: 'SearchResults',
     query: {
@@ -703,10 +570,10 @@ const handleCategoryClick = (categoryName: string) => {
   })
 }
 
-const viewProfile = (id: number) => {
+const viewProfile = () => {
   router.push({
     name: 'ProfessionalDetail',
-    params: { id },
+    params: { id: 1 },
   })
 }
 </script>

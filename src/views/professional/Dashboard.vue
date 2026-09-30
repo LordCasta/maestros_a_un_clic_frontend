@@ -16,6 +16,7 @@ import {
   Bell,
 } from 'lucide-vue-next'
 
+import GoogleMapsEmbed from '@/components/common/GoogleMapsEmbed.vue'
 import { useAuthStore } from '@/stores/auth'
 
 const authStore = useAuthStore()
@@ -271,6 +272,11 @@ const services = [
           </div>
         </div>
       </section>
+
+      <GoogleMapsEmbed
+        title="Mapa de cobertura"
+        description="Consulta la zona de atención y coordina mejor las rutas hacia tus servicios."
+      />
 
       <section class="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <article

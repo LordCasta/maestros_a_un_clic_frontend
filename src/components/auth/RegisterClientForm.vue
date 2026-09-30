@@ -2,17 +2,7 @@
   <div>
     <!-- Logo Header -->
     <div class="flex items-center gap-3 mb-8">
-      <div class="w-10 h-10 rounded-2xl bg-blue-600 flex items-center justify-center shadow-lg">
-        <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
-          <path
-            d="M10.5 1.5H5.75A2.25 2.25 0 003.5 3.75v12.5A2.25 2.25 0 005.75 18.5h8.5a2.25 2.25 0 002.25-2.25V8.5"
-          />
-        </svg>
-      </div>
-      <div>
-        <h3 class="font-bold text-lg text-gray-900">Maestros a un clic</h3>
-        <p class="text-xs text-gray-500">Registro para cliente</p>
-      </div>
+      <BrandMark size="sm" title="Maestros a un clic" subtitle="Registro para cliente" />
     </div>
 
     <!-- Progress Indicator -->
@@ -455,6 +445,7 @@ import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 
 import { ApiError, registerClient } from '@/api/auth'
+import BrandMark from '@/components/common/BrandMark.vue'
 import { useAuthStore } from '@/stores/auth'
 
 const router = useRouter()

@@ -2,14 +2,7 @@
   <div>
     <!-- Logo Header -->
     <div class="flex items-center gap-4 mb-8">
-      <div class="w-14 h-14 rounded-2xl bg-blue-600 shadow-xl flex items-center justify-center">
-        <Wrench class="w-7 h-7 text-white" />
-      </div>
-
-      <div>
-        <h2 class="text-2xl font-black text-gray-900 leading-none">Maestros a un clic</h2>
-        <p class="text-gray-500 text-sm mt-1">Registro profesional</p>
-      </div>
+      <BrandMark size="md" title="Maestros a un clic" subtitle="Registro profesional" />
     </div>
 
     <!-- Card Container -->
@@ -481,6 +474,7 @@ import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 
 import { ApiError, registerProfessional } from '@/api/auth'
+import BrandMark from '@/components/common/BrandMark.vue'
 import { SPECIALTIES } from '@/constants/specialties'
 import { useAuthStore } from '@/stores/auth'
 

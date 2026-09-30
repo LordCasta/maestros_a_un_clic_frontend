@@ -1,5 +1,9 @@
-<script setup lang="ts">
-import { computed, onMounted, reactive, ref, watch } from 'vue'
+<script setup>
+defineOptions({
+  name: 'SearchResultsView',
+})
+
+import { computed, reactive, ref, watch } from 'vue'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
 import {
   ChevronRight,
@@ -32,14 +36,7 @@ const filters = reactive({
 
 const specialties = SPECIALTIES
 
-const currentFilters = computed(() => [
-  filters.commune,
-  filters.specialtyId,
-  filters.minPrice,
-  filters.maxPrice,
-])
-
-const formatPrice = (value?: string | number) => {
+const formatPrice = (value) => {
   if (value === undefined || value === null || value === '') {
     return 'A convenir'
   }
@@ -54,7 +51,7 @@ const formatPrice = (value?: string | number) => {
 }
 
 const normalizeQuery = () => {
-  const query: Record<string, string> = {}
+  const query = {}
 
   if (search.value.trim()) query.q = search.value.trim()
   if (filters.commune.trim()) query.commune = filters.commune.trim()
@@ -86,7 +83,7 @@ const loadProfessionals = async () => {
       per_page: 24,
     })
 
-    ;(professionals as any).value = response.data ?? []
+    professionals.value = response.data ?? []
   } catch (loadError) {
     error.value =
       loadError instanceof Error ? loadError.message : 'No se pudieron cargar los resultados.'
@@ -102,7 +99,7 @@ const visibleProfessionals = computed(() => {
   return professionals.value.filter((professional) => {
     const haystack = [
       professional.name,
-      professional.specialty ?? professional.specialties?.map((item: any) => item.name).join(' '),
+      professional.specialty ?? professional.specialties?.map((item) => item.name).join(' '),
       professional.commune,
     ]
       .filter(Boolean)
@@ -379,7 +376,7 @@ watch(
 
                     <div class="flex flex-wrap gap-3">
                       <RouterLink
-                        :to="{ name: 'ProfessionalDetail', params: { id: professional.id } }"
+                        to="/professional/1"
                         class="inline-flex items-center justify-center gap-2 rounded-2xl bg-[#2563EB] px-5 py-3 text-sm font-semibold text-white transition hover:bg-blue-700"
                       >
                         Ver perfil
@@ -387,11 +384,7 @@ watch(
                       </RouterLink>
 
                       <RouterLink
-                        :to="{
-                          name: 'ProfessionalDetail',
-                          params: { id: professional.id },
-                          hash: '#booking',
-                        }"
+                        to="/professional/1#booking"
                         class="inline-flex items-center justify-center gap-2 rounded-2xl border border-gray-200 px-5 py-3 text-sm font-semibold text-gray-700 transition hover:bg-gray-50"
                       >
                         Reservar

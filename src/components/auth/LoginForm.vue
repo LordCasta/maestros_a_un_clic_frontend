@@ -1,5 +1,9 @@
 <template>
   <div>
+    <div class="mb-6">
+      <BrandMark size="sm" title="Maestros a un clic" subtitle="Acceso seguro a tu cuenta" />
+    </div>
+
     <div class="mb-8">
       <div
         class="inline-flex items-center gap-2 bg-blue-50 text-blue-600 px-4 py-2 rounded-full text-sm font-medium mb-5"
@@ -200,6 +204,7 @@ import { User, Briefcase } from '@lucide/vue'
 import { useRouter } from 'vue-router'
 
 import { ApiError, login } from '@/api/auth'
+import BrandMark from '@/components/common/BrandMark.vue'
 import { useAuthStore } from '@/stores/auth'
 
 const form = ref({

@@ -1,5 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 
+import { useAuthStore } from '@/stores/auth'
+
 // Layouts
 import MainLayout from '@/layouts/MainLayout.vue'
 import AuthLayout from '@/layouts/AuthLayout.vue'
@@ -24,6 +26,7 @@ const MyFavorites = () => import('@/views/client/MyFavorites.vue')
 
 // Professional Views (placeholder for now)
 const ProfessionalDashboard = () => import('@/views/professional/Dashboard.vue')
+const ProfessionalAboutMe = () => import('@/views/professional/AboutMe.vue')
 const MyServices = () => import('@/views/professional/MyServices.vue')
 const Availability = () => import('@/views/professional/Availability.vue')
 const ProfessionalBookings = () => import('@/views/professional/ProfessionalBookings.vue')
@@ -145,6 +148,11 @@ const router = createRouter({
           component: ProfessionalDashboard,
         },
         {
+          path: 'about-me',
+          name: 'ProfessionalAboutMe',
+          component: ProfessionalAboutMe,
+        },
+        {
           path: 'services',
           name: 'MyServices',
           component: MyServices,
@@ -168,13 +176,34 @@ const router = createRouter({
   ],
 })
 
-// Navigation guard for authenticated routes
-router.beforeEach((to, from) => {
-  // TODO: Implement authentication logic
-  // const isAuthenticated = localStorage.getItem('token')
-  // if (to.meta.requiresAuth && !isAuthenticated) {
-  //   return { path: '/login' }
-  // }
+router.beforeEach((to) => {
+  const authStore = useAuthStore()
+  const isAuthenticated = authStore.isAuthenticated
+  const dashboardRoute =
+    authStore.user?.role === 'professional'
+      ? { name: 'ProfessionalDashboard' }
+      : { name: 'ClientDashboard' }
+
+  if (!isAuthenticated && to.meta.requiresAuth) {
+    return { name: 'Login' }
+  }
+
+  if (
+    isAuthenticated &&
+    ['Home', 'Login', 'RegisterClient', 'RegisterProfessional'].includes(String(to.name))
+  ) {
+    return dashboardRoute
+  }
+
+  if (
+    isAuthenticated &&
+    to.meta.requiresAuth &&
+    to.meta.role &&
+    to.meta.role !== authStore.user?.role
+  ) {
+    return dashboardRoute
+  }
+
   return true
 })
 

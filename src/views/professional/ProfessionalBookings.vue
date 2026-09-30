@@ -7,14 +7,14 @@ const bookings = ref([
     client: 'Laura Gómez',
     time: '08:00',
     service: 'Mantenimiento de grifería',
-    status: 'Pending',
+    status: 'Pendiente',
   },
   {
     id: 2,
     client: 'Jorge Ruiz',
     time: '10:30',
     service: 'Instalación eléctrica',
-    status: 'Confirmed',
+    status: 'Confirmado',
   },
 ])
 
@@ -27,7 +27,6 @@ onMounted(() => {})
       <div class="flex items-center justify-between">
         <div>
           <h1 class="text-3xl font-black">Reservas asignadas</h1>
-          <p class="mt-1 text-gray-600">Vista sólo lectura para profesionales (mock local).</p>
         </div>
       </div>
 

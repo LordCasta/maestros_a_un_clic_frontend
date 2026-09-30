@@ -7,7 +7,7 @@
       <!-- Navigation Links -->
       <nav class="space-y-2">
         <router-link
-          to="/"
+          :to="homeRoute"
           class="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-700 hover:bg-slate-50 transition"
         >
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -21,7 +21,7 @@
           <span>Inicio</span>
         </router-link>
         <router-link
-          to="/client/dashboard"
+          :to="dashboardRoute"
           class="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-700 hover:bg-slate-50 transition"
         >
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -40,9 +40,19 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
+
+import { useAuthStore } from '@/stores/auth'
+
+import { getDashboardRouteByRole } from '@/utils/navigation'
 
 const isOpen = ref(true)
+const authStore = useAuthStore()
+
+const dashboardRoute = computed(() => getDashboardRouteByRole(authStore.user?.role))
+const homeRoute = computed(() =>
+  authStore.isAuthenticated ? dashboardRoute.value : { name: 'Home' },
+)
 </script>
 
 <style scoped></style>

@@ -3,21 +3,11 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="h-20 flex items-center justify-between">
         <!-- Logo -->
-        <router-link to="/" class="flex items-center gap-3 hover:opacity-80 transition">
-          <div class="w-12 h-12 rounded-2xl bg-blue-600 flex items-center justify-center shadow-lg">
-            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-              />
-            </svg>
-          </div>
-          <div>
-            <h1 class="font-black text-xl text-gray-900">Maestros a un clic</h1>
-            <p class="text-xs text-gray-500">Marketplace de servicios</p>
-          </div>
+        <router-link
+          :to="authStore.isAuthenticated ? dashboardRoute : { name: 'Home' }"
+          class="flex items-center gap-3 hover:opacity-80 transition"
+        >
+          <BrandMark size="sm" title="Maestros a un clic" subtitle="Marketplace de servicios" />
         </router-link>
 
         <!-- Desktop Search -->
@@ -83,8 +73,43 @@
             </svg>
           </button>
 
-          <!-- Desktop Profile -->
+          <!-- Desktop Account Actions -->
+          <div v-if="authStore.isAuthenticated" class="hidden md:flex items-center gap-3">
+            <router-link
+              v-if="authStore.user?.role === 'professional'"
+              to="/professional/about-me"
+              class="inline-flex items-center gap-2 rounded-2xl border border-blue-200 bg-blue-50 px-4 py-2.5 text-sm font-semibold text-[#2563EB] transition hover:bg-blue-100"
+            >
+              <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M13 16h-1v-4h-1m1-4h.01M12 20h9"
+                />
+              </svg>
+              Sobre mí
+            </router-link>
+
+            <button
+              type="button"
+              @click="handleLogout"
+              class="inline-flex items-center gap-2 rounded-2xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700"
+            >
+              <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h6a2 2 0 012 2v1"
+                />
+              </svg>
+              Cerrar sesión
+            </button>
+          </div>
+
           <router-link
+            v-else
             to="/login"
             class="hidden md:flex items-center gap-3 bg-slate-50 rounded-2xl pl-3 pr-5 py-2 border border-gray-200 hover:bg-gray-100 transition"
           >
@@ -143,9 +168,23 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 
+import BrandMark from '@/components/common/BrandMark.vue'
+import { useAuthStore } from '@/stores/auth'
+
+import { getDashboardRouteByRole } from '@/utils/navigation'
+
+const authStore = useAuthStore()
 const router = useRouter()
+
+const dashboardRoute = computed(() => getDashboardRouteByRole(authStore.user?.role))
+
+const handleLogout = async () => {
+  authStore.clearSession()
+  await router.replace({ name: 'Login' })
+}
 </script>
 
 <style scoped></style>

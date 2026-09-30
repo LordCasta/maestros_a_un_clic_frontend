@@ -1,4 +1,8 @@
 <script setup>
+defineOptions({
+  name: 'ClientDashboard',
+})
+
 import { computed, ref } from 'vue'
 import { RouterLink } from 'vue-router'
 import {
@@ -17,6 +21,8 @@ import {
   Wrench,
   Zap,
 } from 'lucide-vue-next'
+
+import GoogleMapsEmbed from '@/components/common/GoogleMapsEmbed.vue'
 
 const search = ref('')
 
@@ -181,6 +187,13 @@ const filteredProfessionals = computed(() => {
         </div>
       </section>
 
+      <div class="mb-8">
+        <GoogleMapsEmbed
+          title="Mapa de tu zona"
+          description="Visualiza la referencia geográfica para encontrar profesionales y reservas cercanas."
+        />
+      </div>
+
       <div class="grid grid-cols-1 xl:grid-cols-[1.1fr_420px] gap-8">
         <div class="space-y-8">
           <section class="rounded-4xl border border-gray-100 bg-white p-6 shadow-sm">
@@ -312,7 +325,7 @@ const filteredProfessionals = computed(() => {
 
                     <div class="flex flex-wrap gap-3 mt-6">
                       <RouterLink
-                        :to="`/professional/${pro.id}`"
+                        to="/professional/1"
                         class="flex-1 min-w-45 h-14 rounded-2xl bg-[#2563EB] hover:bg-blue-700 transition text-white font-bold flex items-center justify-center"
                       >
                         Ver perfil
