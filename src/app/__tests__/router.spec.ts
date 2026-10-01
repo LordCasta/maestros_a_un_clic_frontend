@@ -21,6 +21,27 @@ describe('router guards', () => {
     await router.push('/')
   })
 
+  it('shows the home page at the root, not an empty layout', async () => {
+    await router.push('/')
+
+    const route = router.currentRoute.value
+    expect(route.name).toBe('home')
+    // El último registro coincidente es la página (no un layout padre sin hijo).
+    expect(route.matched[route.matched.length - 1]?.name).toBe('home')
+  })
+
+  it('resolves every guest page inside its layout', () => {
+    for (const [path, name] of [
+      ['/login', 'login'],
+      ['/register/client', 'register-client'],
+      ['/register/professional', 'register-professional'],
+    ]) {
+      const route = router.resolve(path)
+      expect(route.name).toBe(name)
+      expect(route.matched).toHaveLength(2)
+    }
+  })
+
   it('sends guests to the login and remembers the requested page', async () => {
     await router.push('/client/favorites')
 

@@ -37,12 +37,16 @@ const collect = (area: keyof ModuleRoutes): RouteRecordRaw[] =>
   MODULES.flatMap((module) => module[area] ?? [])
 
 const routes: RouteRecordRaw[] = [
-  {
-    path: '/',
-    component: AuthLayout,
-    meta: { guestOnly: true },
-    children: collect('guest'),
-  },
+  // Cada página de invitado lleva su propio padre con AuthLayout (/login, /register/…).
+  // Un único padre en "/" también coincidiría con "/" y mostraría el layout vacío en vez de la portada.
+  ...collect('guest').map(
+    (route): RouteRecordRaw => ({
+      path: `/${route.path}`,
+      component: AuthLayout,
+      meta: { guestOnly: true },
+      children: [{ ...route, path: '' } as RouteRecordRaw],
+    }),
+  ),
   {
     path: '/client',
     component: ClientLayout,

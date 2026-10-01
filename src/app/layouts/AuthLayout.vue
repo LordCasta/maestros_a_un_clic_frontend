@@ -19,7 +19,7 @@ const BENEFITS = [
       <div class="absolute -bottom-36 -left-36 size-112 rounded-full bg-white/10" />
 
       <div class="relative z-10 max-w-sm space-y-10 px-8 text-white">
-        <RouterLink :to="{ name: 'home' }">
+        <RouterLink :to="{ name: 'home' }" class="block w-fit">
           <BrandMark size="lg" tone="light" subtitle="Profesionales del hogar en Medellín" />
         </RouterLink>
         <ul class="space-y-4">
