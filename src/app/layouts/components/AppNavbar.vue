@@ -28,9 +28,10 @@ function search() {
   router.push({ name: 'search', query: query.value ? { q: query.value } : {} })
 }
 
+// HU021: al cerrar sesión se vuelve al inicio.
 async function logout() {
   await auth.logout()
-  await router.replace({ name: 'login' })
+  await router.replace({ name: 'home' })
 }
 </script>
 

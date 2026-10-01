@@ -9,6 +9,7 @@ Resumen y lo propio del frontend:
 - `main` protegida; ramas cortas desde `main`: `feature/HU004-aceptar-reserva`, `fix/…`, `docs/…`, `chore/…`.
 - Conventional Commits en español con el módulo como alcance: `feat(reservas): aceptar y rechazar solicitudes (HU004)`.
 - PR con la plantilla, CI en verde, aprobado por la otra persona, **Squash and merge**.
+- Los issues de las HU están en el [repo del backend](https://github.com/LordCasta/maestros_a_un_clic_backend/issues). Un PR del frontend los cierra con `Closes LordCasta/maestros_a_un_clic_backend#N`.
 
 ## Antes de abrir un PR
 

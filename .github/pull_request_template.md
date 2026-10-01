@@ -1,6 +1,7 @@
 ## Qué cierra
 
-Closes #<!-- número del issue de la HU -->
+<!-- Los issues de las HU viven en el repo del backend: -->
+Closes LordCasta/maestros_a_un_clic_backend#<!-- número del issue de la HU -->
 
 PR del backend relacionado: <!-- enlace, si aplica -->
 
