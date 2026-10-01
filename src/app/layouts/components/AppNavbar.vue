@@ -1,190 +1,145 @@
+<script setup lang="ts">
+import { LogOut, Menu, Search, X } from '@lucide/vue'
+import { computed, ref, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+
+import { homeRouteFor, useAuthStore } from '@/modules/auth'
+import { BaseAvatar, BaseButton, BrandMark } from '@/shared/ui'
+
+import { NAV_ITEMS } from '../navigation'
+
+const auth = useAuthStore()
+const router = useRouter()
+const route = useRoute()
+
+const items = computed(() => NAV_ITEMS[auth.role ?? 'guest'])
+const logoRoute = computed(() =>
+  auth.isAuthenticated ? homeRouteFor(auth.role) : { name: 'home' },
+)
+
+const query = ref('')
+const mobileOpen = ref(false)
+watch(
+  () => route.fullPath,
+  () => (mobileOpen.value = false),
+)
+
+function search() {
+  router.push({ name: 'search', query: query.value ? { q: query.value } : {} })
+}
+
+async function logout() {
+  await auth.logout()
+  await router.replace({ name: 'login' })
+}
+</script>
+
 <template>
-  <header class="sticky top-0 z-50 bg-white/90 backdrop-blur-xl border-b border-gray-200">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="h-20 flex items-center justify-between">
-        <!-- Logo -->
-        <router-link
-          :to="authStore.isAuthenticated ? dashboardRoute : { name: 'Home' }"
-          class="flex items-center gap-3 hover:opacity-80 transition"
+  <header class="sticky top-0 z-40 border-b border-neutral-200 bg-white/90 backdrop-blur-xl">
+    <div class="mx-auto flex h-18 max-w-7xl items-center gap-4 px-4 sm:px-6 lg:px-8">
+      <RouterLink
+        :to="logoRoute"
+        class="shrink-0 transition hover:opacity-80"
+        aria-label="Ir al inicio"
+      >
+        <BrandMark size="sm" :subtitle="null" />
+      </RouterLink>
+
+      <form role="search" class="relative hidden max-w-md flex-1 lg:block" @submit.prevent="search">
+        <Search
+          class="pointer-events-none absolute top-1/2 left-4 size-4.5 -translate-y-1/2 text-neutral-400"
+        />
+        <input
+          v-model="query"
+          type="search"
+          aria-label="Buscar profesionales"
+          placeholder="¿Qué servicio necesitas hoy?"
+          class="h-11 w-full rounded-xl border border-neutral-200 bg-neutral-50 pr-4 pl-11 text-sm transition outline-none focus:border-primary-500 focus:bg-white"
+        />
+      </form>
+
+      <nav class="ml-auto hidden items-center gap-1 md:flex" aria-label="Principal">
+        <RouterLink
+          v-for="item in items"
+          :key="item.label"
+          :to="item.to"
+          class="rounded-xl px-3 py-2 text-sm font-semibold text-neutral-600 transition hover:bg-neutral-100 hover:text-neutral-900"
+          active-class="bg-primary-50 text-primary-700"
         >
-          <BrandMark size="sm" title="Maestros a un clic" subtitle="Marketplace de servicios" />
-        </router-link>
+          {{ item.label }}
+        </RouterLink>
+      </nav>
 
-        <!-- Desktop Search -->
-        <div class="hidden lg:flex flex-1 max-w-2xl mx-10">
-          <div class="w-full relative">
-            <svg
-              class="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-              />
-            </svg>
-            <input
-              type="text"
-              placeholder="¿Qué servicio necesitas hoy?"
-              class="w-full h-14 rounded-2xl bg-slate-50 border border-gray-200 pl-14 pr-5 outline-none focus:border-blue-600 transition"
-            />
-          </div>
-        </div>
-
-        <!-- Right Section -->
-        <div class="flex items-center gap-3">
-          <!-- Desktop Icons -->
-          <button
-            class="hidden md:flex w-12 h-12 rounded-2xl bg-slate-50 items-center justify-center hover:bg-gray-200 transition"
-          >
-            <svg
-              class="w-5 h-5 text-gray-700"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
-              />
-            </svg>
-            <div class="absolute top-2 right-2 w-2.5 h-2.5 rounded-full bg-red-500" />
-          </button>
-          <button
-            class="hidden md:flex w-12 h-12 rounded-2xl bg-slate-50 items-center justify-center hover:bg-gray-200 transition"
-          >
-            <svg
-              class="w-5 h-5 text-gray-700"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
-              />
-            </svg>
-          </button>
-
-          <!-- Desktop Account Actions -->
-          <div v-if="authStore.isAuthenticated" class="hidden md:flex items-center gap-3">
-            <router-link
-              v-if="authStore.user?.role === 'professional'"
-              to="/professional/about-me"
-              class="inline-flex items-center gap-2 rounded-2xl border border-blue-200 bg-blue-50 px-4 py-2.5 text-sm font-semibold text-[#2563EB] transition hover:bg-blue-100"
-            >
-              <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M13 16h-1v-4h-1m1-4h.01M12 20h9"
-                />
-              </svg>
-              Sobre mí
-            </router-link>
-
-            <button
-              type="button"
-              @click="handleLogout"
-              class="inline-flex items-center gap-2 rounded-2xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700"
-            >
-              <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h6a2 2 0 012 2v1"
-                />
-              </svg>
-              Cerrar sesión
-            </button>
-          </div>
-
-          <router-link
-            v-else
-            to="/login"
-            class="hidden md:flex items-center gap-3 bg-slate-50 rounded-2xl pl-3 pr-5 py-2 border border-gray-200 hover:bg-gray-100 transition"
-          >
-            <img
-              src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=100&q=80"
-              alt="Profile"
-              class="w-10 h-10 rounded-xl object-cover"
-            />
-            <div>
-              <h3 class="font-semibold text-sm">Mi Cuenta</h3>
-              <p class="text-xs text-gray-500">Inicia sesión</p>
-            </div>
-          </router-link>
-
-          <!-- Mobile Menu Button -->
-          <button
-            class="lg:hidden w-12 h-12 rounded-2xl bg-slate-50 flex items-center justify-center"
-          >
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M4 6h16M4 12h16M4 18h16"
-              />
-            </svg>
-          </button>
-        </div>
-      </div>
-
-      <!-- Mobile Search -->
-      <div class="pb-4 lg:hidden">
-        <div class="relative">
-          <svg
-            class="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-            />
-          </svg>
-          <input
-            type="text"
-            placeholder="Buscar servicio..."
-            class="w-full h-12 rounded-2xl bg-slate-50 border border-gray-200 pl-14 pr-5 outline-none focus:border-blue-600 transition text-sm"
+      <div class="ml-auto flex items-center gap-2 md:ml-0">
+        <template v-if="auth.user">
+          <BaseAvatar
+            :name="auth.user.name"
+            :src="auth.user.avatar_url"
+            size="sm"
+            class="hidden md:inline-flex"
           />
+          <BaseButton variant="ghost" size="sm" class="hidden md:inline-flex" @click="logout">
+            <LogOut class="size-4" /> Salir
+          </BaseButton>
+        </template>
+        <template v-else>
+          <BaseButton
+            variant="ghost"
+            size="sm"
+            class="hidden md:inline-flex"
+            :to="{ name: 'login' }"
+          >
+            Iniciar sesión
+          </BaseButton>
+          <BaseButton size="sm" class="hidden md:inline-flex" :to="{ name: 'register-client' }">
+            Registrarse
+          </BaseButton>
+        </template>
+
+        <button
+          type="button"
+          class="flex size-10 items-center justify-center rounded-xl bg-neutral-100 md:hidden"
+          :aria-expanded="mobileOpen"
+          aria-label="Menú"
+          @click="mobileOpen = !mobileOpen"
+        >
+          <X v-if="mobileOpen" class="size-5" />
+          <Menu v-else class="size-5" />
+        </button>
+      </div>
+    </div>
+
+    <div v-if="mobileOpen" class="space-y-1 border-t border-neutral-100 px-4 py-4 md:hidden">
+      <form role="search" class="relative mb-3" @submit.prevent="search">
+        <Search
+          class="pointer-events-none absolute top-1/2 left-4 size-4.5 -translate-y-1/2 text-neutral-400"
+        />
+        <input
+          v-model="query"
+          type="search"
+          aria-label="Buscar profesionales"
+          placeholder="Buscar servicio…"
+          class="h-11 w-full rounded-xl border border-neutral-200 bg-neutral-50 pr-4 pl-11 text-sm outline-none focus:border-primary-500"
+        />
+      </form>
+      <RouterLink
+        v-for="item in items"
+        :key="item.label"
+        :to="item.to"
+        class="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold text-neutral-700 hover:bg-neutral-100"
+        active-class="bg-primary-50 text-primary-700"
+      >
+        <component :is="item.icon" class="size-4.5" /> {{ item.label }}
+      </RouterLink>
+      <div class="pt-3">
+        <BaseButton v-if="auth.user" variant="outline" block @click="logout">
+          <LogOut class="size-4" /> Cerrar sesión
+        </BaseButton>
+        <div v-else class="grid grid-cols-2 gap-2">
+          <BaseButton variant="outline" :to="{ name: 'login' }">Iniciar sesión</BaseButton>
+          <BaseButton :to="{ name: 'register-client' }">Registrarse</BaseButton>
         </div>
       </div>
     </div>
   </header>
 </template>
-
-<script setup lang="ts">
-import { computed } from 'vue'
-import { useRouter } from 'vue-router'
-
-import BrandMark from '@/components/common/BrandMark.vue'
-import { useAuthStore } from '@/stores/auth'
-
-import { getDashboardRouteByRole } from '@/utils/navigation'
-
-const authStore = useAuthStore()
-const router = useRouter()
-
-const dashboardRoute = computed(() => getDashboardRouteByRole(authStore.user?.role))
-
-const handleLogout = async () => {
-  authStore.clearSession()
-  await router.replace({ name: 'Login' })
-}
-</script>
-
-<style scoped></style>

@@ -1,29 +1,65 @@
-import { defineConfig, globalIgnores } from 'eslint/config'
-import globals from 'globals'
-import js from '@eslint/js'
+import { globalIgnores } from 'eslint/config'
+import { defineConfigWithVueTs, vueTsConfigs } from '@vue/eslint-config-typescript'
 import pluginVue from 'eslint-plugin-vue'
 import pluginVitest from '@vitest/eslint-plugin'
 import pluginOxlint from 'eslint-plugin-oxlint'
 import skipFormatting from 'eslint-config-prettier/flat'
 
-export default defineConfig([
+export default defineConfigWithVueTs(
   {
     name: 'app/files-to-lint',
-    files: ['**/*.{vue,js,mjs,jsx}'],
+    files: ['**/*.{vue,ts,mts,js,mjs}'],
   },
 
-  globalIgnores(['**/dist/**', '**/dist-ssr/**', '**/coverage/**']),
+  globalIgnores(['**/dist/**', '**/dist-ssr/**', '**/coverage/**', 'docs/figma/**']),
+
+  pluginVue.configs['flat/recommended'],
+  vueTsConfigs.recommended,
 
   {
-    languageOptions: {
-      globals: {
-        ...globals.browser,
-      },
+    name: 'app/rules',
+    rules: {
+      // Componentes de una sola palabra solo con prefijo (BaseButton) o sufijo de vista (LoginView).
+      'vue/multi-word-component-names': 'error',
+      'vue/block-order': ['error', { order: ['script', 'template', 'style'] }],
+      'vue/component-api-style': ['error', ['script-setup']],
+      'vue/define-props-declaration': ['error', 'type-based'],
+      'vue/define-emits-declaration': ['error', 'type-based'],
+      'vue/require-default-prop': 'off',
+      // Un módulo no importa archivos internos de otro: solo su index.ts (ver docs/arquitectura.md).
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              regex: '^@/modules/[^/]+/.+',
+              message: 'Importa desde el index del módulo: @/modules/<modulo>.',
+            },
+          ],
+        },
+      ],
     },
   },
 
-  js.configs.recommended,
-  ...pluginVue.configs['flat/essential'],
+  {
+    // Dentro de un módulo sí se importan sus propios archivos (con rutas relativas).
+    name: 'app/module-internals',
+    files: ['src/modules/**'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              regex: '^@/modules/[^/]+/.+',
+              message:
+                'Usa rutas relativas dentro del módulo, o el index (@/modules/<modulo>) para otro módulo.',
+            },
+          ],
+        },
+      ],
+    },
+  },
 
   {
     ...pluginVitest.configs.recommended,
@@ -33,4 +69,4 @@ export default defineConfig([
   ...pluginOxlint.buildFromOxlintConfigFile('.oxlintrc.json'),
 
   skipFormatting,
-])
+)

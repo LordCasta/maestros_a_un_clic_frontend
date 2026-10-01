@@ -1,38 +1,27 @@
-<template>
-  <div
-    v-if="didError"
-    :class="['inline-block bg-gray-100 text-center align-middle', className]"
-    :style="style"
-  >
-    <div class="flex items-center justify-center w-full h-full">
-      <img
-        src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODgiIGhlaWdodD0iODgiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgc3Ryb2tlPSIjMDAwIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBvcGFjaXR5PSIuMyIgZmlsbD0ibm9uZSIgc3Ryb2tlLXdpZHRoPSIzLjciPjxyZWN0IHg9IjE2IiB5PSIxNiIgd2lkdGg9IjU2IiBoZWlnaHQ9IjU2IiByeD0iNiIvPjxwYXRoIGQ9Im0xNiA1OCAxNi0xOCAzMiAzMiIvPjxjaXJjbGUgY3g9IjUzIiBjeT0iMzUiIHI9IjciLz48L3N2Zz4="
-        :alt="alt"
-        v-bind="$attrs"
-        :data-original-url="src"
-      />
-    </div>
-  </div>
-  <img
-    v-else
-    :src="src"
-    :alt="alt"
-    :class="className"
-    :style="style"
-    v-bind="$attrs"
-    @error="didError = true"
-  />
-</template>
-
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ImageOff } from '@lucide/vue'
+import { ref, watch } from 'vue'
 
-defineProps<{
-  src: string
-  alt?: string
-  className?: string
-  style?: any
-}>()
+/**
+ * Imagen que muestra un marcador neutro si la URL falla. Las clases de tamaño se pasan con `class`.
+ */
+const props = defineProps<{ src?: string | null; alt: string }>()
 
-const didError = ref(false)
+const failed = ref(false)
+watch(
+  () => props.src,
+  () => (failed.value = false),
+)
 </script>
+
+<template>
+  <img v-if="src && !failed" :src="src" :alt="alt" class="object-cover" @error="failed = true" />
+  <span
+    v-else
+    role="img"
+    :aria-label="alt"
+    class="flex items-center justify-center bg-neutral-100 text-neutral-400"
+  >
+    <ImageOff class="size-8" />
+  </span>
+</template>

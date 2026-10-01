@@ -1,161 +1,20 @@
-import { request } from './axios'
+import { http } from '@/shared/http/client'
+import type { ApiPaginated, ApiSuccess, PageQuery } from '@/shared/types/api'
+import type { Professional } from '@/shared/types/models'
 
-export type ProfessionalSpecialty = {
-  id: number
-  name: string
+/** Filtros de GET /professionals. Contrato: backend/docs/api/endpoints.md § Profesionales */
+export interface ProfessionalFilters extends PageQuery {
+  q?: string
+  commune_id?: number
+  category_id?: number
+  min_price?: number
+  max_price?: number
+  sort?: 'rating' | 'price_asc' | 'price_desc'
 }
 
-export type ProfessionalSummary = {
-  id: number
-  name: string
-  specialty?: string
-  specialties?: ProfessionalSpecialty[]
-  rating?: number
-  reviews?: number
-  distance?: string
-  price?: string
-  hourly_rate?: string | number
-  image?: string
-  profile_photo_url?: string
-  online?: boolean
-  commune?: string
-  description?: string
-}
+export const professionalsApi = {
+  search: (filters: ProfessionalFilters) =>
+    http.get<ApiPaginated<Professional>>('/professionals', { query: { ...filters } }),
 
-export type ProfessionalDetail = ProfessionalSummary & {
-  email?: string
-  phone?: string
-  experience_years?: number
-  years_experience?: number
-  services?: Array<{
-    id?: number
-    name: string
-    description?: string
-    price?: string | number
-  }>
-  certificates?: Array<{
-    id?: number
-    name?: string
-    url?: string
-  }>
-  portfolio_images?: Array<{
-    id?: number
-    url?: string
-  }>
-  availability?: Array<{
-    day: string
-    hours: string
-  }>
-}
-
-type ProfessionalListResponse = {
-  success: boolean
-  data: ProfessionalSummary[]
-  meta?: {
-    current_page: number
-    per_page: number
-    total: number
-  }
-}
-
-type ProfessionalDetailResponse = {
-  success: boolean
-  data: ProfessionalDetail
-}
-
-export type ProfessionalFilters = {
-  commune?: string
-  specialty_id?: number | string
-  min_price?: number | string
-  max_price?: number | string
-  per_page?: number
-}
-
-const buildQueryString = (filters: ProfessionalFilters = {}) => {
-  const params = new URLSearchParams()
-
-  if (filters.commune) params.set('commune', String(filters.commune))
-  if (filters.specialty_id !== undefined && filters.specialty_id !== '') {
-    params.set('specialty_id', String(filters.specialty_id))
-  }
-  if (filters.min_price !== undefined && filters.min_price !== '') {
-    params.set('min_price', String(filters.min_price))
-  }
-  if (filters.max_price !== undefined && filters.max_price !== '') {
-    params.set('max_price', String(filters.max_price))
-  }
-  if (filters.per_page) params.set('per_page', String(filters.per_page))
-
-  const query = params.toString()
-  return query ? `?${query}` : ''
-}
-
-export const listProfessionals = (filters: ProfessionalFilters = {}) => {
-  return request<ProfessionalListResponse>(`/professionals${buildQueryString(filters)}`)
-}
-
-export const getProfessional = (id: number | string) => {
-  return request<ProfessionalDetailResponse>(`/professionals/${id}`)
-}
-
-// Professional (owner) endpoints for services and availability
-export type ServicePayload = {
-  name: string
-  description?: string
-  price?: number | string
-}
-
-type ServiceResponse = {
-  success: boolean
-  data: {
-    id: number
-    name: string
-    description?: string
-    price?: string | number
-  }
-}
-
-type ServiceListResponse = {
-  success: boolean
-  data: ProfessionalDetail['services']
-}
-
-export const listMyServices = () => {
-  return request<ServiceListResponse>('/professional/services')
-}
-
-export const createService = (payload: ServicePayload) => {
-  return request<ServiceResponse>('/professional/services', {
-    method: 'POST',
-    body: payload,
-  })
-}
-
-export const updateService = (id: number | string, payload: ServicePayload) => {
-  return request<ServiceResponse>(`/professional/services/${id}`, {
-    method: 'PUT',
-    body: payload,
-  })
-}
-
-export const deleteService = (id: number | string) => {
-  return request<{ success: boolean }>(`/professional/services/${id}`, {
-    method: 'DELETE',
-  })
-}
-
-type AvailabilityResponse = {
-  success: boolean
-  data: ProfessionalDetail['availability']
-}
-
-export const getAvailability = () => {
-  return request<AvailabilityResponse>('/professional/availability')
-}
-
-export const setAvailability = (availability: ProfessionalDetail['availability']) => {
-  return request<{ success: boolean }>('/professional/availability', {
-    method: 'POST',
-    body: { availability },
-  })
+  find: (id: number) => http.get<ApiSuccess<Professional>>(`/professionals/${id}`),
 }

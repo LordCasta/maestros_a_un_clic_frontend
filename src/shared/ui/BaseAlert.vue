@@ -1,64 +1,46 @@
-<template>
-  <Transition name="alert">
-    <div
-      v-if="visible"
-      class="bg-red-50 border border-red-200 rounded-2xl p-4 flex items-start gap-3"
-    >
-      <svg
-        class="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5"
-        fill="currentColor"
-        viewBox="0 0 20 20"
-      >
-        <path
-          fill-rule="evenodd"
-          d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
-          clip-rule="evenodd"
-        />
-      </svg>
-      <div class="flex-1">
-        <p class="text-sm font-medium text-red-800">{{ message }}</p>
-      </div>
-      <button
-        v-if="closable"
-        @click="visible = false"
-        class="text-red-400 hover:text-red-600 flex-shrink-0"
-      >
-        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-          <path
-            fill-rule="evenodd"
-            d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-            clip-rule="evenodd"
-          />
-        </svg>
-      </button>
-    </div>
-  </Transition>
-</template>
-
 <script setup lang="ts">
-import { ref } from 'vue'
+import { CircleAlert, CircleCheck, Info, TriangleAlert, X } from '@lucide/vue'
 
-interface Props {
-  message: string
-  closable?: boolean
+/**
+ * Mensaje en línea (error de un formulario, aviso de verificación pendiente…).
+ * Para confirmar una acción ya hecha, usa un toast (useToastStore).
+ */
+withDefaults(
+  defineProps<{
+    tone?: 'info' | 'success' | 'warning' | 'danger'
+    title?: string
+    dismissible?: boolean
+  }>(),
+  { tone: 'info' },
+)
+defineEmits<{ dismiss: [] }>()
+
+const TONES = {
+  info: { classes: 'border-info-200 bg-info-50 text-info-700', icon: Info },
+  success: { classes: 'border-success-200 bg-success-50 text-success-700', icon: CircleCheck },
+  warning: { classes: 'border-warning-200 bg-warning-50 text-warning-700', icon: TriangleAlert },
+  danger: { classes: 'border-danger-200 bg-danger-50 text-danger-700', icon: CircleAlert },
 }
-
-withDefaults(defineProps<Props>(), {
-  closable: true,
-})
-
-const visible = ref(true)
 </script>
 
-<style scoped>
-.alert-enter-active,
-.alert-leave-active {
-  transition: all 0.3s ease;
-}
-
-.alert-enter-from,
-.alert-leave-to {
-  opacity: 0;
-  transform: translateY(-10px);
-}
-</style>
+<template>
+  <div
+    :role="tone === 'danger' ? 'alert' : 'status'"
+    :class="['flex items-start gap-3 rounded-2xl border p-4 text-sm', TONES[tone].classes]"
+  >
+    <component :is="TONES[tone].icon" class="mt-0.5 size-5 shrink-0" />
+    <div class="flex-1 space-y-0.5">
+      <p v-if="title" class="font-semibold">{{ title }}</p>
+      <div class="text-neutral-700"><slot /></div>
+    </div>
+    <button
+      v-if="dismissible"
+      type="button"
+      class="shrink-0 opacity-70 hover:opacity-100"
+      aria-label="Cerrar aviso"
+      @click="$emit('dismiss')"
+    >
+      <X class="size-4" />
+    </button>
+  </div>
+</template>

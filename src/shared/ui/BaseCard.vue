@@ -1,38 +1,34 @@
-<template>
-  <div
-    :class="[
-      'rounded-2xl p-6 transition-all duration-300',
-      bordered ? 'border border-gray-200' : '',
-      shadow ? 'shadow-lg' : 'shadow-md',
-      hover ? 'hover:shadow-xl hover:border-blue-200' : '',
-      customClass,
-    ]"
-    :style="{ backgroundColor: bgColor }"
-  >
-    <h3 v-if="title" class="text-lg font-semibold text-gray-900 mb-3">
-      {{ title }}
-    </h3>
-    <slot />
-  </div>
-</template>
-
 <script setup lang="ts">
-interface Props {
-  title?: string
-  bordered?: boolean
-  shadow?: boolean
-  hover?: boolean
-  bgColor?: string
-  class?: string
-}
+/**
+ * Contenedor estándar: fondo surface, borde suave, radio 3xl y sombra card.
+ * Para bloques dentro de una tarjeta usa `variant="muted"`.
+ */
+withDefaults(
+  defineProps<{
+    as?: string
+    padding?: 'none' | 'sm' | 'md' | 'lg'
+    variant?: 'default' | 'muted'
+    interactive?: boolean
+  }>(),
+  { as: 'div', padding: 'md', variant: 'default' },
+)
 
-withDefaults(defineProps<Props>(), {
-  bordered: true,
-  shadow: true,
-  hover: false,
-  bgColor: '#ffffff',
-  class: '',
-})
+const PADDING = { none: '', sm: 'p-4', md: 'p-6', lg: 'p-8' }
 </script>
 
-<style scoped></style>
+<template>
+  <component
+    :is="as"
+    :class="[
+      'rounded-3xl border',
+      variant === 'default'
+        ? 'border-neutral-100 bg-surface shadow-card'
+        : 'border-neutral-100 bg-surface-muted',
+      interactive &&
+        'transition hover:-translate-y-0.5 hover:border-primary-200 hover:shadow-raised',
+      PADDING[padding],
+    ]"
+  >
+    <slot />
+  </component>
+</template>

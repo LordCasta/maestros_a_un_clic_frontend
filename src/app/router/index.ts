@@ -1,210 +1,82 @@
-import { createRouter, createWebHistory } from 'vue-router'
+import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
 
-import { useAuthStore } from '@/stores/auth'
+import { authRoutes } from '@/modules/auth'
+import { bookingsRoutes } from '@/modules/bookings'
+import { dashboardRoutes } from '@/modules/dashboard'
+import { favoritesRoutes } from '@/modules/favorites'
+import { homeRoutes } from '@/modules/home'
+import { professionalProfileRoutes } from '@/modules/professional-profile'
+import { professionalsRoutes } from '@/modules/professionals'
+import { scheduleRoutes } from '@/modules/schedule'
+import { styleguideRoutes } from '@/modules/styleguide'
+import type { ModuleRoutes } from '@/shared/types/router'
 
-// Layouts
-import MainLayout from '@/layouts/MainLayout.vue'
-import AuthLayout from '@/layouts/AuthLayout.vue'
-import ClientLayout from '@/layouts/ClientLayout.vue'
-import ProfessionalLayout from '@/layouts/ProfessionalLayout.vue'
+import AuthLayout from '../layouts/AuthLayout.vue'
+import ClientLayout from '../layouts/ClientLayout.vue'
+import ProfessionalLayout from '../layouts/ProfessionalLayout.vue'
+import PublicLayout from '../layouts/PublicLayout.vue'
+import { installGuards } from './guards'
 
-// Public Views
-import Home from '@/views/public/Home.vue'
-import ProfessionalDetail from '@/views/public/ProfessionalDetail.vue'
-import SearchResults from '@/views/public/SearchResults.vue'
+/**
+ * Para agregar un módulo: exporta sus rutas desde su index.ts (ModuleRoutes) y súmalo aquí.
+ * Cada área se monta en su layout y con sus reglas de acceso (ver guards.ts).
+ */
+const MODULES: ModuleRoutes[] = [
+  homeRoutes,
+  authRoutes,
+  professionalsRoutes,
+  favoritesRoutes,
+  bookingsRoutes,
+  dashboardRoutes,
+  professionalProfileRoutes,
+  scheduleRoutes,
+  ...(import.meta.env.DEV ? [styleguideRoutes] : []),
+]
 
-// Auth Views
-import Login from '@/views/auth/Login.vue'
-import RegisterClient from '@/views/auth/RegisterClient.vue'
-import RegisterProfessional from '@/views/auth/RegisterProfessional.vue'
+const collect = (area: keyof ModuleRoutes): RouteRecordRaw[] =>
+  MODULES.flatMap((module) => module[area] ?? [])
 
-// Client Views (placeholder for now)
-const ClientDashboard = () => import('@/views/client/Dashboard.vue')
-const MyBookings = () => import('@/views/client/MyBookings.vue')
-const BookingDetail = () => import('@/views/client/BookingDetail.vue')
-const MyFavorites = () => import('@/views/client/MyFavorites.vue')
+const routes: RouteRecordRaw[] = [
+  {
+    path: '/',
+    component: AuthLayout,
+    meta: { guestOnly: true },
+    children: collect('guest'),
+  },
+  {
+    path: '/client',
+    component: ClientLayout,
+    meta: { requiresAuth: true, roles: ['client'] },
+    children: [{ path: '', redirect: { name: 'client-dashboard' } }, ...collect('client')],
+  },
+  {
+    path: '/professional',
+    component: ProfessionalLayout,
+    meta: { requiresAuth: true, roles: ['professional'] },
+    children: [
+      { path: '', redirect: { name: 'professional-dashboard' } },
+      ...collect('professional'),
+    ],
+  },
+  {
+    path: '/',
+    component: PublicLayout,
+    children: [
+      ...collect('public'),
+      {
+        path: ':pathMatch(.*)*',
+        name: 'not-found',
+        component: () => import('../views/NotFoundView.vue'),
+        meta: { title: 'Página no encontrada' },
+      },
+    ],
+  },
+]
 
-// Professional Views (placeholder for now)
-const ProfessionalDashboard = () => import('@/views/professional/Dashboard.vue')
-const ProfessionalAboutMe = () => import('@/views/professional/AboutMe.vue')
-const MyServices = () => import('@/views/professional/MyServices.vue')
-const Availability = () => import('@/views/professional/Availability.vue')
-const ProfessionalBookings = () => import('@/views/professional/ProfessionalBookings.vue')
-
-const router = createRouter({
+export const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
-  routes: [
-    {
-      path: '/',
-      component: MainLayout,
-      children: [
-        {
-          path: '',
-          name: 'Home',
-          component: Home,
-          meta: { hideNavbar: true, showSidebar: false },
-        },
-        {
-          path: 'professional/:id',
-          name: 'ProfessionalDetail',
-          component: ProfessionalDetail,
-        },
-        {
-          path: 'search',
-          name: 'SearchResults',
-          component: SearchResults,
-        },
-      ],
-    },
-    {
-      path: '/auth',
-      component: AuthLayout,
-      children: [
-        {
-          path: '/login',
-          name: 'Login',
-          component: Login,
-          meta: { layout: 'auth' },
-        },
-        {
-          path: '/register/client',
-          name: 'RegisterClient',
-          component: RegisterClient,
-          meta: { layout: 'auth' },
-        },
-        {
-          path: '/register/professional',
-          name: 'RegisterProfessional',
-          component: RegisterProfessional,
-          meta: { layout: 'auth' },
-        },
-      ],
-    },
-    {
-      path: '/login',
-      component: AuthLayout,
-      children: [
-        {
-          path: '',
-          component: Login,
-        },
-      ],
-    },
-    {
-      path: '/register/client',
-      component: AuthLayout,
-      children: [
-        {
-          path: '',
-          component: RegisterClient,
-        },
-      ],
-    },
-    {
-      path: '/register/professional',
-      component: AuthLayout,
-      children: [
-        {
-          path: '',
-          component: RegisterProfessional,
-        },
-      ],
-    },
-    {
-      path: '/client',
-      component: ClientLayout,
-      meta: { requiresAuth: true, role: 'client' },
-      children: [
-        {
-          path: 'dashboard',
-          name: 'ClientDashboard',
-          component: ClientDashboard,
-        },
-        {
-          path: 'bookings',
-          name: 'MyBookings',
-          component: MyBookings,
-        },
-        {
-          path: 'bookings/:id',
-          name: 'BookingDetail',
-          component: BookingDetail,
-        },
-        {
-          path: 'favorites',
-          name: 'MyFavorites',
-          component: MyFavorites,
-        },
-      ],
-    },
-    {
-      path: '/professional',
-      component: ProfessionalLayout,
-      meta: { requiresAuth: true, role: 'professional' },
-      children: [
-        {
-          path: 'dashboard',
-          name: 'ProfessionalDashboard',
-          component: ProfessionalDashboard,
-        },
-        {
-          path: 'about-me',
-          name: 'ProfessionalAboutMe',
-          component: ProfessionalAboutMe,
-        },
-        {
-          path: 'services',
-          name: 'MyServices',
-          component: MyServices,
-        },
-        {
-          path: 'bookings',
-          name: 'ProfessionalBookings',
-          component: ProfessionalBookings,
-        },
-        {
-          path: 'availability',
-          name: 'Availability',
-          component: Availability,
-        },
-      ],
-    },
-    {
-      path: '/:pathMatch(.*)*',
-      redirect: '/',
-    },
-  ],
+  routes,
+  scrollBehavior: (_to, _from, savedPosition) => savedPosition ?? { top: 0 },
 })
 
-router.beforeEach((to) => {
-  const authStore = useAuthStore()
-  const isAuthenticated = authStore.isAuthenticated
-  const dashboardRoute =
-    authStore.user?.role === 'professional'
-      ? { name: 'ProfessionalDashboard' }
-      : { name: 'ClientDashboard' }
-
-  if (!isAuthenticated && to.meta.requiresAuth) {
-    return { name: 'Login' }
-  }
-
-  if (
-    isAuthenticated &&
-    ['Home', 'Login', 'RegisterClient', 'RegisterProfessional'].includes(String(to.name))
-  ) {
-    return dashboardRoute
-  }
-
-  if (
-    isAuthenticated &&
-    to.meta.requiresAuth &&
-    to.meta.role &&
-    to.meta.role !== authStore.user?.role
-  ) {
-    return dashboardRoute
-  }
-
-  return true
-})
-
-export default router
+installGuards(router)

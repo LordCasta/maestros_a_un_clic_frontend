@@ -1,60 +1,22 @@
-import { request } from './axios'
+import { http } from '@/shared/http/client'
+import type { ApiPaginated, ApiSuccess, PageQuery } from '@/shared/types/api'
+import type { Booking } from '@/shared/types/models'
 
-export type BookingSummary = {
-  id: number
-  professional?: {
-    id: number
-    name?: string
-  }
-  client?: {
-    id: number
-    name?: string
-  }
-  service_description: string
-  scheduled_date: string
-  total: number | string
-  status?: string
+/** Contrato: backend/docs/api/endpoints.md § Reservas */
+
+export interface CreateBookingPayload {
+  professional_service_id: number
+  /** ISO 8601. */
+  starts_at: string
+  address: string
+  description?: string
+  commune_id?: number | null
 }
 
-type BookingListResponse = {
-  success: boolean
-  data: BookingSummary[]
-}
-
-type BookingDetailResponse = {
-  success: boolean
-  data: BookingSummary
-}
-
-type BookingActionResponse = {
-  success: boolean
-  message?: string
-}
-
-export type CreateBookingPayload = {
-  professional_id: number | string
-  service_description: string
-  scheduled_date: string
-  total: number | string
-}
-
-export const createBooking = (payload: CreateBookingPayload) => {
-  return request<BookingDetailResponse>('/bookings', {
-    method: 'POST',
-    body: payload,
-  })
-}
-
-export const listBookings = () => {
-  return request<BookingListResponse>('/bookings')
-}
-
-export const getBooking = (id: number | string) => {
-  return request<BookingDetailResponse>(`/bookings/${id}`)
-}
-
-export const cancelBooking = (id: number | string) => {
-  return request<BookingActionResponse>(`/bookings/${id}/cancel`, {
-    method: 'POST',
-  })
+export const bookingsApi = {
+  list: (query: PageQuery) => http.get<ApiPaginated<Booking>>('/bookings', { query: { ...query } }),
+  find: (id: number) => http.get<ApiSuccess<Booking>>(`/bookings/${id}`),
+  create: (payload: CreateBookingPayload) => http.post<ApiSuccess<Booking>>('/bookings', payload),
+  cancel: (id: number, reason: string) =>
+    http.post<ApiSuccess<Booking>>(`/bookings/${id}/cancel`, { reason }),
 }

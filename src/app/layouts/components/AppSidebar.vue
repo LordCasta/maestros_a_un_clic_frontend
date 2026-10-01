@@ -1,58 +1,27 @@
-<template>
-  <aside
-    v-if="isOpen"
-    class="hidden lg:block w-64 bg-white border-r border-gray-200 h-screen overflow-y-auto"
-  >
-    <div class="p-6 space-y-8">
-      <!-- Navigation Links -->
-      <nav class="space-y-2">
-        <router-link
-          :to="homeRoute"
-          class="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-700 hover:bg-slate-50 transition"
-        >
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M3 12l2-3m0 0l7-4 7 4M5 9v10a1 1 0 001 1h12a1 1 0 001-1V9M9 5l3-3m0 0l3 3m-3-3v12"
-            />
-          </svg>
-          <span>Inicio</span>
-        </router-link>
-        <router-link
-          :to="dashboardRoute"
-          class="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-700 hover:bg-slate-50 transition"
-        >
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-            />
-          </svg>
-          <span>Dashboard</span>
-        </router-link>
-      </nav>
-    </div>
-  </aside>
-</template>
-
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed } from 'vue'
 
-import { useAuthStore } from '@/stores/auth'
+import { useAuthStore } from '@/modules/auth'
 
-import { getDashboardRouteByRole } from '@/utils/navigation'
+import { NAV_ITEMS } from '../navigation'
 
-const isOpen = ref(true)
-const authStore = useAuthStore()
-
-const dashboardRoute = computed(() => getDashboardRouteByRole(authStore.user?.role))
-const homeRoute = computed(() =>
-  authStore.isAuthenticated ? dashboardRoute.value : { name: 'Home' },
-)
+/** Navegación lateral (pantallas grandes). Disponible para layouts que la necesiten. */
+const auth = useAuthStore()
+const items = computed(() => NAV_ITEMS[auth.role ?? 'guest'])
 </script>
 
-<style scoped></style>
+<template>
+  <aside class="hidden w-64 shrink-0 border-r border-neutral-200 bg-white lg:block">
+    <nav class="space-y-1 p-4" aria-label="Secciones">
+      <RouterLink
+        v-for="item in items"
+        :key="item.label"
+        :to="item.to"
+        class="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold text-neutral-700 transition hover:bg-neutral-100"
+        active-class="bg-primary-50 text-primary-700"
+      >
+        <component :is="item.icon" class="size-4.5" /> {{ item.label }}
+      </RouterLink>
+    </nav>
+  </aside>
+</template>

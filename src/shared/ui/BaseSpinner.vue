@@ -1,34 +1,20 @@
-<template>
-  <div class="flex items-center justify-center">
-    <div
-      :class="[
-        'rounded-full border-4 animate-spin',
-        sizeClasses,
-        'border-gray-200 border-t-blue-600',
-      ]"
-    />
-  </div>
-</template>
-
 <script setup lang="ts">
-import { computed } from 'vue'
-
-interface Props {
-  size?: 'sm' | 'md' | 'lg'
-}
-
-const props = withDefaults(defineProps<Props>(), {
+withDefaults(defineProps<{ size?: 'xs' | 'sm' | 'md' | 'lg'; label?: string }>(), {
   size: 'md',
+  label: 'Cargando…',
 })
 
-const sizeClasses = computed(() => {
-  const sizes = {
-    sm: 'w-8 h-8',
-    md: 'w-12 h-12',
-    lg: 'w-16 h-16',
-  }
-  return sizes[props.size]
-})
+const SIZES = { xs: 'size-4', sm: 'size-6', md: 'size-10', lg: 'size-14' }
 </script>
 
-<style scoped></style>
+<template>
+  <span
+    role="status"
+    :class="[
+      'inline-block animate-spin rounded-full border-2 border-current border-t-transparent',
+      SIZES[size],
+    ]"
+  >
+    <span class="sr-only">{{ label }}</span>
+  </span>
+</template>

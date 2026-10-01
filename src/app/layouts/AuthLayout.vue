@@ -1,68 +1,43 @@
-<template>
-  <div class="min-h-screen bg-slate-50 flex overflow-hidden">
-    <!-- Left Panel -->
-    <div
-      class="hidden lg:flex w-1/2 relative bg-linear-to-br from-blue-600 to-blue-700 overflow-hidden items-center justify-center"
-    >
-      <!-- Decorations -->
-      <div class="absolute -top-25 -right-25 w-75 h-75 bg-white/10 rounded-full" />
-      <div class="absolute -bottom-37.5 -left-37.5 w-112.5 h-112.5 bg-white/10 rounded-full" />
+<script setup lang="ts">
+import { CircleCheck } from '@lucide/vue'
 
-      <!-- Content -->
-      <div class="relative z-10 text-white text-center px-8">
-        <BrandMark
-          size="lg"
-          tone="light"
-          title="Maestros a un clic"
-          subtitle="Conecta con profesionales verificados para tus servicios del hogar"
-          heading-tag="h2"
-        />
-        <ul class="space-y-3 text-left max-w-sm">
-          <li class="flex items-center gap-3">
-            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-              <path
-                fill-rule="evenodd"
-                d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                clip-rule="evenodd"
-              />
-            </svg>
-            <span>Profesionales verificados</span>
-          </li>
-          <li class="flex items-center gap-3">
-            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-              <path
-                fill-rule="evenodd"
-                d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                clip-rule="evenodd"
-              />
-            </svg>
-            <span>Pago seguro y confiable</span>
-          </li>
-          <li class="flex items-center gap-3">
-            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-              <path
-                fill-rule="evenodd"
-                d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                clip-rule="evenodd"
-              />
-            </svg>
-            <span>Servicio rápido y eficiente</span>
+import { BrandMark } from '@/shared/ui'
+
+const BENEFITS = [
+  'Profesionales con identidad verificada',
+  'Reservas con agenda, sin cruces de horario',
+  'Calificaciones reales de otros clientes',
+]
+</script>
+
+<template>
+  <div class="flex min-h-screen bg-canvas">
+    <div
+      class="relative hidden w-1/2 items-center justify-center overflow-hidden bg-linear-to-br from-primary-600 to-primary-800 lg:flex"
+    >
+      <div class="absolute -top-24 -right-24 size-72 rounded-full bg-white/10" />
+      <div class="absolute -bottom-36 -left-36 size-112 rounded-full bg-white/10" />
+
+      <div class="relative z-10 max-w-sm space-y-10 px-8 text-white">
+        <RouterLink :to="{ name: 'home' }">
+          <BrandMark size="lg" tone="light" subtitle="Profesionales del hogar en Medellín" />
+        </RouterLink>
+        <ul class="space-y-4">
+          <li
+            v-for="benefit in BENEFITS"
+            :key="benefit"
+            class="flex items-center gap-3 text-primary-50"
+          >
+            <CircleCheck class="size-5 shrink-0" /> {{ benefit }}
           </li>
         </ul>
       </div>
     </div>
 
-    <!-- Right Panel -->
-    <div class="w-full lg:w-1/2 flex items-center justify-center px-4 sm:px-8 py-10">
-      <div class="w-full max-w-md">
-        <router-view />
+    <main class="flex w-full items-center justify-center px-4 py-10 sm:px-8 lg:w-1/2 lg:bg-surface">
+      <div class="w-full max-w-lg">
+        <RouterView />
       </div>
-    </div>
+    </main>
   </div>
 </template>
-
-<script setup lang="ts">
-import BrandMark from '@/components/common/BrandMark.vue'
-</script>
-
-<style scoped></style>

@@ -1,5 +1,9 @@
 **Manual de Usuario — Frontend (Maestros a un clic)**
 
+> **Desactualizado (fase 0, 2026-10-01).** Describe la versión de mayo: varias rutas y pantallas
+> cambiaron (p. ej. el registro es `/register/client` y el perfil público `/professionals/:id`).
+> Se reescribe al cerrar los módulos. Para desarrollar, usa [arquitectura.md](arquitectura.md).
+
 **Versión:** 1.0
 **Fecha:** 2026-05-27
 

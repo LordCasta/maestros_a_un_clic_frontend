@@ -1,61 +1,93 @@
-<template>
-  <Transition name="modal">
-    <div v-if="modelValue" class="fixed inset-0 z-50 flex items-center justify-center">
-      <!-- Backdrop -->
-      <div
-        class="absolute inset-0 bg-black/50 backdrop-blur-sm"
-        @click="$emit('update:modelValue', false)"
-      />
-      <!-- Modal Content -->
-      <div class="relative bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4 p-8 z-10">
-        <button
-          v-if="closable"
-          @click="$emit('update:modelValue', false)"
-          class="absolute top-4 right-4 text-gray-400 hover:text-gray-600"
-        >
-          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M6 18L18 6M6 6l12 12"
-            />
-          </svg>
-        </button>
-        <h2 v-if="title" class="text-2xl font-bold text-gray-900 mb-4">{{ title }}</h2>
-        <slot />
-      </div>
-    </div>
-  </Transition>
-</template>
-
 <script setup lang="ts">
-interface Props {
-  modelValue: boolean
-  title?: string
-  closable?: boolean
+import { X } from '@lucide/vue'
+import { nextTick, onBeforeUnmount, ref, useId, watch } from 'vue'
+
+/**
+ * Diálogo modal accesible: cierra con Esc o clic afuera, bloquea el scroll del fondo
+ * y lleva el foco al diálogo. Úsalo también para confirmaciones (en lugar de confirm()).
+ *
+ *   <BaseModal v-model:open="isOpen" title="Cancelar reserva">
+ *     …
+ *     <template #footer>…botones…</template>
+ *   </BaseModal>
+ */
+const open = defineModel<boolean>('open', { required: true })
+withDefaults(defineProps<{ title: string; description?: string; size?: 'sm' | 'md' | 'lg' }>(), {
+  size: 'md',
+})
+
+const titleId = useId()
+const dialog = ref<HTMLElement | null>(null)
+
+const SIZES = { sm: 'max-w-sm', md: 'max-w-lg', lg: 'max-w-2xl' }
+
+function close() {
+  open.value = false
 }
 
-defineProps<Props>()
-defineEmits<{ 'update:modelValue': [value: boolean] }>()
+function onKeydown(event: KeyboardEvent) {
+  if (event.key === 'Escape') close()
+}
+
+watch(open, async (isOpen) => {
+  document.body.style.overflow = isOpen ? 'hidden' : ''
+  if (isOpen) {
+    document.addEventListener('keydown', onKeydown)
+    await nextTick()
+    dialog.value?.focus()
+  } else {
+    document.removeEventListener('keydown', onKeydown)
+  }
+})
+
+onBeforeUnmount(() => {
+  document.body.style.overflow = ''
+  document.removeEventListener('keydown', onKeydown)
+})
 </script>
 
-<style scoped>
-.modal-enter-active,
-.modal-leave-active {
-  transition: all 0.3s ease;
-}
-
-.modal-enter-from {
-  opacity: 0;
-}
-
-.modal-enter-to,
-.modal-leave-from {
-  opacity: 1;
-}
-
-.modal-leave-to {
-  opacity: 0;
-}
-</style>
+<template>
+  <Teleport to="body">
+    <Transition
+      enter-active-class="transition duration-200"
+      enter-from-class="opacity-0"
+      leave-active-class="transition duration-150"
+      leave-to-class="opacity-0"
+    >
+      <div v-if="open" class="fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div class="absolute inset-0 bg-neutral-900/50 backdrop-blur-sm" @click="close" />
+        <div
+          ref="dialog"
+          role="dialog"
+          aria-modal="true"
+          :aria-labelledby="titleId"
+          tabindex="-1"
+          :class="[
+            'relative w-full rounded-3xl bg-surface p-6 shadow-raised focus:outline-none',
+            SIZES[size],
+          ]"
+        >
+          <button
+            type="button"
+            class="absolute top-4 right-4 rounded-lg p-1 text-neutral-400 hover:bg-neutral-100 hover:text-neutral-700"
+            aria-label="Cerrar"
+            @click="close"
+          >
+            <X class="size-5" />
+          </button>
+          <h2 :id="titleId" class="pr-8 text-xl font-bold text-neutral-900">{{ title }}</h2>
+          <p v-if="description" class="mt-1 text-sm text-neutral-500">{{ description }}</p>
+          <div class="mt-5">
+            <slot />
+          </div>
+          <div
+            v-if="$slots.footer"
+            class="mt-6 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end"
+          >
+            <slot name="footer" />
+          </div>
+        </div>
+      </div>
+    </Transition>
+  </Teleport>
+</template>

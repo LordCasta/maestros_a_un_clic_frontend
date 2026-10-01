@@ -14,10 +14,10 @@ import {
   ShieldCheck,
   Sparkles,
   Bell,
-} from 'lucide-vue-next'
+} from '@lucide/vue'
 
-import GoogleMapsEmbed from '@/components/common/GoogleMapsEmbed.vue'
-import { useAuthStore } from '@/stores/auth'
+import { GoogleMapsEmbed } from '@/shared/ui'
+import { useAuthStore } from '@/modules/auth'
 
 const authStore = useAuthStore()
 
@@ -42,25 +42,25 @@ const stats = [
     label: 'Citas hoy',
     value: '8',
     detail: '+2 vs. ayer',
-    accent: 'from-[#2563EB] to-[#60A5FA]',
+    accent: 'from-primary-600 to-primary-400',
   },
   {
     label: 'Ingresos del mes',
     value: '$4.850.000',
     detail: '74% del objetivo',
-    accent: 'from-[#0F172A] to-[#334155]',
+    accent: 'from-neutral-900 to-neutral-700',
   },
   {
     label: 'Respuestas pendientes',
     value: '3',
     detail: 'Tiempo medio: 12 min',
-    accent: 'from-[#0EA5E9] to-[#38BDF8]',
+    accent: 'from-info-500 to-info-400',
   },
   {
     label: 'Valoración',
     value: '4.9/5',
     detail: '127 opiniones',
-    accent: 'from-[#F59E0B] to-[#FBBF24]',
+    accent: 'from-warning-500 to-warning-400',
   },
 ]
 
@@ -98,7 +98,7 @@ const todayAgenda = [
     service: 'Mantenimiento de grifería',
     location: 'Cedritos, Bogotá',
     status: 'Confirmada',
-    tone: 'bg-emerald-50 text-emerald-700 border-emerald-100',
+    tone: 'bg-success-50 text-success-700 border-success-100',
   },
   {
     time: '10:30',
@@ -106,7 +106,7 @@ const todayAgenda = [
     service: 'Instalación de punto eléctrico',
     location: 'Teusaquillo, Bogotá',
     status: 'En camino',
-    tone: 'bg-sky-50 text-sky-700 border-sky-100',
+    tone: 'bg-info-50 text-info-700 border-info-100',
   },
   {
     time: '14:00',
@@ -114,7 +114,7 @@ const todayAgenda = [
     service: 'Visita técnica y presupuesto',
     location: 'Chapinero, Bogotá',
     status: 'Pendiente de pago',
-    tone: 'bg-amber-50 text-amber-700 border-amber-100',
+    tone: 'bg-warning-50 text-warning-700 border-warning-100',
   },
   {
     time: '17:30',
@@ -122,7 +122,7 @@ const todayAgenda = [
     service: 'Reparación urgente de fuga',
     location: 'Suba, Bogotá',
     status: 'Prioritaria',
-    tone: 'bg-slate-100 text-slate-700 border-slate-200',
+    tone: 'bg-neutral-100 text-neutral-700 border-neutral-200',
   },
 ]
 
@@ -173,13 +173,13 @@ const services = [
 </script>
 
 <template>
-  <div class="min-h-screen bg-[#F4F7FB]">
+  <div class="min-h-screen bg-canvas">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
       <section
-        class="relative overflow-hidden rounded-4xl bg-linear-to-br from-[#0F172A] via-[#1E293B] to-[#2563EB] p-8 lg:p-10 text-white shadow-[0_30px_80px_rgba(15,23,42,0.24)]"
+        class="relative overflow-hidden rounded-4xl bg-linear-to-br from-neutral-900 via-neutral-800 to-primary-600 p-8 lg:p-10 text-white shadow-[0_30px_80px_rgba(15,23,42,0.24)]"
       >
         <div class="absolute -top-10 right-0 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
-        <div class="absolute -bottom-20 left-1/3 h-56 w-56 rounded-full bg-sky-400/20 blur-3xl" />
+        <div class="absolute -bottom-20 left-1/3 h-56 w-56 rounded-full bg-info-400/20 blur-3xl" />
 
         <div class="relative z-10 grid gap-8 xl:grid-cols-[1.4fr_0.9fr] xl:items-end">
           <div class="space-y-6">
@@ -191,16 +191,16 @@ const services = [
             </div>
 
             <div class="space-y-3">
-              <p class="text-sm uppercase tracking-[0.28em] text-blue-100/80">
+              <p class="text-sm uppercase tracking-[0.28em] text-primary-100/80">
                 Dashboard profesional
               </p>
               <h1 class="text-4xl font-black leading-tight md:text-5xl xl:text-6xl">
                 Hola, {{ professionalName }}.
-                <span class="block text-blue-100"
+                <span class="block text-primary-100"
                   >Tienes {{ stats[0].value }} citas listas para hoy.</span
                 >
               </h1>
-              <p class="max-w-2xl text-base leading-7 text-blue-50/90 md:text-lg">
+              <p class="max-w-2xl text-base leading-7 text-primary-50/90 md:text-lg">
                 {{ todayLabel }}, concentra tu jornada en los servicios que generan más valor,
                 responde rápido a nuevas solicitudes y mantén tu agenda siempre ordenada.
               </p>
@@ -209,7 +209,7 @@ const services = [
             <div class="flex flex-wrap gap-3">
               <RouterLink
                 to="/professional/availability"
-                class="inline-flex items-center gap-2 rounded-2xl bg-white px-5 py-3 font-semibold text-[#0F172A] transition hover:-translate-y-0.5 hover:bg-blue-50"
+                class="inline-flex items-center gap-2 rounded-2xl bg-white px-5 py-3 font-semibold text-neutral-900 transition hover:-translate-y-0.5 hover:bg-primary-50"
               >
                 <CalendarDays class="h-4 w-4" />
                 Abrir agenda
@@ -236,11 +236,11 @@ const services = [
           >
             <div class="flex items-center justify-between">
               <div>
-                <p class="text-sm text-blue-100/80">Profesional verificado</p>
+                <p class="text-sm text-primary-100/80">Profesional verificado</p>
                 <p class="text-lg font-bold">Perfil activo</p>
               </div>
               <div
-                class="flex h-14 w-14 items-center justify-center rounded-2xl bg-white text-[#0F172A] font-black shadow-lg"
+                class="flex h-14 w-14 items-center justify-center rounded-2xl bg-white text-neutral-900 font-black shadow-lg"
               >
                 {{ professionalInitials || 'P' }}
               </div>
@@ -248,24 +248,24 @@ const services = [
 
             <div class="grid grid-cols-2 gap-3 text-sm">
               <div class="rounded-2xl bg-white/10 p-4">
-                <p class="text-blue-100/80">Cobertura</p>
+                <p class="text-primary-100/80">Cobertura</p>
                 <p class="mt-2 text-xl font-bold">Zona norte</p>
               </div>
               <div class="rounded-2xl bg-white/10 p-4">
-                <p class="text-blue-100/80">Tiempo respuesta</p>
+                <p class="text-primary-100/80">Tiempo respuesta</p>
                 <p class="mt-2 text-xl font-bold">12 min</p>
               </div>
             </div>
 
             <div class="rounded-2xl bg-white/10 p-4">
-              <div class="flex items-center justify-between text-sm text-blue-100/80">
+              <div class="flex items-center justify-between text-sm text-primary-100/80">
                 <span>Meta de ingresos</span>
                 <span>74%</span>
               </div>
               <div class="mt-3 h-2 rounded-full bg-white/15">
                 <div class="h-2 w-[74%] rounded-full bg-white" />
               </div>
-              <p class="mt-3 text-sm text-blue-50/90">
+              <p class="mt-3 text-sm text-primary-50/90">
                 Vas por buen ritmo: faltan $1.650.000 para alcanzar el objetivo mensual.
               </p>
             </div>
@@ -282,27 +282,29 @@ const services = [
         <article
           v-for="stat in stats"
           :key="stat.label"
-          class="overflow-hidden rounded-4xl border border-gray-100 bg-white p-5 shadow-sm"
+          class="overflow-hidden rounded-4xl border border-neutral-100 bg-white p-5 shadow-sm"
         >
           <div :class="['rounded-2xl bg-linear-to-br p-4 text-white shadow-lg', stat.accent]">
             <p class="text-sm text-white/80">{{ stat.label }}</p>
             <p class="mt-2 text-3xl font-black tracking-tight">{{ stat.value }}</p>
           </div>
-          <p class="mt-4 text-sm text-gray-500">{{ stat.detail }}</p>
+          <p class="mt-4 text-sm text-neutral-500">{{ stat.detail }}</p>
         </article>
       </section>
 
       <div class="grid gap-8 xl:grid-cols-[1.2fr_0.8fr]">
         <div class="space-y-8">
-          <section class="rounded-4xl border border-gray-100 bg-white p-6 shadow-sm">
+          <section class="rounded-4xl border border-neutral-100 bg-white p-6 shadow-sm">
             <div class="flex items-center justify-between gap-4">
               <div>
-                <p class="text-sm font-semibold uppercase tracking-[0.2em] text-blue-600">Agenda</p>
-                <h2 class="mt-1 text-2xl font-black text-gray-900">Citas de hoy</h2>
+                <p class="text-sm font-semibold uppercase tracking-[0.2em] text-primary-600">
+                  Agenda
+                </p>
+                <h2 class="mt-1 text-2xl font-black text-neutral-900">Citas de hoy</h2>
               </div>
               <RouterLink
                 to="/professional/bookings"
-                class="inline-flex items-center gap-1 text-sm font-semibold text-blue-600 transition hover:text-blue-700"
+                class="inline-flex items-center gap-1 text-sm font-semibold text-primary-600 transition hover:text-primary-700"
               >
                 Ver agenda completa
                 <ChevronRight class="h-4 w-4" />
@@ -313,30 +315,30 @@ const services = [
               <article
                 v-for="booking in todayAgenda"
                 :key="booking.time + booking.client"
-                class="grid gap-4 rounded-3xl border border-gray-100 bg-[#F8FAFF] p-5 lg:grid-cols-[100px_1fr_auto] lg:items-center"
+                class="grid gap-4 rounded-3xl border border-neutral-100 bg-surface-muted p-5 lg:grid-cols-[100px_1fr_auto] lg:items-center"
               >
                 <div class="flex items-center gap-3">
                   <div
-                    class="flex h-14 w-14 items-center justify-center rounded-2xl bg-white text-sm font-black text-[#0F172A] shadow-sm ring-1 ring-gray-100"
+                    class="flex h-14 w-14 items-center justify-center rounded-2xl bg-white text-sm font-black text-neutral-900 shadow-sm ring-1 ring-neutral-100"
                   >
                     {{ booking.time }}
                   </div>
                   <div class="lg:hidden">
-                    <p class="text-sm font-semibold text-gray-500">Hora</p>
-                    <p class="font-black text-gray-900">{{ booking.time }}</p>
+                    <p class="text-sm font-semibold text-neutral-500">Hora</p>
+                    <p class="font-black text-neutral-900">{{ booking.time }}</p>
                   </div>
                 </div>
 
                 <div class="space-y-2">
                   <div class="flex flex-wrap items-center gap-2">
-                    <h3 class="text-lg font-bold text-gray-900">{{ booking.client }}</h3>
+                    <h3 class="text-lg font-bold text-neutral-900">{{ booking.client }}</h3>
                     <span
                       :class="['rounded-full border px-3 py-1 text-xs font-semibold', booking.tone]"
                       >{{ booking.status }}</span
                     >
                   </div>
-                  <p class="text-sm text-gray-600">{{ booking.service }}</p>
-                  <div class="flex flex-wrap items-center gap-4 text-sm text-gray-500">
+                  <p class="text-sm text-neutral-600">{{ booking.service }}</p>
+                  <div class="flex flex-wrap items-center gap-4 text-sm text-neutral-500">
                     <span class="inline-flex items-center gap-1.5"
                       ><MapPin class="h-4 w-4" />{{ booking.location }}</span
                     >
@@ -348,12 +350,12 @@ const services = [
 
                 <div class="flex items-center gap-2 lg:flex-col lg:items-end">
                   <button
-                    class="rounded-2xl border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-gray-700 transition hover:border-blue-200 hover:text-blue-600"
+                    class="rounded-2xl border border-neutral-200 bg-white px-4 py-2 text-sm font-semibold text-neutral-700 transition hover:border-primary-200 hover:text-primary-600"
                   >
                     Revisar
                   </button>
                   <button
-                    class="rounded-2xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-700"
+                    class="rounded-2xl bg-primary-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-primary-700"
                   >
                     Abrir
                   </button>
@@ -362,16 +364,16 @@ const services = [
             </div>
           </section>
 
-          <section class="rounded-4xl border border-gray-100 bg-white p-6 shadow-sm">
+          <section class="rounded-4xl border border-neutral-100 bg-white p-6 shadow-sm">
             <div class="flex items-center justify-between gap-4">
               <div>
-                <p class="text-sm font-semibold uppercase tracking-[0.2em] text-blue-600">
+                <p class="text-sm font-semibold uppercase tracking-[0.2em] text-primary-600">
                   Solicitudes
                 </p>
-                <h2 class="mt-1 text-2xl font-black text-gray-900">Pedidos recientes</h2>
+                <h2 class="mt-1 text-2xl font-black text-neutral-900">Pedidos recientes</h2>
               </div>
               <button
-                class="inline-flex items-center gap-2 text-sm font-semibold text-blue-600 transition hover:text-blue-700"
+                class="inline-flex items-center gap-2 text-sm font-semibold text-primary-600 transition hover:text-primary-700"
               >
                 Revisar todas
                 <ChevronRight class="h-4 w-4" />
@@ -382,33 +384,33 @@ const services = [
               <article
                 v-for="request in recentRequests"
                 :key="request.client"
-                class="rounded-3xl border border-gray-100 bg-[#F8FAFF] p-5"
+                class="rounded-3xl border border-neutral-100 bg-surface-muted p-5"
               >
                 <div class="flex items-center justify-between gap-4">
                   <div>
-                    <p class="font-bold text-gray-900">{{ request.client }}</p>
-                    <p class="mt-1 text-sm text-gray-600">{{ request.service }}</p>
+                    <p class="font-bold text-neutral-900">{{ request.client }}</p>
+                    <p class="mt-1 text-sm text-neutral-600">{{ request.service }}</p>
                   </div>
                   <div
-                    class="flex h-11 w-11 items-center justify-center rounded-2xl bg-white text-[#2563EB] shadow-sm ring-1 ring-gray-100"
+                    class="flex h-11 w-11 items-center justify-center rounded-2xl bg-white text-primary-600 shadow-sm ring-1 ring-neutral-100"
                   >
                     <Bell class="h-5 w-5" />
                   </div>
                 </div>
 
-                <div class="mt-4 flex items-center justify-between text-sm text-gray-500">
+                <div class="mt-4 flex items-center justify-between text-sm text-neutral-500">
                   <span>{{ request.when }}</span>
-                  <span class="font-semibold text-gray-900">{{ request.budget }}</span>
+                  <span class="font-semibold text-neutral-900">{{ request.budget }}</span>
                 </div>
 
                 <div class="mt-5 flex gap-2">
                   <button
-                    class="flex-1 rounded-2xl border border-gray-200 bg-white px-3 py-2 text-sm font-semibold text-gray-700 transition hover:border-blue-200 hover:text-blue-600"
+                    class="flex-1 rounded-2xl border border-neutral-200 bg-white px-3 py-2 text-sm font-semibold text-neutral-700 transition hover:border-primary-200 hover:text-primary-600"
                   >
                     Descartar
                   </button>
                   <button
-                    class="flex-1 rounded-2xl bg-[#2563EB] px-3 py-2 text-sm font-semibold text-white transition hover:bg-[#1D4ED8]"
+                    class="flex-1 rounded-2xl bg-primary-600 px-3 py-2 text-sm font-semibold text-white transition hover:bg-primary-700"
                   >
                     Responder
                   </button>
@@ -419,16 +421,16 @@ const services = [
         </div>
 
         <aside class="space-y-8">
-          <section class="rounded-4xl border border-gray-100 bg-white p-6 shadow-sm">
+          <section class="rounded-4xl border border-neutral-100 bg-white p-6 shadow-sm">
             <div class="flex items-center justify-between gap-4">
               <div>
-                <p class="text-sm font-semibold uppercase tracking-[0.2em] text-blue-600">
+                <p class="text-sm font-semibold uppercase tracking-[0.2em] text-primary-600">
                   Accesos rápidos
                 </p>
-                <h2 class="mt-1 text-2xl font-black text-gray-900">Operación diaria</h2>
+                <h2 class="mt-1 text-2xl font-black text-neutral-900">Operación diaria</h2>
               </div>
               <div
-                class="flex h-11 w-11 items-center justify-center rounded-2xl bg-blue-50 text-blue-600"
+                class="flex h-11 w-11 items-center justify-center rounded-2xl bg-primary-50 text-primary-600"
               >
                 <ShieldCheck class="h-5 w-5" />
               </div>
@@ -439,71 +441,71 @@ const services = [
                 v-for="action in quickActions"
                 :key="action.title"
                 :to="action.to"
-                class="group block rounded-3xl border border-gray-100 bg-[#F8FAFF] p-5 transition hover:-translate-y-0.5 hover:border-blue-200 hover:shadow-md"
+                class="group block rounded-3xl border border-neutral-100 bg-surface-muted p-5 transition hover:-translate-y-0.5 hover:border-primary-200 hover:shadow-md"
               >
                 <div class="flex items-center justify-between gap-4">
                   <div>
-                    <p class="font-bold text-gray-900">{{ action.title }}</p>
-                    <p class="mt-1 text-sm leading-6 text-gray-600">{{ action.description }}</p>
+                    <p class="font-bold text-neutral-900">{{ action.title }}</p>
+                    <p class="mt-1 text-sm leading-6 text-neutral-600">{{ action.description }}</p>
                   </div>
                   <ChevronRight
-                    class="h-5 w-5 text-blue-600 transition group-hover:translate-x-1"
+                    class="h-5 w-5 text-primary-600 transition group-hover:translate-x-1"
                   />
                 </div>
-                <p class="mt-4 text-sm font-semibold text-blue-600">{{ action.cta }}</p>
+                <p class="mt-4 text-sm font-semibold text-primary-600">{{ action.cta }}</p>
               </RouterLink>
             </div>
           </section>
 
-          <section class="rounded-4xl border border-gray-100 bg-white p-6 shadow-sm">
+          <section class="rounded-4xl border border-neutral-100 bg-white p-6 shadow-sm">
             <div>
-              <p class="text-sm font-semibold uppercase tracking-[0.2em] text-blue-600">
+              <p class="text-sm font-semibold uppercase tracking-[0.2em] text-primary-600">
                 Rendimiento
               </p>
-              <h2 class="mt-1 text-2xl font-black text-gray-900">Estado de la semana</h2>
+              <h2 class="mt-1 text-2xl font-black text-neutral-900">Estado de la semana</h2>
             </div>
 
             <div class="mt-6 space-y-5">
               <div v-for="item in performance" :key="item.label" class="space-y-2">
                 <div class="flex items-center justify-between gap-4 text-sm">
-                  <span class="font-semibold text-gray-800">{{ item.label }}</span>
-                  <span class="text-gray-500">{{ item.value }}%</span>
+                  <span class="font-semibold text-neutral-800">{{ item.label }}</span>
+                  <span class="text-neutral-500">{{ item.value }}%</span>
                 </div>
-                <div class="h-2 rounded-full bg-gray-100">
+                <div class="h-2 rounded-full bg-neutral-100">
                   <div
-                    class="h-2 rounded-full bg-linear-to-r from-[#2563EB] to-[#38BDF8]"
+                    class="h-2 rounded-full bg-linear-to-r from-primary-600 to-info-400"
                     :style="{ width: `${item.value}%` }"
                   />
                 </div>
-                <p class="text-sm text-gray-500">{{ item.detail }}</p>
+                <p class="text-sm text-neutral-500">{{ item.detail }}</p>
               </div>
             </div>
           </section>
 
-          <section class="rounded-4xl border border-gray-100 bg-white p-6 shadow-sm">
+          <section class="rounded-4xl border border-neutral-100 bg-white p-6 shadow-sm">
             <div>
-              <p class="text-sm font-semibold uppercase tracking-[0.2em] text-blue-600">
+              <p class="text-sm font-semibold uppercase tracking-[0.2em] text-primary-600">
                 Servicios activos
               </p>
-              <h2 class="mt-1 text-2xl font-black text-gray-900">Lo que más reservas recibe</h2>
+              <h2 class="mt-1 text-2xl font-black text-neutral-900">Lo que más reservas recibe</h2>
             </div>
 
             <div class="mt-6 space-y-4">
               <article
                 v-for="service in services"
                 :key="service.name"
-                class="rounded-3xl border border-gray-100 bg-[#F8FAFF] p-4"
+                class="rounded-3xl border border-neutral-100 bg-surface-muted p-4"
               >
                 <div class="flex items-center justify-between gap-4">
                   <div>
-                    <p class="font-bold text-gray-900">{{ service.name }}</p>
-                    <p class="mt-1 text-sm text-gray-500">{{ service.bookings }}</p>
+                    <p class="font-bold text-neutral-900">{{ service.name }}</p>
+                    <p class="mt-1 text-sm text-neutral-500">{{ service.bookings }}</p>
                   </div>
-                  <span class="text-sm font-semibold text-blue-600">{{ service.fill }}%</span>
+                  <span class="text-sm font-semibold text-primary-600">{{ service.fill }}%</span>
                 </div>
-                <div class="mt-3 h-2 rounded-full bg-white shadow-inner ring-1 ring-gray-100">
+                <div class="mt-3 h-2 rounded-full bg-white shadow-inner ring-1 ring-neutral-100">
                   <div
-                    class="h-2 rounded-full bg-linear-to-r from-[#0EA5E9] to-[#2563EB]"
+                    class="h-2 rounded-full bg-linear-to-r from-info-500 to-primary-600"
                     :style="{ width: `${service.fill}%` }"
                   />
                 </div>

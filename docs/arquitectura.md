@@ -1,264 +1,237 @@
-# 📐 Arquitectura - Maestros a un Clic Frontend
+# Arquitectura del frontend
 
-## Estructura de Carpetas Base (Creada)
+Cómo está organizado el frontend y qué reglas seguir al agregar código. Si algo no está aquí, copia el patrón del **módulo de favoritos** (`src/modules/favorites`), que es la referencia.
+
+- **Sistema de diseño:** [sistema-de-diseno.md](sistema-de-diseno.md) · catálogo vivo en `/_ui` (desarrollo)
+- **Contrato de la API:** repo del backend → `docs/api/convenciones.md` y `docs/api/endpoints.md`, y la documentación interactiva en `http://127.0.0.1:8000/docs/api`
+
+## 1. Stack
+
+| Pieza | Uso |
+|-------|-----|
+| Vue 3.5 + `<script setup lang="ts">` | Componentes |
+| TypeScript 5.9 (estricto) + `vue-tsc` | Tipos, revisados en CI |
+| Vite 8 | Desarrollo y build |
+| Tailwind CSS 4 | Estilos, solo con los tokens de `src/app/main.css` |
+| Vue Router 5 | Rutas |
+| Pinia 4 | Estado global mínimo: sesión y toasts |
+| Pinia Colada 1.4 | Datos del servidor: consultas, caché e invalidación |
+| VeeValidate 4 + Zod 3 | Formularios y validación |
+| Laravel Echo + pusher-js | Tiempo real con Laravel Reverb |
+| @lucide/vue | Íconos |
+| Vitest + Vue Test Utils | Tests |
+| ESLint + oxlint + Prettier | Calidad y formato |
+
+## 2. Estructura
 
 ```
 src/
-├── api/                       # Endpoints y comunicación HTTP
-│   ├── axios.ts              # Configuración centralizada de Axios
-│   ├── auth.ts               # Endpoints de autenticación
-│   ├── professional.ts       # Endpoints de profesionales
-│   ├── client.ts             # Endpoints del cliente
-│   ├── booking.ts            # Endpoints de reservas
-│   ├── favorite.ts           # Endpoints de favoritos
-│   └── upload.ts             # Endpoints de carga de archivos
-│
-├── components/               # Componentes reutilizables
-│   ├── common/               # Componentes globales
-│   │   ├── Button.vue        # Botón genérico
-│   │   ├── Card.vue          # Card genérica
-│   │   ├── Modal.vue         # Modal genérico
-│   │   ├── LoadingSpinner.vue
-│   │   └── ErrorAlert.vue
-│   │
-│   ├── auth/                 # Componentes de autenticación
-│   │   ├── LoginForm.vue
-│   │   ├── RegisterClientForm.vue
-│   │   └── RegisterProfessionalForm.vue
-│   │
-│   ├── client/               # Componentes específicos del cliente
-│   │   ├── ProfessionalCard.vue
-│   │   ├── CategoryCard.vue
-│   │   ├── BookingCard.vue
-│   │   ├── SearchBar.vue
-│   │   └── FilterPanel.vue
-│   │
-│   ├── professional/         # Componentes específicos del profesional
-│   │   ├── BookingList.vue
-│   │   ├── ProfileEditor.vue
-│   │   ├── CertificateUpload.vue
-│   │   └── PortfolioUpload.vue
-│   │
-│   └── layout/               # Componentes de layout
-│       ├── Navbar.vue
-│       └── Sidebar.vue
-│
-├── composables/              # Lógica reutilizable (Composition API)
-│   ├── useAuth.ts            # Autenticación y sesión
-│   ├── useFetch.ts           # Peticiones HTTP genéricas
-│   ├── useValidation.ts      # Validaciones de formularios
-│   └── useLocation.ts        # Geolocalización
-│
-├── config/                   # Configuración global
-│   └── app.ts               # Variables y settings de la app
-│
-├── constants/                # Constantes
-│   ├── roles.ts             # Roles de usuario
-│   ├── colors.ts            # Paleta de colores
-│   └── specialties.ts       # Especialidades disponibles
-│
-├── stores/                   # Pinia stores (State Management)
-│   ├── auth.ts              # Estado de autenticación
-│   ├── user.ts              # Estado del usuario actual
-│   ├── professionals.ts     # Estado de profesionales
-│   ├── bookings.ts          # Estado de reservas
-│   ├── favorites.ts         # Estado de favoritos
-│   └── ui.ts                # Estado de UI (notificaciones, etc)
-│
-├── types/                    # TypeScript types/interfaces
-│   └── index.ts             # Tipos principales del proyecto
-│
-├── utils/                    # Funciones utilitarias
-│   ├── validators.ts        # Validaciones
-│   └── formatters.ts        # Formateo de datos
-│
-├── services/                 # Servicios de negocio
-│   └── storage.ts           # LocalStorage/SessionStorage
-│
-├── layouts/                  # Layouts principales
-│   ├── MainLayout.vue       # Layout principal (con navbar)
-│   ├── AuthLayout.vue       # Layout para auth (sin navbar)
-│   ├── ClientLayout.vue     # Layout para cliente
-│   └── ProfessionalLayout.vue # Layout para profesional
-│
-├── views/                    # Páginas/Vistas
-│   ├── auth/                # Vistas de autenticación
-│   │   ├── Login.vue
-│   │   ├── RegisterClient.vue
-│   │   └── RegisterProfessional.vue
-│   │
-│   ├── public/              # Vistas públicas (sin login)
-│   │   ├── Home.vue         # Landing page / inicio
-│   │   ├── ProfessionalDetail.vue
-│   │   └── SearchResults.vue
-│   │
-│   ├── client/              # Vistas para clientes autenticados
-│   │   ├── Dashboard.vue
-│   │   ├── BookingDetail.vue
-│   │   ├── MyBookings.vue
-│   │   └── MyFavorites.vue
-│   │
-│   └── professional/        # Vistas para profesionales autenticados
-│       ├── Dashboard.vue
-│       ├── MyServices.vue
-│       └── Availability.vue
-│
-├── router/                   # Vue Router
-│   └── index.ts             # Rutas configuradas
-│
-└── App.vue                  # Componente raíz
+├── app/                    Arranque y "esqueleto" de la aplicación
+│   ├── main.ts             Plugins, configuración del cliente HTTP, montaje
+│   ├── main.css            Tokens de diseño (Tailwind @theme)
+│   ├── router/             Router: junta las rutas de los módulos + guardas
+│   ├── layouts/            AuthLayout, PublicLayout, ClientLayout, ProfessionalLayout, navbar, footer
+│   └── views/              Páginas que no son de ningún módulo (404)
+├── shared/                 Lo que usan varios módulos. Cambios aquí los revisan los dos.
+│   ├── ui/                 Componentes base (BaseButton, BaseInput…) — index.ts
+│   ├── components/         Componentes de dominio presentacionales (ProfessionalCard)
+│   ├── http/               Cliente HTTP único y ApiError
+│   ├── forms/              Mensajes de Zod en español y errores del servidor → campos
+│   ├── realtime/           Conexión con Reverb (Echo)
+│   ├── stores/             Toasts
+│   ├── types/              Espejo de la API: envelope, modelos, rutas
+│   └── utils/              Formatos de dinero, fechas, duración
+└── modules/                Un módulo por funcionalidad: lo que se reparte entre el equipo
+    ├── auth/  catalog/  professionals/  favorites/  bookings/
+    ├── dashboard/  professional-profile/  schedule/  home/
+    └── styleguide/         /_ui, solo en desarrollo
 ```
 
----
+### Reglas de dependencia
 
-## 📋 Mejoras Implementadas vs Arquitectura Original
-
-| Mejora                         | Descripción                                                       |
-| ------------------------------ | ----------------------------------------------------------------- |
-| **Composables**                | Lógica reutilizable para Composition API de Vue 3                 |
-| **Types**                      | Carpeta dedicada a TypeScript interfaces/types                    |
-| **Constants**                  | Valores constantes centralizados (roles, colores, especialidades) |
-| **Utils**                      | Funciones utilitarias (validadores, formatters)                   |
-| **Config**                     | Configuración centralizada de la aplicación                       |
-| **Services**                   | Servicios de negocio (storage, etc)                               |
-| **Components/layout**          | Separación clara de layout components                             |
-| **Subdivisión de componentes** | Organización por dominio (auth, client, professional, common)     |
-
----
-
-## 🎨 Paleta de Colores (Figma → Tailwind)
-
-```
-Azul Principal:   #2563EB (blue-600)
-Azul Hover:       #1D4ED8 (blue-700)
-Verde Éxito:      #10B981 (emerald-500)
-Fondo Claro:      #F8FAFC (slate-50)
-Fondo Secundario: #F4F7FB (slate-100)
+```mermaid
+flowchart LR
+    app --> modules
+    app --> shared
+    modules --> shared
+    modules -- "solo por su index.ts" --> modules
 ```
 
----
+- `shared/` **nunca** importa de `modules/` ni de `app/`.
+- `modules/` nunca importa de `app/`.
+- Un módulo importa a otro **solo desde su `index.ts`** (`@/modules/auth`), nunca un archivo interno. ESLint lo bloquea.
+- Dentro de un módulo se usan rutas relativas (`../queries`).
+- Si dos módulos se necesitan mutuamente, lo compartido baja a `shared/` (así pasó con `ProfessionalCard`).
 
-## 📱 Vistas Identificadas (desde Figma)
+## 3. Anatomía de un módulo
 
-### Públicas (Sin Login)
+Ejemplo real: `src/modules/favorites/`
 
-- ✅ **Home.vue** - Landing page con búsqueda, categorías, profesionales
-- ✅ **ProfessionalDetail.vue** - Detalle de profesional
-- ✅ **SearchResults.vue** - Resultados de búsqueda
+```
+favorites/
+├── api.ts              favoritesApi: una función por endpoint, tipada con el envelope. Sin lógica.
+├── queries.ts          useFavorites(), useToggleFavorite(): Pinia Colada + keys.
+├── components/         Componentes del módulo (FavoriteButton.vue)
+├── views/              Páginas (MyFavoritesView.vue). Sufijo View obligatorio.
+├── routes.ts           favoritesRoutes: ModuleRoutes (por área)
+├── index.ts            API pública del módulo: lo que otros pueden importar
+└── __tests__/          Tests del módulo
+```
 
-### Autenticación
+Opcionales según el módulo: `schemas.ts` (Zod), `status.ts` (etiquetas y tonos de estados), `store.ts` (solo si hay estado global de verdad; hoy solo auth).
 
-- ✅ **Login.vue** - Login con email/contraseña
-- ✅ **RegisterClient.vue** - Registro cliente (2 pasos)
-- ✅ **RegisterProfessional.vue** - Registro profesional (3 pasos)
+## 4. Datos del servidor (Pinia Colada)
 
-### Cliente (Autenticado)
+Todo dato que viene de la API se maneja con **queries** y **mutations**, no con stores de Pinia.
 
-- ✅ **Dashboard.vue** - Dashboard principal del cliente
-- ✅ **BookingDetail.vue** - Detalle de reserva
-- ✅ **MyBookings.vue** - Mis reservas
-- ✅ **MyFavorites.vue** - Mis favoritos
+```ts
+// queries.ts
+export const bookingKeys = {
+  all: ['bookings'] as const,
+  detail: (id: number) => ['bookings', 'detail', id] as const,
+}
 
-### Profesional (Autenticado)
+export function useBooking(id: MaybeRefOrGetter<number>) {
+  return useQuery({
+    key: () => bookingKeys.detail(toValue(id)),
+    query: async () => (await bookingsApi.find(toValue(id))).data,
+  })
+}
 
-- ✅ **Dashboard.vue** - Dashboard profesional
-- ✅ **MyServices.vue** - Mis servicios
-- ✅ **Availability.vue** - Disponibilidad
+export function useCancelBooking() {
+  const queryCache = useQueryCache()
+  return useMutation({
+    mutation: ({ id, reason }: { id: number; reason: string }) => bookingsApi.cancel(id, reason),
+    onSettled: () => queryCache.invalidateQueries({ key: bookingKeys.all }),
+  })
+}
+```
 
----
+Reglas:
+- Cada módulo define sus **keys** en un objeto `<modulo>Keys`, empezando por el nombre del recurso.
+- Las mutations **invalidan** las keys afectadas; la UI se actualiza sola. No se copia la respuesta a mano en otra variable.
+- En la vista: `const { data, isPending, error, refetch } = useX()` y los cuatro estados de la sección 7.
+- Pinia (stores) solo para estado global que **no** viene del servidor: la sesión (`useAuthStore`) y los toasts.
 
-## 🧩 Componentes Planificados
+## 5. Cliente HTTP
 
-### Comunes
+`src/shared/http/client.ts` es el único que llama a `fetch`.
 
-- `Button.vue` - Botón reutilizable con variantes
-- `Card.vue` - Card genérica
-- `Modal.vue` - Modal reutilizable
-- `LoadingSpinner.vue` - Spinner de carga
-- `ErrorAlert.vue` - Alerta de error
+- `http.get/post/put/patch/delete<T>()` devuelven el envelope de la API (`ApiSuccess<T>` o `ApiPaginated<T>`).
+- Archivos: `toFormData(valores)` (arrays → `campo[]`).
+- Cualquier error llega como `ApiError` con `status`, `message` (en español, listo para mostrar) y `errors` (en 422).
+- Un 401 con sesión iniciada cierra la sesión y lleva al login (configurado en `app/main.ts`).
 
-### Layout
+## 6. Formularios (VeeValidate + Zod)
 
-- `Navbar.vue` - Barra de navegación
-- `Sidebar.vue` - Barra lateral
+Patrón completo en `src/modules/auth/components/LoginForm.vue`:
 
-### Autenticación
+```ts
+const { defineField, errors, handleSubmit, isSubmitting, setErrors } = useForm({
+  validationSchema: toTypedSchema(loginSchema),
+})
+const [email, emailAttrs] = defineField('email')
 
-- `LoginForm.vue` - Formulario de login
-- `RegisterClientForm.vue` - Formulario registro cliente
-- `RegisterProfessionalForm.vue` - Formulario registro profesional
+const onSubmit = handleSubmit(async (values) => {
+  try {
+    await authApi.login(values)
+  } catch (error) {
+    formError.value = applyServerErrors(error, setErrors) // 422 → campos; resto → mensaje
+  }
+})
+```
 
-### Cliente
+```vue
+<BaseInput v-model="email" v-bind="emailAttrs" label="Correo" :error="errors.email" />
+```
 
-- `ProfessionalCard.vue` - Card de profesional con rating
-- `CategoryCard.vue` - Card de categoría
-- `BookingCard.vue` - Card de reserva
-- `SearchBar.vue` - Barra de búsqueda
-- `FilterPanel.vue` - Panel de filtros
+Reglas:
+- **Los nombres de campo son los del request de la API** (`snake_case`): los errores 422 del backend caen en el campo correcto sin traducir nombres.
+- El esquema Zod va en `schemas.ts` del módulo y replica las reglas del FormRequest del backend. El backend vuelve a validar siempre.
+- Los mensajes de Zod salen en español (`spanishErrorMap`, registrado en `main.ts`); personaliza solo cuando aporte (`'Selecciona tu comuna.'`).
+- Campos de archivo: `useField<File | null>('avatar')` en lugar de `defineField`, que pierde el tipo `File`.
+- Formularios por pasos: un esquema por paso y `validationSchema: computed(...)` (ver `RegisterProfessionalForm.vue`).
+- Error general del formulario → `BaseAlert tone="danger"` arriba del formulario.
 
-### Profesional
+## 7. Estados de una vista y feedback
 
-- `BookingList.vue` - Lista de reservas
-- `ProfileEditor.vue` - Editor de perfil
-- `CertificateUpload.vue` - Carga de certificados
-- `PortfolioUpload.vue` - Carga de portafolio
+Toda vista con datos maneja cuatro estados, en este orden (ver `MyFavoritesView.vue`):
 
----
+| Estado | Componente |
+|--------|-----------|
+| Cargando | `BaseSkeleton` con la forma aproximada del contenido |
+| Error | `BaseAlert tone="danger"` + botón Reintentar (`refetch`) |
+| Vacío | `BaseEmptyState` con una acción ("Buscar profesionales") |
+| Contenido | La lista o el detalle |
 
-## 📊 Stores (Pinia)
+Feedback de acciones:
+- Acción completada → **toast** (`useToastStore().success(response.message)`).
+- Error de un formulario → **BaseAlert** dentro del formulario.
+- Confirmar algo destructivo → **BaseModal** (ver `CancelBookingModal.vue`).
+- **Nunca** `alert()`, `confirm()` ni `prompt()` del navegador.
 
-- **auth.ts** - Estado de autenticación (token, login/logout)
-- **user.ts** - Usuario actual (datos, rol)
-- **professionals.ts** - Profesionales listados
-- **bookings.ts** - Reservas del usuario
-- **favorites.ts** - Favoritos del cliente
-- **ui.ts** - Estado de UI (notificaciones, modales)
+## 8. Rutas
 
----
+Cada módulo exporta un `ModuleRoutes` desde su `index.ts` y `app/router/index.ts` lo monta:
 
-## 🔌 API Endpoints (Mapeados)
+| Área | Layout | Prefijo | Acceso |
+|------|--------|---------|--------|
+| `public` | PublicLayout | `/` | Todos |
+| `guest` | AuthLayout | `/` | Solo sin sesión |
+| `client` | ClientLayout | `/client` | Sesión de cliente |
+| `professional` | ProfessionalLayout | `/professional` | Sesión de profesional |
 
-Todos los endpoints del `api.md` estarán disponibles en:
+- Nombres de ruta en `kebab-case` con el área como prefijo: `client-bookings`, `professional-booking-detail`.
+- Navegar siempre por nombre: `:to="{ name: 'professional-detail', params: { id } }"`, nunca rutas escritas a mano.
+- `meta.title` pone el título de la pestaña.
+- Las guardas son comodidad de navegación; la seguridad la aplica el backend.
 
-- `api/auth.ts` - Endpoints de autenticación
-- `api/professional.ts` - Endpoints GET profesionales
-- `api/booking.ts` - Endpoints de reservas
-- `api/favorite.ts` - Endpoints de favoritos
-- `api/upload.ts` - Endpoint de carga de archivos
-- `api/client.ts` - Endpoints específicos de cliente
+## 9. Tipos
 
----
+`src/shared/types/models.ts` es el **espejo de los Resources del backend**. Si un PR del backend cambia un Resource, el PR del frontend actualiza el tipo. Ningún componente define su propia versión de `Booking`, `Professional`, etc.
 
-## ✅ Estado Actual
+## 10. Tiempo real
 
-**Estructura Base Completa:**
+`src/shared/realtime/echo.ts`: la sesión conecta y desconecta Echo. Para escuchar un canal:
 
-- ✅ Carpetas organizadas por dominio
-- ✅ Archivos plantilla creados (sin código)
-- ✅ Arquitectura escalable
-- ✅ Convenciones Vue 3 + TypeScript
-- ✅ Listo para implementación de código
+```ts
+getRealtime()?.join(`booking.${id}`).listen('.message.sent', (message: Message) => { … })
+```
 
-**Próximos Pasos:**
+Canales y eventos: repo del backend → `docs/tiempo-real.md`. Al recibir un evento, invalida la key correspondiente o actualiza la caché del módulo.
 
-1. Implementar tipos TypeScript (`types/index.ts`)
-2. Crear constantes (`constants/*.ts`)
-3. Configurar Axios (`api/axios.ts`)
-4. Implementar composables (`composables/*.ts`)
-5. Crear stores Pinia (`stores/*.ts`)
-6. Implementar componentes comunes
-7. Implementar vistas y componentes específicos
+## 11. Tests
 
----
+- Archivos en `__tests__/` junto al código: `src/modules/favorites/__tests__/FavoriteButton.spec.ts`.
+- Mínimo por módulo: los esquemas Zod y un componente con su interacción principal.
+- Para componentes con datos: mockear `<modulo>Api` con `vi.mock('../api')` y montar con Pinia, Pinia Colada y un router de memoria (copiar el test de `FavoriteButton`).
+- `npm run test:unit` en modo observador; `npx vitest run` una vez.
 
-## 🎯 Convenciones a Seguir
+## 12. Estado de los módulos (fase 0)
 
-✅ **Composition API** con `<script setup lang="ts">`
-✅ **Tailwind CSS** para estilos
-✅ **Naming PascalCase** para componentes `.vue`
-✅ **camelCase** para archivos `.ts`
-✅ **Tipos TypeScript** en todos los archivos
-✅ **Comentarios en español** (documentación)
-✅ **Props y emits** tipados
-✅ **Mobile-first** responsive design
-✅ **Colores de paleta** definida
+| Módulo | Estado |
+|--------|--------|
+| `auth` | ✅ Conectado: login, registro de cliente y de profesional, sesión |
+| `catalog` | ✅ Conectado: comunas y categorías |
+| `professionals` | ✅ Conectado: búsqueda con filtros en la URL y perfil |
+| `favorites` | ✅ Conectado — **módulo de referencia** |
+| `bookings` | ✅ Conectado: listado, detalle, cancelación con motivo |
+| `home` | 🟡 Maqueta: categorías y destacados de muestra |
+| `dashboard` | 🟡 Maqueta: paneles de cliente y profesional con datos de muestra |
+| `professional-profile` | 🟡 Maqueta: "Sobre mí" y "Mis servicios" |
+| `schedule` | 🟡 Maqueta: disponibilidad |
+
+Las maquetas compilan y usan los tokens, pero sus datos están escritos en el código. Se conectan al implementar su módulo.
+
+## 13. Checklist para un módulo nuevo
+
+1. Crear `src/modules/<modulo>/` copiando la estructura de `favorites`.
+2. `api.ts` con los endpoints del contrato (repo del backend → `docs/api/endpoints.md`).
+3. Tipos nuevos en `src/shared/types/models.ts` si la API devuelve un recurso nuevo.
+4. `queries.ts` con keys, queries y mutations.
+5. Vistas con los cuatro estados; componentes base de `@/shared/ui`.
+6. `schemas.ts` para formularios, con nombres de campo de la API.
+7. `routes.ts` + exportar desde `index.ts` + sumarlo en `app/router/index.ts`.
+8. Enlaces de navegación en `app/layouts/navigation.ts` si aplica.
+9. Tests en `__tests__/`.
+10. `npm run lint`, `npm run type-check`, `npx vitest run` y `npm run build` en verde.

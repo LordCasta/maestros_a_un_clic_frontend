@@ -1,11 +1,7 @@
-<template>
-  <div>
-    <RegisterClientForm />
-  </div>
-</template>
-
 <script setup lang="ts">
-import RegisterClientForm from '@/components/auth/RegisterClientForm.vue'
+import RegisterClientForm from '../components/RegisterClientForm.vue'
 </script>
 
-<style scoped></style>
+<template>
+  <RegisterClientForm />
+</template>

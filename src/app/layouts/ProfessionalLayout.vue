@@ -1,18 +1,14 @@
+<script setup lang="ts">
+import AppFooter from './components/AppFooter.vue'
+import AppNavbar from './components/AppNavbar.vue'
+</script>
+
 <template>
-  <div class="flex flex-col min-h-screen bg-slate-50">
-    <Navbar />
-    <div class="flex flex-1">
-      <main class="flex-1 overflow-y-auto">
-        <router-view />
-      </main>
-    </div>
+  <div class="flex min-h-screen flex-col">
+    <AppNavbar />
+    <main class="flex-1">
+      <RouterView />
+    </main>
     <AppFooter />
   </div>
 </template>
-
-<script setup lang="ts">
-import AppFooter from '@/components/common/AppFooter.vue'
-import Navbar from '@/components/layout/Navbar.vue'
-</script>
-
-<style scoped></style>

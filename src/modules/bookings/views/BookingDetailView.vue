@@ -1,112 +1,126 @@
-<script setup>
-import { ref, onMounted } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
-import { getBooking, cancelBooking } from '@/api/booking'
+<script setup lang="ts">
+import { ArrowLeft, CalendarDays, Clock3, FileText, MapPin } from '@lucide/vue'
+import { computed, ref } from 'vue'
+import { useRoute } from 'vue-router'
 
+import { useAuthStore } from '@/modules/auth'
+import { BaseAlert, BaseAvatar, BaseButton, BaseCard, BaseRating, BaseSkeleton } from '@/shared/ui'
+import { formatDateTime, formatDuration, formatMoney, formatTime } from '@/shared/utils/format'
+
+import BookingStatusBadge from '../components/BookingStatusBadge.vue'
+import CancelBookingModal from '../components/CancelBookingModal.vue'
+import { useBooking } from '../queries'
+import { CANCELLABLE } from '../status'
+
+/** HU026: detalle y estado. Las acciones de aceptar, iniciar, etc. llegan con su módulo. */
 const route = useRoute()
-const router = useRouter()
-const id = route.params.id
+const auth = useAuthStore()
+const id = computed(() => Number(route.params.id))
+const { data: booking, isPending, error } = useBooking(id)
 
-const booking = ref(null)
-const loading = ref(false)
-const error = ref('')
-
-const load = async () => {
-  loading.value = true
-  error.value = ''
-  try {
-    const res = await getBooking(id)
-    booking.value = (res && res.data) || null
-  } catch (err) {
-    error.value = err?.message || 'Error cargando la reserva'
-  } finally {
-    loading.value = false
-  }
-}
-
-const handleCancel = async () => {
-  if (!confirm('¿Cancelar esta reserva?')) return
-  try {
-    await cancelBooking(id)
-    alert('Reserva cancelada')
-    router.push({ name: 'MyBookings' })
-  } catch (err) {
-    alert(err?.message || 'No se pudo cancelar la reserva')
-  }
-}
-
-onMounted(() => {
-  load()
-})
+const isProfessional = computed(() => auth.role === 'professional')
+const counterpart = computed(() =>
+  booking.value ? (isProfessional.value ? booking.value.client : booking.value.professional) : null,
+)
+const canCancel = computed(
+  () => booking.value !== undefined && CANCELLABLE.includes(booking.value.status),
+)
+const cancelOpen = ref(false)
 </script>
 
 <template>
-  <div class="min-h-screen bg-[#F4F7FB]">
-    <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <div class="space-y-6">
-        <div class="flex items-center justify-between mb-6">
-          <h1 class="text-3xl font-black">Detalle de reserva</h1>
-        </div>
+  <div class="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
+    <BaseButton
+      variant="ghost"
+      size="sm"
+      :to="{ name: isProfessional ? 'professional-bookings' : 'client-bookings' }"
+      class="mb-6"
+    >
+      <ArrowLeft class="size-4" /> Volver a reservas
+    </BaseButton>
 
-        <div v-if="loading" class="rounded-4xl border border-gray-100 bg-white p-6 text-center">
-          Cargando...
-        </div>
+    <BaseSkeleton v-if="isPending" class="h-80" />
 
-        <div v-if="error" class="rounded-4xl border border-red-100 bg-red-50 p-4 text-red-700">
-          {{ error }}
-        </div>
+    <BaseAlert v-else-if="error" tone="danger" title="No pudimos cargar la reserva">{{
+      error.message
+    }}</BaseAlert>
 
-        <div v-if="booking" class="bg-white rounded-4xl border border-gray-100 p-6 shadow-sm">
-          <div class="mb-4">
-            <h2 class="text-2xl font-bold text-gray-900">{{ booking.service_description }}</h2>
-            <p class="text-sm text-gray-500 mt-1">
-              Profesional:
-              <router-link
-                :to="`/professional/${booking.professional?.id}`"
-                class="text-blue-600"
-                >{{ booking.professional?.name }}</router-link
-              >
-            </p>
+    <div v-else-if="booking && counterpart" class="space-y-6">
+      <BaseCard as="header" padding="lg">
+        <div class="flex flex-wrap items-start justify-between gap-4">
+          <div>
+            <p class="text-sm font-semibold text-neutral-500">Reserva #{{ booking.id }}</p>
+            <h1 class="mt-1 text-2xl font-black text-neutral-900">{{ booking.service.title }}</h1>
           </div>
+          <BookingStatusBadge :status="booking.status" />
+        </div>
 
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+        <dl class="mt-6 grid gap-4 sm:grid-cols-2">
+          <div class="flex gap-3">
+            <CalendarDays class="mt-0.5 size-5 text-primary-600" />
             <div>
-              <p class="text-sm text-gray-500">Fecha programada</p>
-              <p class="font-medium text-gray-900">
-                {{ new Date(booking.scheduled_date).toLocaleString() }}
-              </p>
-            </div>
-
-            <div>
-              <p class="text-sm text-gray-500">Estado</p>
-              <p class="font-medium text-gray-900">{{ booking.status || 'Pendiente' }}</p>
+              <dt class="text-xs font-semibold text-neutral-500 uppercase">Fecha</dt>
+              <dd class="font-semibold text-neutral-900">
+                {{ formatDateTime(booking.starts_at) }} – {{ formatTime(booking.ends_at) }}
+              </dd>
             </div>
           </div>
-
-          <div class="mb-6">
-            <p class="text-sm text-gray-500">Total</p>
-            <p class="font-bold text-2xl text-gray-900">{{ booking.total }}</p>
+          <div class="flex gap-3">
+            <Clock3 class="mt-0.5 size-5 text-primary-600" />
+            <div>
+              <dt class="text-xs font-semibold text-neutral-500 uppercase">Duración estimada</dt>
+              <dd class="font-semibold text-neutral-900">
+                {{ formatDuration(booking.service.estimated_duration_minutes) }}
+              </dd>
+            </div>
           </div>
+          <div class="flex gap-3">
+            <MapPin class="mt-0.5 size-5 text-primary-600" />
+            <div>
+              <dt class="text-xs font-semibold text-neutral-500 uppercase">Dirección</dt>
+              <dd class="font-semibold text-neutral-900">
+                {{ booking.address
+                }}<span v-if="booking.commune">, {{ booking.commune.name }}</span>
+              </dd>
+            </div>
+          </div>
+          <div class="flex gap-3">
+            <span class="mt-0.5 text-lg leading-none font-black text-primary-600">$</span>
+            <div>
+              <dt class="text-xs font-semibold text-neutral-500 uppercase">Precio acordado</dt>
+              <dd class="font-semibold text-neutral-900">
+                {{ formatMoney(booking.agreed_price) }}
+              </dd>
+            </div>
+          </div>
+        </dl>
 
-          <div class="flex items-center gap-3">
-            <button
-              @click="handleCancel"
-              class="px-4 py-2 rounded-2xl bg-red-50 hover:bg-red-100 text-red-700 border border-red-100"
-            >
-              Cancelar reserva
-            </button>
-            <router-link
-              :to="{ name: 'MyBookings' }"
-              class="px-4 py-2 rounded-2xl bg-slate-100 hover:bg-slate-200"
-              >Volver</router-link
-            >
+        <div v-if="booking.description" class="mt-6 flex gap-3 rounded-2xl bg-surface-muted p-4">
+          <FileText class="mt-0.5 size-5 shrink-0 text-neutral-400" />
+          <p class="text-sm leading-6 text-neutral-700">{{ booking.description }}</p>
+        </div>
+      </BaseCard>
+
+      <BaseCard as="section">
+        <h2 class="mb-4 text-sm font-semibold text-neutral-500 uppercase">
+          {{ isProfessional ? 'Cliente' : 'Profesional' }}
+        </h2>
+        <div class="flex items-center gap-4">
+          <BaseAvatar :name="counterpart.name" :src="counterpart.avatar_url" size="lg" />
+          <div>
+            <p class="text-lg font-bold text-neutral-900">{{ counterpart.name }}</p>
+            <BaseRating :rating="counterpart.rating" />
           </div>
         </div>
+      </BaseCard>
+
+      <div v-if="canCancel" class="flex justify-end">
+        <BaseButton variant="outline" class="text-danger-700" @click="cancelOpen = true">
+          Cancelar reserva
+        </BaseButton>
       </div>
+
+      <CancelBookingModal v-model:open="cancelOpen" :booking-id="booking.id" />
     </div>
   </div>
 </template>
-
-<script setup lang="ts"></script>
-
-<style scoped></style>

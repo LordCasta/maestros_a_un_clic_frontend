@@ -1,63 +1,50 @@
-const TOKEN_KEY = 'maestros-a-un-clic.auth.token'
-const USER_KEY = 'maestros-a-un-clic.auth.user'
+import type { User } from '@/shared/types/models'
 
-const hasWindow = typeof window !== 'undefined'
+/**
+ * Persistencia de la sesión en localStorage. Solo la usa el store de auth.
+ * El acceso está protegido con try/catch: en modo privado o con almacenamiento
+ * bloqueado la app sigue funcionando (la sesión dura lo que dure la pestaña).
+ */
 
-const readValue = (key: string) => {
-  if (!hasWindow) {
+const TOKEN_KEY = 'maestros.auth.token'
+const USER_KEY = 'maestros.auth.user'
+
+function read(key: string): string | null {
+  try {
+    return localStorage.getItem(key)
+  } catch {
     return null
   }
-
-  return window.localStorage.getItem(key)
 }
 
-const writeValue = (key: string, value: string) => {
-  if (!hasWindow) {
-    return
+function write(key: string, value: string | null): void {
+  try {
+    if (value === null) localStorage.removeItem(key)
+    else localStorage.setItem(key, value)
+  } catch {
+    // Sin almacenamiento disponible: se ignora.
   }
-
-  window.localStorage.setItem(key, value)
 }
 
-const removeValue = (key: string) => {
-  if (!hasWindow) {
-    return
-  }
-
-  window.localStorage.removeItem(key)
-}
-
-export const storage = {
-  getToken() {
-    return readValue(TOKEN_KEY)
-  },
-  setToken(token: string) {
-    writeValue(TOKEN_KEY, token)
-  },
-  removeToken() {
-    removeValue(TOKEN_KEY)
-  },
-  getUser<T>() {
-    const rawUser = readValue(USER_KEY)
-
-    if (!rawUser) {
-      return null
-    }
-
+export const sessionStorage = {
+  load(): { token: string | null; user: User | null } {
+    const token = read(TOKEN_KEY)
+    const rawUser = read(USER_KEY)
     try {
-      return JSON.parse(rawUser) as T
+      return { token, user: rawUser ? (JSON.parse(rawUser) as User) : null }
     } catch {
-      return null
+      return { token, user: null }
     }
   },
-  setUser(user: unknown) {
-    writeValue(USER_KEY, JSON.stringify(user))
+  save(token: string, user: User): void {
+    write(TOKEN_KEY, token)
+    write(USER_KEY, JSON.stringify(user))
   },
-  removeUser() {
-    removeValue(USER_KEY)
+  saveUser(user: User): void {
+    write(USER_KEY, JSON.stringify(user))
   },
-  clearAuth() {
-    removeValue(TOKEN_KEY)
-    removeValue(USER_KEY)
+  clear(): void {
+    write(TOKEN_KEY, null)
+    write(USER_KEY, null)
   },
 }
