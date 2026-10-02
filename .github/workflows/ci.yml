@@ -1,0 +1,55 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  checks:
+    name: Lint, tipos, tests y build
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - run: npm ci
+
+      - name: Lint (oxlint + ESLint + tokens de diseño)
+        run: npm run lint
+
+      - name: Formato (Prettier)
+        run: npm run format:check
+
+      - name: Tipos (vue-tsc)
+        run: npm run type-check
+
+      - name: Tests (Vitest)
+        run: npx vitest run
+
+      - name: Build
+        run: npx vite build
+
+  audit:
+    # Separado: una alerta nueva publicada upstream se ve en rojo, pero no bloquea PRs.
+    name: Seguridad de dependencias
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: npm audit (dependencias de producción)
+        run: npm audit --omit=dev --audit-level=high
