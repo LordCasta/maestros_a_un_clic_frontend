@@ -2,6 +2,8 @@
 
 El flujo de trabajo es **el mismo en los dos repos**. La versión completa (reparto por módulos, tareas, ramas, commits, pull requests, cambios que afectan a los dos y definición de listo) está en el `CONTRIBUTING.md` del [backend](https://github.com/LordCasta/maestros_a_un_clic_backend/blob/main/CONTRIBUTING.md).
 
+**¿Primera vez?** Empieza por la [guía de trabajo](https://github.com/LordCasta/maestros_a_un_clic_backend/blob/main/docs/guia-de-trabajo.md): instalación de los dos repos y el paso a paso de un issue hasta `main`, con los comandos.
+
 Resumen y lo propio del frontend:
 
 ## Ramas y commits
@@ -9,7 +11,7 @@ Resumen y lo propio del frontend:
 - `main` protegida; ramas cortas desde `main`: `feature/HU004-aceptar-reserva`, `fix/…`, `docs/…`, `chore/…`.
 - Conventional Commits en español con el módulo como alcance: `feat(reservas): aceptar y rechazar solicitudes (HU004)`.
 - PR con la plantilla, CI en verde, aprobado por la otra persona, **Squash and merge**.
-- Los issues de las HU están en el [repo del backend](https://github.com/LordCasta/maestros_a_un_clic_backend/issues). Un PR del frontend los cierra con `Closes LordCasta/maestros_a_un_clic_backend#N`.
+- Los issues de las HU están en el [repo del backend](https://github.com/LordCasta/maestros_a_un_clic_backend/issues). El PR del backend los referencia (`Refs #N`) y el del frontend, que se fusiona último, los cierra con `Closes LordCasta/maestros_a_un_clic_backend#N`.
 
 ## Antes de abrir un PR
 
