@@ -29,3 +29,22 @@ npm run build
 4. **Componentes base primero.** Si necesitas uno nuevo y reutilizable, va a `src/shared/ui`, al catálogo `/_ui` y a la tabla del sistema de diseño.
 5. **Tipos de la API en un solo lugar.** Si cambia un Resource del backend, se actualiza `src/shared/types/models.ts` en el PR que acompaña al del backend.
 6. **El contrato manda.** Un módulo nuevo empieza por los endpoints de `docs/api/endpoints.md` del backend. Si necesitas cambiarlos, se acuerda primero.
+
+## Trabajo con asistentes de IA
+
+Cada uno usa la herramienta que prefiera (Antigravity, Claude Code…). Todas leen las mismas instrucciones del repo:
+
+| Archivo | Quién lo lee | Contenido |
+|---------|--------------|-----------|
+| `AGENTS.md` | Antigravity, Codex, Cursor (siempre activo) | Reglas esenciales y comandos de verificación. **Fuente única.** |
+| `CLAUDE.md` | Claude Code | Solo importa `AGENTS.md` |
+| `.agents/rules/sistema-de-diseno.md` | Antigravity, al editar `.vue`/`.css` | Paleta, componentes y patrones visuales (incluye `docs/sistema-de-diseno.md`) |
+| `.agents/rules/arquitectura.md` | Antigravity, al editar `src/` | Estructura y patrones (incluye `docs/arquitectura.md`) |
+| `.agents/skills/nuevo-modulo/` | Antigravity (y Claude Code, desde `CLAUDE.md`) | Procedimiento para crear un módulo como el de favoritos |
+| `.agents/skills/conectar-maqueta/` | Ídem | Procedimiento para pasar una maqueta a datos reales |
+
+Reglas:
+- **Las reglas se cambian en la documentación, no en el chat.** Si el asistente debería hacer algo distinto, se actualiza `AGENTS.md` o `docs/` en un PR y lo revisan los dos. No dejes convenciones solo en tus reglas globales personales.
+- **El asistente corre los chequeos** (`npm run lint`, `type-check`, `vitest`) antes de dar algo por terminado. Si no los corre, pídeselo.
+- **Un PR hecho con IA se revisa igual que cualquier otro.** Quien lo abre responde por el código.
+- Al pedir una tarea, indica el issue de la HU y el módulo. Ej.: *"Implementa HU019 (#19) en el módulo cuenta siguiendo AGENTS.md y la skill nuevo-modulo"*.

@@ -10,7 +10,8 @@ Backend: [maestros_a_un_clic_backend](https://github.com/LordCasta/maestros_a_un
 
 | Documento | Contenido |
 |-----------|-----------|
-| [CONTRIBUTING.md](CONTRIBUTING.md) | Flujo de trabajo en equipo: ramas, commits, pull requests |
+| [CONTRIBUTING.md](CONTRIBUTING.md) | Flujo de trabajo en equipo: ramas, commits, pull requests, asistentes de IA |
+| [AGENTS.md](AGENTS.md) | Instrucciones para asistentes de IA (Antigravity, Claude Code, Codex, Cursor) |
 | [docs/arquitectura.md](docs/arquitectura.md) | Estructura por módulos, datos, formularios, rutas y checklist. **Leer antes de programar.** |
 | [docs/sistema-de-diseno.md](docs/sistema-de-diseno.md) | Tokens, tipografía, componentes base y reglas visuales |
 | `/_ui` | Catálogo vivo del sistema de diseño (solo con `npm run dev`) |
