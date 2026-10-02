@@ -37,8 +37,8 @@ Cuentas demo (contraseña `password`): `cliente@maestros.test`, `profesional@mae
 | `npm run build` | Revisa tipos y genera `dist/` |
 | `npm run type-check` | Solo revisión de tipos (`vue-tsc`) |
 | `npm run test:unit` | Tests en modo observador (`npx vitest run` para una sola pasada) |
-| `npm run lint` | oxlint + ESLint + verificación de tokens de diseño |
-| `npm run lint:fix` | Corrige lo que se pueda automáticamente |
+| `npm run lint` | oxlint + ESLint + tokens de diseño + lockfile sincronizado |
+| `npm run fix` | Corrige lo que se pueda automáticamente |
 | `npm run format` | Formatea `src/` con Prettier |
 
 GitHub Actions corre lint, formato, tipos, tests y build en cada pull request. Un cambio no se integra si alguno falla.

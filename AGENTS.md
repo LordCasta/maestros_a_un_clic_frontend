@@ -58,6 +58,6 @@ Si cambiaste rutas, layouts o algo de `src/shared`, corre también `npm run buil
 ## No hagas
 
 - No edites `src/shared` ni `src/app` sin avisar en el PR: son de los dos desarrolladores.
-- No agregues dependencias sin justificarlo en el PR.
+- No agregues dependencias sin justificarlo en el PR. No quites `@emnapi/core` ni `@emnapi/runtime` aunque parezcan sin uso (ver `docs/arquitectura.md` § Dependencias).
 - No toques módulos de otra persona (ver la tabla de responsables en `CONTRIBUTING.md` del backend).
 - No borres ni desactives tests o reglas de lint para que algo pase.

@@ -22,6 +22,11 @@ Cómo está organizado el frontend y qué reglas seguir al agregar código. Si a
 | Vitest + Vue Test Utils | Tests |
 | ESLint + oxlint + Prettier | Calidad y formato |
 
+### Dependencias que parecen sobrar (no borrar)
+
+- **`@emnapi/core` y `@emnapi/runtime`** (devDependencies): no se usan en el código. Están porque npm en Windows omite del `package-lock.json` estas dependencias empaquetadas de Tailwind (`@tailwindcss/oxide-wasm32-wasi`), y entonces `npm ci` falla en el CI (Linux) con `Missing: @emnapi/core from lock file`. Declararlas las deja registradas igual en todos los sistemas.
+- `npm run lint` incluye `lint:lockfile`, que valida el lockfile como lo hace el CI. Si falla después de instalar algo: `npm install` y vuelve a probar; si sigue fallando, avisa en el PR.
+
 ## 2. Estructura
 
 ```
