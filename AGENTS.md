@@ -13,7 +13,7 @@ SPA en Vue 3 + TypeScript del marketplace que conecta clientes con maestros y pr
 | `docs/arquitectura.md` | Estructura por módulos, datos, formularios, rutas, tests |
 | `docs/sistema-de-diseno.md` | Paleta, tipografía, forma, componentes base, accesibilidad |
 | `CONTRIBUTING.md` | Ramas, commits, PRs, qué es de quién |
-| Repo backend → `docs/api/convenciones.md` y `docs/api/endpoints.md` | Contrato de la API: formato de respuestas, errores, endpoints |
+| Contrato de la API (repo backend) | [convenciones.md](https://github.com/LordCasta/maestros_a_un_clic_backend/blob/main/docs/api/convenciones.md) y [endpoints.md](https://github.com/LordCasta/maestros_a_un_clic_backend/blob/main/docs/api/endpoints.md). Si el backend está en tu workspace (`../maestros-backend` o similar), léelos ahí; con el backend corriendo, también `http://127.0.0.1:8000/docs/api`. **No asumas campos: léelos.** |
 | `src/modules/favorites/` | **Módulo de referencia.** Ante la duda, copia su forma |
 | `/_ui` con `npm run dev` | Catálogo vivo de colores y componentes |
 
@@ -24,7 +24,8 @@ SPA en Vue 3 + TypeScript del marketplace que conecta clientes con maestros y pr
 2. **Componentes base primero** (`import { BaseButton, BaseInput, … } from '@/shared/ui'`). No crees un botón, input, tarjeta, modal o badge propio. Si falta un componente reutilizable, va a `src/shared/ui`, se muestra en `/_ui` y se documenta en `docs/sistema-de-diseno.md`.
 3. **Escala fija**: títulos de página `text-3xl font-black`, secciones `text-xl font-black`, texto `text-neutral-700`, secundario `text-sm text-neutral-500`. Radios: `rounded-xl` controles, `rounded-3xl` tarjetas. Sombras: `shadow-card` y `shadow-raised`. Fuente única: Plus Jakarta Sans (ya aplicada).
 4. **Íconos solo de `@lucide/vue`**. Nada de SVG pegado ni de otros paquetes.
-5. Sin valores arbitrarios (`h-[500px]`, `rounded-[1.75rem]`) salvo casos únicos justificados.
+5. Sin valores arbitrarios (`h-[500px]`, `rounded-[1.75rem]`) salvo casos únicos justificados. `npm run lint:tokens` los lista como advertencia.
+5a. **Ningún color literal** (`#…`, `rgb()`, `hsl()`) en clases, `style`, `:style`, atributos SVG ni strings. Colores en JavaScript (mapas, gráficas): `tokenColor('primary-600')` de `@/shared/utils/tokens`. Logos con colores propios: archivo en `src/assets/brand/`, usado con `<img>`.
 
 ### Código
 6. `<script setup lang="ts">` siempre, con el bloque `<script>` antes de `<template>`. Props y emits tipados (`defineProps<{…}>()`).
@@ -42,7 +43,7 @@ SPA en Vue 3 + TypeScript del marketplace que conecta clientes con maestros y pr
 Corre y deja en verde:
 
 ```bash
-npm run lint          # oxlint + ESLint + tokens de diseño
+npm run lint          # oxlint + ESLint + tokens de diseño + lockfile
 npm run format        # Prettier
 npm run type-check    # vue-tsc
 npx vitest run        # tests
@@ -55,9 +56,28 @@ Si cambiaste rutas, layouts o algo de `src/shared`, corre también `npm run buil
 - `.agents/skills/nuevo-modulo/` — crear un módulo nuevo siguiendo el patrón de favoritos.
 - `.agents/skills/conectar-maqueta/` — reemplazar los datos de muestra de una vista por datos reales de la API.
 
+## Guardas del proyecto (no se tocan para hacer pasar algo)
+
+Si un chequeo falla, **se corrige el código, nunca la regla**. Estos archivos definen las reglas; modificarlos hace fallar el check obligatorio **Guardas** del CI, salvo que una persona ponga la etiqueta `cambio-de-reglas` al PR:
+
+| Archivo | Qué protege |
+|---------|-------------|
+| `scripts/check-design-tokens.mjs` y `scripts/__tests__/` | Que solo se usen colores de la paleta. Sus tests fallan si la regla se afloja |
+| `src/app/main.css` (`@theme static`) | La paleta, la fuente y las sombras oficiales |
+| `docs/sistema-de-diseno.md` | Las reglas visuales |
+| `eslint.config.js`, `.oxlintrc.json`, `.prettierrc.json`, `.editorconfig` | Calidad y formato |
+| `tsconfig*.json`, `vite.config.ts`, `vitest.config.ts` | Tipos estrictos, build y tests |
+| `.github/` | CI y plantillas |
+| `AGENTS.md`, `CLAUDE.md`, `.agents/` | Estas instrucciones |
+| Scripts `lint*`, `type-check`, `test:unit`, `format*`, `build*` de `package.json` | Que los chequeos sigan siendo los mismos |
+
+Prohibido como atajo (el CI los rechaza o los muestra en el PR): `eslint-disable` sin motivo, `@ts-ignore`/`@ts-nocheck`, `as any`, `.skip`/`.only` en tests, `tokens-ignore` para algo que no sea una marca ajena, `--no-verify`.
+
+¿Hace falta de verdad un color, una sombra o una regla nueva? Dilo y propón el cambio en un PR aparte, explicado, para que lo aprueben los dos.
+
 ## No hagas
 
 - No edites `src/shared` ni `src/app` sin avisar en el PR: son de los dos desarrolladores.
 - No agregues dependencias sin justificarlo en el PR. No quites `@emnapi/core` ni `@emnapi/runtime` aunque parezcan sin uso (ver `docs/arquitectura.md` § Dependencias).
 - No toques módulos de otra persona (ver la tabla de responsables en `CONTRIBUTING.md` del backend).
-- No borres ni desactives tests o reglas de lint para que algo pase.
+- No borres ni desactives tests o reglas de lint para que algo pase (ver § Guardas).

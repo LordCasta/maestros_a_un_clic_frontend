@@ -176,7 +176,7 @@ const services = [
   <div class="min-h-screen bg-canvas">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
       <section
-        class="relative overflow-hidden rounded-4xl bg-linear-to-br from-neutral-900 via-neutral-800 to-primary-600 p-8 lg:p-10 text-white shadow-[0_30px_80px_rgba(15,23,42,0.24)]"
+        class="relative overflow-hidden rounded-4xl bg-linear-to-br from-neutral-900 via-neutral-800 to-primary-600 p-8 lg:p-10 text-white shadow-raised"
       >
         <div class="absolute -top-10 right-0 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
         <div class="absolute -bottom-20 left-1/3 h-56 w-56 rounded-full bg-info-400/20 blur-3xl" />

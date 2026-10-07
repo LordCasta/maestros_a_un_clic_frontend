@@ -17,7 +17,7 @@ Resumen y lo propio del frontend:
 ## Antes de abrir un PR
 
 ```bash
-npm run lint          # oxlint + ESLint + tokens de diseño
+npm run lint          # oxlint + ESLint + tokens de diseño + lockfile
 npm run format        # Prettier
 npm run type-check
 npx vitest run
@@ -32,6 +32,14 @@ npm run build
 4. **Componentes base primero.** Si necesitas uno nuevo y reutilizable, va a `src/shared/ui`, al catálogo `/_ui` y a la tabla del sistema de diseño.
 5. **Tipos de la API en un solo lugar.** Si cambia un Resource del backend, se actualiza `src/shared/types/models.ts` en el PR que acompaña al del backend.
 6. **El contrato manda.** Un módulo nuevo empieza por los endpoints de `docs/api/endpoints.md` del backend. Si necesitas cambiarlos, se acuerda primero.
+
+## Guardas y la etiqueta `cambio-de-reglas`
+
+Los archivos que definen las reglas (verificador de colores, `main.css`, configuración de lint/TypeScript/Vite, CI, `AGENTS.md`, `.agents/`, `docs/sistema-de-diseno.md` y los scripts de verificación de `package.json`) están protegidos por el check obligatorio **Guardas**. Lista completa en `AGENTS.md` § Guardas.
+
+- Si tu PR los toca **sin querer** (o porque el asistente "arregló" el CI cambiando la regla): revierte ese cambio y corrige el código.
+- Si es un **cambio de reglas intencional** (un token nuevo, una regla de lint nueva): hazlo en un PR aparte, explica el porqué y que la **otra persona** le ponga la etiqueta `cambio-de-reglas` al revisarlo. Con la etiqueta, el check pasa.
+- El check también lista los atajos nuevos (`eslint-disable`, `tokens-ignore`, `as any`…). No bloquean, pero quien revisa debe mirarlos.
 
 ## Trabajo con asistentes de IA
 

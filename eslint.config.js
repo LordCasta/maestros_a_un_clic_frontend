@@ -1,4 +1,6 @@
+// ⚠️ GUARDA DEL PROYECTO: no aflojes estas reglas para que algo pase (AGENTS.md § Guardas).
 import { globalIgnores } from 'eslint/config'
+import comments from '@eslint-community/eslint-plugin-eslint-comments/configs'
 import { defineConfigWithVueTs, vueTsConfigs } from '@vue/eslint-config-typescript'
 import pluginVue from 'eslint-plugin-vue'
 import pluginVitest from '@vitest/eslint-plugin'
@@ -15,6 +17,17 @@ export default defineConfigWithVueTs(
 
   pluginVue.configs['flat/recommended'],
   vueTsConfigs.recommended,
+  comments.recommended,
+
+  {
+    // Desactivar una regla exige motivo, y una desactivación que ya no hace falta es error.
+    name: 'app/disable-comments',
+    linterOptions: { reportUnusedDisableDirectives: 'error' },
+    rules: {
+      '@eslint-community/eslint-comments/require-description': ['error', { ignore: [] }],
+      '@eslint-community/eslint-comments/no-unlimited-disable': 'error',
+    },
+  },
 
   {
     name: 'app/rules',
@@ -63,8 +76,10 @@ export default defineConfigWithVueTs(
 
   {
     ...pluginVitest.configs.recommended,
-    files: ['src/**/__tests__/*'],
+    files: ['src/**/__tests__/*', 'scripts/__tests__/*'],
   },
+
+  // `.skip` y `.only` en tests los rechaza oxlint (no-disabled-tests / no-focused-tests, .oxlintrc.json).
 
   ...pluginOxlint.buildFromOxlintConfigFile('.oxlintrc.json'),
 
