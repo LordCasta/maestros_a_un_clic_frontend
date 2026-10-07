@@ -10,7 +10,8 @@ Resumen y lo propio del frontend:
 
 - `main` protegida; ramas cortas desde `main`: `feature/HU004-aceptar-reserva`, `fix/…`, `docs/…`, `chore/…`.
 - Conventional Commits en español con el módulo como alcance: `feat(reservas): aceptar y rechazar solicitudes (HU004)`.
-- PR con la plantilla, CI en verde, aprobado por la otra persona, **Squash and merge**.
+- PR con la plantilla y **CI en verde** (obligatorio: sin eso GitHub no deja fusionar). Se pide revisión a la otra persona; si en **48 horas** nadie revisó, el autor fusiona. Cambios en `src/shared`, `src/app` o el contrato de la API sí esperan su visto bueno. Siempre **Squash and merge**.
+- Si el CI falla: [guía de trabajo § 4](https://github.com/LordCasta/maestros_a_un_clic_backend/blob/main/docs/guia-de-trabajo.md#4-si-el-ci-falla).
 - Los issues de las HU están en el [repo del backend](https://github.com/LordCasta/maestros_a_un_clic_backend/issues). El PR del backend los referencia (`Refs #N`) y el del frontend, que se fusiona último, los cierra con `Closes LordCasta/maestros_a_un_clic_backend#N`.
 
 ## Antes de abrir un PR
