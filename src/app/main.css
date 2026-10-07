@@ -11,7 +11,7 @@
 | solo existen los colores de abajo. `npm run lint:tokens` rechaza hex sueltos.
 */
 
-@theme {
+@theme static {
   --color-*: initial;
 
   --color-white: #ffffff;

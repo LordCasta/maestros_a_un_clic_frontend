@@ -1,0 +1,97 @@
+# ⚠️ GUARDA DEL PROYECTO (AGENTS.md § Guardas).
+#
+# Falla si el PR toca las reglas del proyecto (verificadores, lint, tokens de diseño, CI,
+# instrucciones para agentes) sin la etiqueta `cambio-de-reglas`, que pone una persona.
+# Además lista, como aviso, los atajos nuevos para saltarse reglas (eslint-disable, @ts-ignore, .skip…).
+#
+# Usa `pull_request_target`: corre la versión de este archivo que está en `main`, así que editarlo
+# dentro de un PR no lo desactiva. No hace checkout del código del PR: solo lee la lista de
+# archivos por la API, por eso es seguro.
+# Es un check obligatorio de `main`: si se borra o se renombra, los PR quedan bloqueados.
+
+name: Guardas
+
+on:
+  pull_request_target:
+    types: [opened, synchronize, reopened, labeled, unlabeled]
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  guardas:
+    name: Guardas
+    runs-on: ubuntu-latest
+    steps:
+      - name: Revisar reglas protegidas y atajos
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const LABEL = 'cambio-de-reglas'
+
+            // Archivos que definen las reglas del proyecto.
+            const PROTECTED = [
+              /^scripts\//,
+              /^src\/app\/main\.css$/,
+              /^eslint\.config\./,
+              /^\.oxlintrc\.json$/,
+              /^\.prettierrc/,
+              /^\.editorconfig$/,
+              /^tsconfig[^/]*\.json$/,
+              /^vite(st)?\.config\./,
+              /^\.github\//,
+              /^AGENTS\.md$/,
+              /^CLAUDE\.md$/,
+              /^\.agents\//,
+              /^docs\/sistema-de-diseno\.md$/,
+            ]
+            // package.json solo cuenta si cambian los scripts de verificación.
+            const PROTECTED_SCRIPT = /^[+-]\s*"(lint|lint:[^"]+|type-check|test:unit|format|format:check|build|build-only)"\s*:/
+
+            // Atajos para saltarse reglas: no bloquean, pero quedan a la vista.
+            const HATCHES = /eslint-disable|oxlint-disable|@ts-ignore|@ts-nocheck|@ts-expect-error|tokens-ignore|\bas any\b|\.(skip|only)\(|--no-verify/
+
+            const pr = context.payload.pull_request
+            const files = await github.paginate(github.rest.pulls.listFiles, {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: pr.number,
+              per_page: 100,
+            })
+
+            const touched = files
+              .filter((file) =>
+                PROTECTED.some((pattern) => pattern.test(file.filename)) ||
+                (file.filename === 'package.json' &&
+                  (file.patch ?? '').split('\n').some((line) => PROTECTED_SCRIPT.test(line))),
+              )
+              .map((file) => file.filename)
+
+            const hatches = files.flatMap((file) =>
+              (file.patch ?? '')
+                .split('\n')
+                .filter((line) => line.startsWith('+') && !line.startsWith('+++') && HATCHES.test(line))
+                .map((line) => `${file.filename}: ${line.slice(1).trim()}`),
+            )
+
+            const labeled = pr.labels.some((label) => label.name === LABEL)
+
+            const summary = core.summary.addHeading('Guardas del proyecto', 2)
+            if (touched.length) summary.addRaw('**Reglas protegidas modificadas:**').addList(touched)
+            if (hatches.length) summary.addRaw('**Atajos nuevos para saltarse reglas (revísalos):**').addList(hatches)
+            if (!touched.length && !hatches.length) summary.addRaw('Sin cambios en reglas protegidas ni atajos nuevos. ✅')
+            await summary.write()
+
+            for (const hatch of hatches) core.warning(`Atajo para saltarse una regla: ${hatch}`)
+
+            if (touched.length && !labeled) {
+              core.setFailed(
+                `Este PR modifica reglas protegidas del proyecto:\n- ${touched.join('\n- ')}\n\n` +
+                `Si es un cambio intencional y acordado, una persona debe ponerle la etiqueta "${LABEL}". ` +
+                `Si solo querías que algo pasara el CI, corrige el código en lugar de la regla. ` +
+                `Ver AGENTS.md § Guardas.`,
+              )
+            } else if (touched.length) {
+              core.notice(`Reglas protegidas modificadas con la etiqueta "${LABEL}": ${touched.join(', ')}`)
+            }

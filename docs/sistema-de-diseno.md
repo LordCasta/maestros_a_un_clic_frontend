@@ -102,11 +102,36 @@ Componentes de dominio compartidos (`src/shared/components`): `ProfessionalCard`
 - Estados que no dependan solo del color: `BookingStatusBadge` tiene texto, el favorito tiene `aria-pressed`.
 - Modales con `role="dialog"`, cierre con Esc y foco inicial (ya resuelto en `BaseModal`).
 
-## 8. Cómo se hace cumplir
+## 8. Logos, imágenes y colores fuera de Tailwind
 
-| Herramienta | Qué revisa |
-|-------------|------------|
-| `@theme { --color-*: initial }` | La paleta por defecto no existe: un color fuera de los tokens no genera estilo |
-| `npm run lint:tokens` | Rechaza `bg-[#…]`, colores de la paleta de Tailwind y hex en `<style>` |
-| Revisión de PR | Uso de componentes base y de la escala tipográfica |
+| Caso | Cómo se hace |
+|------|--------------|
+| Fotos, imágenes PNG/JPG/WebP | Normal (`<img>`, `ImageWithFallback`). No pasan por la guarda de colores |
+| Logo propio | `BrandMark` (usa tokens) |
+| Logo o SVG con colores propios (marcas aliadas, medios de pago, redes) | Archivo en `src/assets/brand/` y `<img :src="…">`. Esa carpeta no la revisa la guarda |
+| Íconos de interfaz | `@lucide/vue` (usan `currentColor`) |
+| Librerías que piden colores en JavaScript (mapas, gráficas, canvas) | `tokenColor('primary-600')` de `@/shared/utils/tokens`. Nunca `'#2563eb'` |
+| Iframes de terceros (Google Maps) | Normal: su contenido no es nuestro código |
+| `<meta name="theme-color">` en `index.html` | Espejo de `primary-600`; si cambia el token, se actualiza a mano |
+| SVG de marca ajena que **debe** ir en línea | Excepción explícita en la línea o la anterior: `<!-- tokens-ignore: logo de WhatsApp, colores oficiales de la marca -->`. El motivo es obligatorio y la excepción aparece listada en `lint:tokens` y en el PR |
+| Correos del backend (cuando existan) | Los clientes de correo no leen variables CSS: paleta espejo en `config/brand.php` del backend, con los mismos valores que `main.css` |
+
+### ¿Necesitas un color, una sombra o un tamaño nuevo?
+
+1. Agrégalo como token en `@theme static` de `src/app/main.css` (p. ej. `--shadow-hero: …`).
+2. Muéstralo en `/_ui` (`src/modules/styleguide`) y documéntalo en esta guía.
+3. PR aparte y explicado. Como toca reglas protegidas, necesita la etiqueta `cambio-de-reglas` (ver § 9).
+
+Nunca resuelvas un caso puntual con un valor arbitrario o un hex: el siguiente que lo necesite no lo encontrará y la paleta se irá desordenando.
+
+## 9. Cómo se hace cumplir
+
+| Capa | Qué hace |
+|------|----------|
+| `@theme static` con `--color-*: initial` (`main.css`) | La paleta por defecto no existe: un color fuera de los tokens no genera estilo. `static` emite todas las variables para `tokenColor()` |
+| `npm run lint:tokens` (CI) | **Rechaza**: paleta de Tailwind, colores en valores arbitrarios (`bg-[#…]`, `shadow-[…rgba(…)]`), colores en `style`/`:style`, atributos SVG (`fill`, `stroke`…), strings de color en el código, colores literales en `<style>` y `.css`, `tokens-ignore` sin motivo. **Advierte**: valores arbitrarios que no son color (salvo `grid-cols-[…]`) |
+| Tests del verificador (`scripts/__tests__/`) | Si alguien afloja una regla, fallan |
+| oxlint y ESLint | Rechazan `.skip`/`.only` en tests, `eslint-disable` sin motivo o que ya no hace falta, `@ts-ignore`, `any` explícito |
+| Check **Guardas** (CI, obligatorio) | Falla si el PR toca estos archivos de reglas sin la etiqueta `cambio-de-reglas`, y lista los atajos nuevos (`eslint-disable`, `tokens-ignore`, `as any`…) |
+| Revisión de PR | Componentes base, escala tipográfica, espaciados |
 | `/_ui` | Catálogo para comparar visualmente |

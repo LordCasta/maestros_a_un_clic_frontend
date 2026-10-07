@@ -37,6 +37,7 @@ src/
 │   ├── router/             Router: junta las rutas de los módulos + guardas
 │   ├── layouts/            AuthLayout, PublicLayout, ClientLayout, ProfessionalLayout, navbar, footer
 │   └── views/              Páginas que no son de ningún módulo (404)
+├── assets/brand/           Logos e imágenes con colores propios (no los revisa la guarda de colores)
 ├── shared/                 Lo que usan varios módulos. Cambios aquí los revisan los dos.
 │   ├── ui/                 Componentes base (BaseButton, BaseInput…) — index.ts
 │   ├── components/         Componentes de dominio presentacionales (ProfessionalCard)
@@ -45,7 +46,7 @@ src/
 │   ├── realtime/           Conexión con Reverb (Echo)
 │   ├── stores/             Toasts
 │   ├── types/              Espejo de la API: envelope, modelos, rutas
-│   └── utils/              Formatos de dinero, fechas, duración
+│   └── utils/              Formatos de dinero, fechas, duración; tokenColor() para colores en JS
 └── modules/                Un módulo por funcionalidad: lo que se reparte entre el equipo
     ├── auth/  catalog/  professionals/  favorites/  bookings/
     ├── dashboard/  professional-profile/  schedule/  home/
