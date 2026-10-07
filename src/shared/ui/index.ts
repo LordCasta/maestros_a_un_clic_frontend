@@ -1,0 +1,25 @@
+/**
+ * Componentes base. Toda pantalla se arma con estos antes de crear estilos propios.
+ * Catálogo visual en /_ui (solo en desarrollo) y reglas en docs/sistema-de-diseno.md.
+ */
+export { default as BaseAlert } from './BaseAlert.vue'
+export { default as BaseAvatar } from './BaseAvatar.vue'
+export { default as BaseBadge, type BadgeTone } from './BaseBadge.vue'
+export { default as BaseButton } from './BaseButton.vue'
+export { default as BaseCard } from './BaseCard.vue'
+export { default as BaseChoiceGroup } from './BaseChoiceGroup.vue'
+export { default as BaseEmptyState } from './BaseEmptyState.vue'
+export { default as BaseFileInput } from './BaseFileInput.vue'
+export { default as BaseInput } from './BaseInput.vue'
+export { default as BaseModal } from './BaseModal.vue'
+export { default as BasePagination } from './BasePagination.vue'
+export { default as BaseRating } from './BaseRating.vue'
+export { default as BaseSelect, type SelectOption } from './BaseSelect.vue'
+export { default as BaseSkeleton } from './BaseSkeleton.vue'
+export { default as BaseSpinner } from './BaseSpinner.vue'
+export { default as BaseStepper } from './BaseStepper.vue'
+export { default as BaseTextarea } from './BaseTextarea.vue'
+export { default as BrandMark } from './BrandMark.vue'
+export { default as GoogleMapsEmbed } from './GoogleMapsEmbed.vue'
+export { default as ImageWithFallback } from './ImageWithFallback.vue'
+export { default as ToastContainer } from './ToastContainer.vue'

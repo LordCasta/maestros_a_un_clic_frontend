@@ -1,50 +1,48 @@
-# frontend-maestros-a-un-clic
+# Maestros a un clic — Frontend
 
-This template should help get you started developing with Vue 3 in Vite.
+Aplicación web del marketplace que conecta clientes con maestros y profesionales del hogar en Medellín.
 
-## Recommended IDE Setup
+Vue 3 · TypeScript · Vite · Tailwind CSS 4 · Pinia + Pinia Colada · VeeValidate + Zod
 
-[VS Code](https://code.visualstudio.com/) + [Vue (Official)](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
+Backend: [maestros_a_un_clic_backend](https://github.com/LordCasta/maestros_a_un_clic_backend)
 
-## Recommended Browser Setup
+## Documentación
 
-- Chromium-based browsers (Chrome, Edge, Brave, etc.):
-  - [Vue.js devtools](https://chromewebstore.google.com/detail/vuejs-devtools/nhdogjmejiglipccpnnnanhbledajbpd)
-  - [Turn on Custom Object Formatter in Chrome DevTools](http://bit.ly/object-formatters)
-- Firefox:
-  - [Vue.js devtools](https://addons.mozilla.org/en-US/firefox/addon/vue-js-devtools/)
-  - [Turn on Custom Object Formatter in Firefox DevTools](https://fxdx.dev/firefox-devtools-custom-object-formatters/)
+| Documento | Contenido |
+|-----------|-----------|
+| [CONTRIBUTING.md](CONTRIBUTING.md) | Flujo de trabajo en equipo: ramas, commits, pull requests, asistentes de IA |
+| [AGENTS.md](AGENTS.md) | Instrucciones para asistentes de IA (Antigravity, Claude Code, Codex, Cursor) |
+| [docs/arquitectura.md](docs/arquitectura.md) | Estructura por módulos, datos, formularios, rutas y checklist. **Leer antes de programar.** |
+| [docs/sistema-de-diseno.md](docs/sistema-de-diseno.md) | Tokens, tipografía, componentes base y reglas visuales |
+| `/_ui` | Catálogo vivo del sistema de diseño (solo con `npm run dev`) |
+| Contrato de la API | Repo del backend → `docs/api/` y `http://127.0.0.1:8000/docs/api` |
 
-## Customize configuration
+## Instalación local
 
-See [Vite Configuration Reference](https://vite.dev/config/).
+Requisitos: Node.js 20.19+ o 22.12+, y el backend corriendo (`composer dev` en su repo).
 
-## Project Setup
-
-```sh
+```bash
 npm install
+cp .env.example .env     # URL de la API y datos de Reverb
+npm run dev              # http://localhost:5173
 ```
 
-### Compile and Hot-Reload for Development
+Cuentas demo (contraseña `password`): `cliente@maestros.test`, `profesional@maestros.test`, `pendiente@maestros.test` (cliente sin verificar). Vienen del `DemoSeeder` del backend.
 
-```sh
-npm run dev
-```
+## Comandos
 
-### Compile and Minify for Production
+| Comando | Qué hace |
+|---------|----------|
+| `npm run dev` | Servidor de desarrollo |
+| `npm run build` | Revisa tipos y genera `dist/` |
+| `npm run type-check` | Solo revisión de tipos (`vue-tsc`) |
+| `npm run test:unit` | Tests en modo observador (`npx vitest run` para una sola pasada) |
+| `npm run lint` | oxlint + ESLint + tokens de diseño + lockfile sincronizado |
+| `npm run fix` | Corrige lo que se pueda automáticamente |
+| `npm run format` | Formatea `src/` con Prettier |
 
-```sh
-npm run build
-```
+GitHub Actions corre lint, formato, tipos, tests y build en cada pull request. Un cambio no se integra si alguno falla.
 
-### Run Unit Tests with [Vitest](https://vitest.dev/)
+## Editor
 
-```sh
-npm run test:unit
-```
-
-### Lint with [ESLint](https://eslint.org/)
-
-```sh
-npm run lint
-```
+VS Code con las extensiones recomendadas del repo (`.vscode/extensions.json`): Vue (Official), ESLint, Prettier, oxc y Vitest. Formatea y corrige al guardar.
