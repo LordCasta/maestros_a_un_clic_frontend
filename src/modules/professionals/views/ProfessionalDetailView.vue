@@ -3,6 +3,7 @@ import { ArrowLeft, BadgeCheck, Briefcase, CalendarDays, Clock3, MapPin, UserX }
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 
+import { useAuthStore } from '@/modules/auth'
 import { FavoriteButton } from '@/modules/favorites'
 import { ApiError } from '@/shared/http/client'
 import {
@@ -25,6 +26,14 @@ const id = computed(() => Number(route.params.id))
 const { data: professional, isPending, error } = useProfessional(id)
 
 const notFound = computed(() => error.value instanceof ApiError && error.value.status === 404)
+
+// HU004: reservan los clientes. Sin sesión, el guard lleva al login y vuelve aquí después.
+const auth = useAuthStore()
+const canBook = computed(() => !auth.isAuthenticated || auth.role === 'client')
+const bookingRoute = (serviceId?: number) => ({
+  name: 'client-booking-new',
+  query: { professional: id.value, ...(serviceId ? { service: serviceId } : {}) },
+})
 </script>
 
 <template>
@@ -125,14 +134,24 @@ const notFound = computed(() => error.value instanceof ApiError && error.value.s
                   {{ formatDuration(service.estimated_duration_minutes) }}
                 </p>
               </div>
-              <p class="shrink-0 text-right">
-                <span class="text-lg font-black text-primary-700">{{
-                  formatMoney(service.price)
-                }}</span>
-                <span class="block text-xs text-neutral-500">
-                  {{ service.price_type === 'hourly' ? 'por hora' : 'precio fijo' }}
-                </span>
-              </p>
+              <div class="flex shrink-0 items-center gap-4 sm:flex-col sm:items-end sm:gap-2">
+                <p class="text-right">
+                  <span class="text-lg font-black text-primary-700">{{
+                    formatMoney(service.price)
+                  }}</span>
+                  <span class="block text-xs text-neutral-500">
+                    {{ service.price_type === 'hourly' ? 'por hora' : 'precio fijo' }}
+                  </span>
+                </p>
+                <BaseButton
+                  v-if="canBook"
+                  size="sm"
+                  variant="outline"
+                  :to="bookingRoute(service.id)"
+                >
+                  Reservar
+                </BaseButton>
+              </div>
             </li>
           </ul>
         </BaseCard>
@@ -162,11 +181,21 @@ const notFound = computed(() => error.value instanceof ApiError && error.value.s
           <p class="text-sm text-neutral-500">
             Tarifa de referencia. Cada servicio tiene su propio precio.
           </p>
-          <BaseButton block size="lg" disabled>
-            <CalendarDays class="size-4" /> Reservar
-          </BaseButton>
-          <p class="text-xs text-neutral-500">
-            La reserva en línea con la agenda del profesional estará disponible muy pronto.
+          <template v-if="canBook">
+            <BaseButton
+              block
+              size="lg"
+              :to="bookingRoute()"
+              :disabled="!professional.services?.length"
+            >
+              <CalendarDays class="size-4" /> Reservar
+            </BaseButton>
+            <p class="text-xs text-neutral-500">
+              Elige una hora libre de su agenda. El profesional confirma si puede atenderte.
+            </p>
+          </template>
+          <p v-else class="text-xs text-neutral-500">
+            Las reservas se hacen desde una cuenta de cliente.
           </p>
         </BaseCard>
       </aside>

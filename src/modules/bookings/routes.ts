@@ -11,6 +11,12 @@ export const bookingsRoutes: ModuleRoutes = {
       meta: { title: 'Mis reservas' },
     },
     {
+      path: 'bookings/new',
+      name: 'client-booking-new',
+      component: () => import('./views/NewBookingView.vue'),
+      meta: { title: 'Solicitar reserva' },
+    },
+    {
       path: 'bookings/:id(\\d+)',
       name: 'client-booking-detail',
       component: detail,

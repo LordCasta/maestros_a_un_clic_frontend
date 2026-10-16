@@ -130,6 +130,33 @@ export interface Booking {
   created_at: string
 }
 
+/** Una hora libre de GET /professionals/{id}/slots (HU025). */
+export interface AvailableSlot {
+  starts_at: string
+  ends_at: string
+}
+
+/** GET /professionals/{id}/slots */
+export interface ProfessionalSlots {
+  /** Y-m-d */
+  date: string
+  service_id: number
+  duration_minutes: number
+  slots: AvailableSlot[]
+}
+
+/** Tipos de notificación. Contrato: backend/docs/api/endpoints.md § Notificaciones */
+export type NotificationType = 'booking.requested' | 'booking.accepted' | 'booking.rejected'
+
+/** Notificación recibida por el canal privado App.Models.User.{id}. */
+export interface AppNotification {
+  id: string
+  type: NotificationType
+  booking_id: number
+  title: string
+  body: string
+}
+
 /** FavoriteResource */
 export interface Favorite {
   id: number
