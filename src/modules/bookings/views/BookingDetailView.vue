@@ -8,16 +8,18 @@ import type { Booking, BookingStatus } from '@/shared/types/models'
 import { BaseAlert, BaseAvatar, BaseButton, BaseCard, BaseRating, BaseSkeleton } from '@/shared/ui'
 import { formatDateTime, formatDuration, formatMoney, formatTime } from '@/shared/utils/format'
 
+import BookingHistory from '../components/BookingHistory.vue'
 import BookingResponseActions from '../components/BookingResponseActions.vue'
 import BookingStatusBadge from '../components/BookingStatusBadge.vue'
 import CancelBookingModal from '../components/CancelBookingModal.vue'
 import ConfirmBookingButton from '../components/ConfirmBookingButton.vue'
 import ServiceProgressCard from '../components/ServiceProgressCard.vue'
 import { useBooking } from '../queries'
+import { useBookingUpdates } from '../realtime'
 import { CANCELLABLE } from '../status'
 
 /**
- * HU026: detalle y estado. HU004: el profesional acepta o rechaza una solicitud pendiente.
+ * HU026: detalle, estado en tiempo real e historial. HU004: el profesional acepta o rechaza una solicitud pendiente.
  * HU036: el cliente confirma la reserva aceptada. HU027, HU028: el profesional inicia y
  * finaliza el servicio.
  */
@@ -25,6 +27,8 @@ const route = useRoute()
 const auth = useAuthStore()
 const id = computed(() => Number(route.params.id))
 const { data: booking, isPending, error } = useBooking(id)
+// HU026: el estado cambia en pantalla apenas la otra persona actúa.
+useBookingUpdates(id)
 
 const isProfessional = computed(() => auth.role === 'professional')
 const counterpart = computed(() =>
@@ -228,6 +232,8 @@ const showProgress = computed(
           Cancelar reserva
         </BaseButton>
       </div>
+
+      <BookingHistory :booking-id="booking.id" />
 
       <CancelBookingModal v-model:open="cancelOpen" :booking-id="booking.id" />
     </div>

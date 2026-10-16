@@ -1,10 +1,10 @@
 import { useQueryCache } from '@pinia/colada'
-import { onBeforeUnmount, onMounted } from 'vue'
+import { onBeforeUnmount, onMounted, toValue, watch, type MaybeRefOrGetter } from 'vue'
 
 import { useAuthStore } from '@/modules/auth'
 import { getRealtime } from '@/shared/realtime/echo'
 import { useToastStore } from '@/shared/stores/toast'
-import type { AppNotification, NotificationType } from '@/shared/types/models'
+import type { AppNotification, Booking, NotificationType } from '@/shared/types/models'
 
 import { bookingKeys } from './queries'
 
@@ -47,4 +47,42 @@ export function useBookingAlerts() {
   onBeforeUnmount(() => {
     if (channel) getRealtime()?.private(channel).stopListeningForNotification(onNotification)
   })
+}
+
+/**
+ * HU026: mientras el detalle de una reserva está abierto, su estado se actualiza solo.
+ * Escucha `.booking.status-changed` en el canal de presencia `booking.{id}`: el evento trae el
+ * mismo BookingResource de la API, así que reemplaza la reserva en caché sin pedirla de nuevo.
+ *
+ * Al salir se abandona el canal. El chat (HU011) usará el mismo canal desde esta misma vista:
+ * cuando llegue, ambos deben compartir una sola suscripción en lugar de unirse cada uno.
+ */
+export function useBookingUpdates(bookingId: MaybeRefOrGetter<number>) {
+  const queryCache = useQueryCache()
+  let channel: string | null = null
+
+  function onStatusChanged(booking: Booking) {
+    // Se muestra al instante y luego se refrescan historial y listados.
+    queryCache.setQueryData(bookingKeys.detail(booking.id), booking)
+    void queryCache.invalidateQueries({ key: bookingKeys.all })
+  }
+
+  function leave() {
+    if (channel) getRealtime()?.leave(channel)
+    channel = null
+  }
+
+  watch(
+    () => toValue(bookingId),
+    (id) => {
+      leave()
+      const echo = getRealtime()
+      if (!echo || !id) return
+      channel = `booking.${id}`
+      echo.join(channel).listen('.booking.status-changed', onStatusChanged)
+    },
+    { immediate: true },
+  )
+
+  onBeforeUnmount(leave)
 }

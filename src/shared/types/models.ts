@@ -187,6 +187,18 @@ export interface AppNotification {
   body: string
 }
 
+/** BookingStatusChangeResource: un paso del historial de una reserva (HU026). */
+export interface BookingStatusChange {
+  id: number
+  from_status: BookingStatus | null
+  to_status: BookingStatus
+  reason: string | null
+  /** Solo al reprogramar (HU012). */
+  previous_starts_at: string | null
+  changed_by: { id: number; name: string } | null
+  created_at: string
+}
+
 /** FavoriteResource */
 export interface Favorite {
   id: number
