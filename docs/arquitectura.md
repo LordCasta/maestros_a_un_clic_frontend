@@ -234,7 +234,7 @@ Los **canales públicos** (sin autorización) se escuchan con `echo.channel(nomb
 | `favorites` | ✅ Conectado — **módulo de referencia** |
 | `bookings` | ✅ Conectado: solicitar con horas libres, aceptar/rechazar con aviso en tiempo real (HU004), confirmación del cliente (HU036), inicio y fin del servicio (HU027, HU028), estado en tiempo real e historial (HU026, `useBookingUpdates`), reprogramar (HU012), listado con filtros por estado y totales (HU017, `?filtro=`), detalle, cancelación con motivo |
 | `home` | 🟡 Maqueta: categorías y destacados de muestra |
-| `dashboard` | 🟡 Maqueta: paneles de cliente y profesional con datos de muestra. Conectado: "Por responder" del profesional (`PendingRequestsPanel` de `bookings`) |
+| `dashboard` | 🟡 Maqueta: paneles de cliente y profesional con datos de muestra. Conectado: "En proceso" en los dos (`InProgressPanel`, HU049) y "Por responder" del profesional (`PendingRequestsPanel`), ambos de `bookings` |
 | `professional-profile` | 🟡 Maqueta: "Sobre mí" y "Mis servicios" |
 | `schedule` | ✅ Conectado: el profesional gestiona horario, descanso y bloqueos (HU003); horas libres de un profesional (`SlotPicker`, HU025) que se refrescan en tiempo real (`useAvailabilityUpdates`) |
 

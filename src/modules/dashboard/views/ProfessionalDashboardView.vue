@@ -16,7 +16,7 @@ import {
 } from '@lucide/vue'
 
 import { useAuthStore } from '@/modules/auth'
-import { PendingRequestsPanel } from '@/modules/bookings'
+import { InProgressPanel, PendingRequestsPanel } from '@/modules/bookings'
 import { GoogleMapsEmbed } from '@/shared/ui'
 
 const authStore = useAuthStore()
@@ -343,6 +343,7 @@ const services = [
             </div>
           </section>
 
+          <InProgressPanel />
           <PendingRequestsPanel />
         </div>
 
