@@ -15,6 +15,16 @@ export const BOOKING_STATUS: Record<BookingStatus, { label: string; tone: BadgeT
   cancelled: { label: 'Cancelada', tone: 'neutral' },
 }
 
+/** Filtros del listado de reservas (HU016, HU017, HU049). Cada uno agrupa uno o más estados. */
+export const BOOKING_FILTERS: { key: string; label: string; status: BookingStatus[] }[] = [
+  { key: 'all', label: 'Todas', status: [] },
+  { key: 'requested', label: 'Por confirmar', status: ['pending', 'accepted'] },
+  { key: 'upcoming', label: 'Próximas', status: ['confirmed'] },
+  { key: 'in-progress', label: 'En proceso', status: ['in_progress'] },
+  { key: 'done', label: 'Realizadas', status: ['completed'] },
+  { key: 'cancelled', label: 'Canceladas', status: ['cancelled', 'rejected'] },
+]
+
 /**
  * Estados desde los que se puede cancelar o reprogramar (BookingStatus::allowedTransitions).
  * En los dos casos, además, solo antes de la hora programada (HU012).

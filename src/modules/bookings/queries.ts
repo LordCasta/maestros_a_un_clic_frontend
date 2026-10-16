@@ -8,19 +8,31 @@ import { bookingsApi, type CreateBookingPayload } from './api'
 
 export const bookingKeys = {
   all: ['bookings'] as const,
-  list: (page: number, status?: BookingStatus) =>
-    ['bookings', 'list', page, status ?? 'all'] as const,
+  list: (page: number, status: BookingStatus[] = []) =>
+    ['bookings', 'list', page, status.join(',') || 'all'] as const,
+  summary: ['bookings', 'summary'] as const,
   pending: ['bookings', 'pending'] as const,
   detail: (id: number) => ['bookings', 'detail', id] as const,
   history: (id: number) => ['bookings', 'history', id] as const,
 }
 
-/** Reservas del usuario según su rol (el backend filtra). */
-export function useBookings(page: MaybeRefOrGetter<number>) {
+/** Reservas del usuario según su rol (el backend filtra), opcionalmente por estados. */
+export function useBookings(
+  page: MaybeRefOrGetter<number>,
+  status: MaybeRefOrGetter<BookingStatus[]> = [],
+) {
   return useQuery({
-    key: () => bookingKeys.list(toValue(page)),
-    query: () => bookingsApi.list({ page: toValue(page) }),
+    key: () => bookingKeys.list(toValue(page), toValue(status)),
+    query: () => bookingsApi.list({ page: toValue(page), status: toValue(status) }),
     placeholderData: (previous) => previous,
+  })
+}
+
+/** HU017: total de reservas por estado (realizadas, canceladas, próximas…). */
+export function useBookingSummary() {
+  return useQuery({
+    key: bookingKeys.summary,
+    query: async () => (await bookingsApi.summary()).data,
   })
 }
 
@@ -28,7 +40,7 @@ export function useBookings(page: MaybeRefOrGetter<number>) {
 export function usePendingRequests(limit = 5) {
   return useQuery({
     key: bookingKeys.pending,
-    query: () => bookingsApi.list({ status: 'pending', per_page: limit }),
+    query: () => bookingsApi.list({ status: ['pending'], per_page: limit }),
   })
 }
 

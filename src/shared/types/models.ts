@@ -189,6 +189,12 @@ export interface AppNotification {
   body: string
 }
 
+/** GET /bookings/summary (HU017): cuántas reservas tiene el usuario en cada estado. */
+export interface BookingSummary {
+  total: number
+  by_status: Record<BookingStatus, number>
+}
+
 /** BookingStatusChangeResource: un paso del historial de una reserva (HU026). */
 export interface BookingStatusChange {
   id: number
