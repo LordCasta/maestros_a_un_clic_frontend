@@ -9,7 +9,6 @@ import {
   Bell,
   CalendarDays,
   ChevronRight,
-  Clock3,
   Heart,
   Hammer,
   MapPin,
@@ -22,6 +21,7 @@ import {
   Zap,
 } from '@lucide/vue'
 
+import { InProgressPanel } from '@/modules/bookings'
 import { GoogleMapsEmbed } from '@/shared/ui'
 
 const search = ref('')
@@ -66,25 +66,6 @@ const professionals = [
     price: '$50.000/h',
     image: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e',
     online: false,
-  },
-]
-
-const activeBookings = [
-  {
-    id: 1,
-    professional: 'Carlos Méndez',
-    service: 'Reparación de tubería',
-    date: 'Hoy · 3:00 PM',
-    status: 'En camino',
-    to: '/client/bookings/1',
-  },
-  {
-    id: 2,
-    professional: 'Ana Rodríguez',
-    service: 'Instalación eléctrica',
-    date: 'Mañana · 10:00 AM',
-    status: 'Confirmado',
-    to: '/client/bookings/2',
   },
 ]
 
@@ -368,42 +349,7 @@ const filteredProfessionals = computed(() => {
         </div>
 
         <div class="space-y-8">
-          <section class="bg-white rounded-4xl border border-neutral-100 p-6 shadow-sm">
-            <div class="flex items-center justify-between mb-6">
-              <div>
-                <h2 class="text-2xl font-black text-neutral-900">Reservas activas</h2>
-                <p class="text-neutral-500 mt-1">Servicios programados y accesos directos.</p>
-              </div>
-              <CalendarDays class="w-6 h-6 text-primary-600" />
-            </div>
-
-            <div class="space-y-5">
-              <RouterLink
-                v-for="booking in activeBookings"
-                :key="booking.id"
-                :to="booking.to"
-                class="block rounded-3xl bg-canvas p-5 border border-neutral-100 transition hover:border-primary-200 hover:shadow-md"
-              >
-                <div class="flex items-start justify-between gap-4 mb-4">
-                  <div>
-                    <h3 class="font-bold text-neutral-900">{{ booking.service }}</h3>
-                    <p class="text-sm text-neutral-500 mt-1">{{ booking.professional }}</p>
-                  </div>
-
-                  <div
-                    class="px-3 py-1 rounded-full bg-primary-600 text-white text-xs font-semibold"
-                  >
-                    {{ booking.status }}
-                  </div>
-                </div>
-
-                <div class="flex items-center gap-2 text-sm text-neutral-500">
-                  <Clock3 class="w-4 h-4" />
-                  {{ booking.date }}
-                </div>
-              </RouterLink>
-            </div>
-          </section>
+          <InProgressPanel />
 
           <section class="bg-white rounded-4xl border border-neutral-100 p-6 shadow-sm">
             <div class="flex items-center justify-between mb-6">
