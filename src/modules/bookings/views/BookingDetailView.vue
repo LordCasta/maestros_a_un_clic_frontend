@@ -11,12 +11,13 @@ import { formatDateTime, formatDuration, formatMoney, formatTime } from '@/share
 import BookingResponseActions from '../components/BookingResponseActions.vue'
 import BookingStatusBadge from '../components/BookingStatusBadge.vue'
 import CancelBookingModal from '../components/CancelBookingModal.vue'
+import ConfirmBookingButton from '../components/ConfirmBookingButton.vue'
 import { useBooking } from '../queries'
 import { CANCELLABLE } from '../status'
 
 /**
  * HU026: detalle y estado. HU004: el profesional acepta o rechaza una solicitud pendiente.
- * Las acciones de confirmar, iniciar, etc. llegan con su HU.
+ * HU036: el cliente confirma la reserva aceptada. Iniciar y finalizar llegan con su HU.
  */
 const route = useRoute()
 const auth = useAuthStore()
@@ -32,22 +33,39 @@ const canCancel = computed(
 )
 const cancelOpen = ref(false)
 
-/** Qué ve el cliente según el estado de su solicitud (HU004). */
-const CLIENT_NOTICE: Partial<
-  Record<BookingStatus, { tone: 'info' | 'success' | 'warning'; text: string }>
-> = {
-  pending: {
-    tone: 'info',
-    text: 'Tu solicitud está esperando la respuesta del profesional. Te avisaremos apenas responda.',
+type Notice = { tone: 'info' | 'success' | 'warning'; text: string }
+
+/**
+ * Qué ve cada uno según el estado (HU004, HU036). Los estados con acción propia
+ * (pendiente para el profesional, aceptada para el cliente) tienen su tarjeta aparte.
+ */
+const NOTICES: Record<'client' | 'professional', Partial<Record<BookingStatus, Notice>>> = {
+  client: {
+    pending: {
+      tone: 'info',
+      text: 'Tu solicitud está esperando la respuesta del profesional. Te avisaremos apenas responda.',
+    },
+    confirmed: {
+      tone: 'success',
+      text: 'Reserva confirmada. El profesional ya la tiene en su agenda.',
+    },
+    rejected: {
+      tone: 'warning',
+      text: 'El profesional no puede atender esta solicitud. Puedes elegir otra hora o buscar otro profesional.',
+    },
   },
-  accepted: { tone: 'success', text: 'El profesional aceptó tu solicitud.' },
-  rejected: {
-    tone: 'warning',
-    text: 'El profesional no puede atender esta solicitud. Puedes elegir otra hora o buscar otro profesional.',
+  professional: {
+    accepted: {
+      tone: 'info',
+      text: 'Aceptaste la solicitud. Falta que el cliente la confirme; te avisaremos cuando lo haga.',
+    },
+    confirmed: { tone: 'success', text: 'El cliente confirmó la reserva.' },
   },
 }
-const clientNotice = computed(() =>
-  booking.value && !isProfessional.value ? CLIENT_NOTICE[booking.value.status] : undefined,
+const notice = computed(() =>
+  booking.value
+    ? NOTICES[isProfessional.value ? 'professional' : 'client'][booking.value.status]
+    : undefined,
 )
 </script>
 
@@ -83,8 +101,23 @@ const clientNotice = computed(() =>
         <BookingResponseActions :booking-id="booking.id" />
       </section>
 
-      <BaseAlert v-if="clientNotice" :tone="clientNotice.tone">
-        {{ clientNotice.text }}
+      <section
+        v-if="!isProfessional && booking.status === 'accepted'"
+        class="flex flex-col gap-4 rounded-3xl border border-success-200 bg-success-50 p-6 sm:flex-row sm:items-center sm:justify-between"
+      >
+        <div>
+          <p class="font-bold text-neutral-900">
+            {{ booking.professional.name }} aceptó tu solicitud
+          </p>
+          <p class="text-sm text-neutral-600">
+            Confírmala para dejar la reserva asegurada en su agenda.
+          </p>
+        </div>
+        <ConfirmBookingButton :booking-id="booking.id" />
+      </section>
+
+      <BaseAlert v-if="notice" :tone="notice.tone">
+        {{ notice.text }}
         <BaseButton
           v-if="booking.status === 'rejected'"
           variant="ghost"

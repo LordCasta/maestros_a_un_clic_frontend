@@ -146,7 +146,11 @@ export interface ProfessionalSlots {
 }
 
 /** Tipos de notificación. Contrato: backend/docs/api/endpoints.md § Notificaciones */
-export type NotificationType = 'booking.requested' | 'booking.accepted' | 'booking.rejected'
+export type NotificationType =
+  | 'booking.requested'
+  | 'booking.accepted'
+  | 'booking.rejected'
+  | 'booking.confirmed'
 
 /** Notificación recibida por el canal privado App.Models.User.{id}. */
 export interface AppNotification {
