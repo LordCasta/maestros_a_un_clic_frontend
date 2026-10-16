@@ -13,13 +13,14 @@ import BookingResponseActions from '../components/BookingResponseActions.vue'
 import BookingStatusBadge from '../components/BookingStatusBadge.vue'
 import CancelBookingModal from '../components/CancelBookingModal.vue'
 import ConfirmBookingButton from '../components/ConfirmBookingButton.vue'
+import RescheduleBookingModal from '../components/RescheduleBookingModal.vue'
 import ServiceProgressCard from '../components/ServiceProgressCard.vue'
 import { useBooking } from '../queries'
 import { useBookingUpdates } from '../realtime'
-import { CANCELLABLE } from '../status'
+import { CANCELLABLE, RESCHEDULABLE } from '../status'
 
 /**
- * HU026: detalle, estado en tiempo real e historial. HU004: el profesional acepta o rechaza una solicitud pendiente.
+ * HU026: detalle, estado en tiempo real e historial. HU012: cancelar y reprogramar. HU004: el profesional acepta o rechaza una solicitud pendiente.
  * HU036: el cliente confirma la reserva aceptada. HU027, HU028: el profesional inicia y
  * finaliza el servicio.
  */
@@ -34,10 +35,16 @@ const isProfessional = computed(() => auth.role === 'professional')
 const counterpart = computed(() =>
   booking.value ? (isProfessional.value ? booking.value.client : booking.value.professional) : null,
 )
-const canCancel = computed(
-  () => booking.value !== undefined && CANCELLABLE.includes(booking.value.status),
+// HU012: cancelar y reprogramar solo antes de la hora programada.
+const beforeStart = computed(
+  () => booking.value !== undefined && Date.now() < new Date(booking.value.starts_at).getTime(),
+)
+const canCancel = computed(() => beforeStart.value && CANCELLABLE.includes(booking.value!.status))
+const canReschedule = computed(
+  () => beforeStart.value && RESCHEDULABLE.includes(booking.value!.status),
 )
 const cancelOpen = ref(false)
+const rescheduleOpen = ref(false)
 
 type Notice = { tone: 'info' | 'success' | 'warning'; text: string }
 
@@ -227,8 +234,16 @@ const showProgress = computed(
         </div>
       </BaseCard>
 
-      <div v-if="canCancel" class="flex justify-end">
-        <BaseButton variant="outline" class="text-danger-700" @click="cancelOpen = true">
+      <div v-if="canCancel || canReschedule" class="flex flex-wrap justify-end gap-2">
+        <BaseButton v-if="canReschedule" variant="outline" @click="rescheduleOpen = true">
+          Reprogramar
+        </BaseButton>
+        <BaseButton
+          v-if="canCancel"
+          variant="outline"
+          class="text-danger-700"
+          @click="cancelOpen = true"
+        >
           Cancelar reserva
         </BaseButton>
       </div>
@@ -236,6 +251,7 @@ const showProgress = computed(
       <BookingHistory :booking-id="booking.id" />
 
       <CancelBookingModal v-model:open="cancelOpen" :booking-id="booking.id" />
+      <RescheduleBookingModal v-model:open="rescheduleOpen" :booking="booking" />
     </div>
   </div>
 </template>

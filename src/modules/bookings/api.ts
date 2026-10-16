@@ -29,6 +29,8 @@ export const bookingsApi = {
   confirm: (id: number) => http.post<ApiSuccess<Booking>>(`/bookings/${id}/confirm`),
   start: (id: number) => http.post<ApiSuccess<Booking>>(`/bookings/${id}/start`),
   complete: (id: number) => http.post<ApiSuccess<Booking>>(`/bookings/${id}/complete`),
+  reschedule: (id: number, startsAt: string) =>
+    http.post<ApiSuccess<Booking>>(`/bookings/${id}/reschedule`, { starts_at: startsAt }),
   cancel: (id: number, reason: string) =>
     http.post<ApiSuccess<Booking>>(`/bookings/${id}/cancel`, { reason }),
 }

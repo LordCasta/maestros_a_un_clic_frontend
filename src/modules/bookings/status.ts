@@ -15,5 +15,9 @@ export const BOOKING_STATUS: Record<BookingStatus, { label: string; tone: BadgeT
   cancelled: { label: 'Cancelada', tone: 'neutral' },
 }
 
-/** Estados desde los que se puede cancelar (BookingStatus::allowedTransitions). */
+/**
+ * Estados desde los que se puede cancelar o reprogramar (BookingStatus::allowedTransitions).
+ * En los dos casos, además, solo antes de la hora programada (HU012).
+ */
 export const CANCELLABLE: BookingStatus[] = ['pending', 'accepted', 'confirmed']
+export const RESCHEDULABLE: BookingStatus[] = ['pending', 'accepted', 'confirmed']

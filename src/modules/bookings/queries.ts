@@ -120,6 +120,17 @@ export function useCompleteBooking() {
   })
 }
 
+/** HU012: mover la reserva a otra hora libre (vuelve a pendiente). */
+export function useRescheduleBooking() {
+  const invalidate = useInvalidateBookings()
+
+  return useMutation({
+    mutation: ({ id, startsAt }: { id: number; startsAt: string }) =>
+      bookingsApi.reschedule(id, startsAt),
+    onSettled: invalidate,
+  })
+}
+
 /** HU012. El manejo del error (toast o alerta) lo decide quien la usa. */
 export function useCancelBooking() {
   const invalidate = useInvalidateBookings()

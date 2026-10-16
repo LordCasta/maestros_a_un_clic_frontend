@@ -177,6 +177,8 @@ export type NotificationType =
   | 'booking.confirmed'
   | 'booking.started'
   | 'booking.completed'
+  | 'booking.cancelled'
+  | 'booking.rescheduled'
 
 /** Notificación recibida por el canal privado App.Models.User.{id}. */
 export interface AppNotification {
