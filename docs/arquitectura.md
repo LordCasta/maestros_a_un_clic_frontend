@@ -230,7 +230,7 @@ Al desmontar se quita **solo el callback propio** (`stopListeningForNotification
 | `catalog` | ✅ Conectado: comunas y categorías |
 | `professionals` | ✅ Conectado: búsqueda con filtros en la URL y perfil |
 | `favorites` | ✅ Conectado — **módulo de referencia** |
-| `bookings` | ✅ Conectado: solicitar con horas libres, aceptar/rechazar con aviso en tiempo real (HU004), listado, detalle, cancelación con motivo |
+| `bookings` | ✅ Conectado: solicitar con horas libres, aceptar/rechazar con aviso en tiempo real (HU004), confirmación del cliente (HU036), listado, detalle, cancelación con motivo |
 | `home` | 🟡 Maqueta: categorías y destacados de muestra |
 | `dashboard` | 🟡 Maqueta: paneles de cliente y profesional con datos de muestra. Conectado: "Por responder" del profesional (`PendingRequestsPanel` de `bookings`) |
 | `professional-profile` | 🟡 Maqueta: "Sobre mí" y "Mis servicios" |

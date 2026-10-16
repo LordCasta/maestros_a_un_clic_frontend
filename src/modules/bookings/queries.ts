@@ -81,6 +81,16 @@ export function useRejectBooking() {
   })
 }
 
+/** HU036: el cliente confirma una reserva aceptada. */
+export function useConfirmBooking() {
+  const invalidate = useInvalidateBookings()
+
+  return useMutation({
+    mutation: (id: number) => bookingsApi.confirm(id),
+    onSettled: invalidate,
+  })
+}
+
 /** HU012. El manejo del error (toast o alerta) lo decide quien la usa. */
 export function useCancelBooking() {
   const invalidate = useInvalidateBookings()

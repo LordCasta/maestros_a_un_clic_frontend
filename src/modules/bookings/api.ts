@@ -25,6 +25,7 @@ export const bookingsApi = {
   accept: (id: number) => http.post<ApiSuccess<Booking>>(`/bookings/${id}/accept`),
   reject: (id: number, reason?: string) =>
     http.post<ApiSuccess<Booking>>(`/bookings/${id}/reject`, reason ? { reason } : {}),
+  confirm: (id: number) => http.post<ApiSuccess<Booking>>(`/bookings/${id}/confirm`),
   cancel: (id: number, reason: string) =>
     http.post<ApiSuccess<Booking>>(`/bookings/${id}/cancel`, { reason }),
 }
