@@ -232,7 +232,7 @@ Los **canales públicos** (sin autorización) se escuchan con `echo.channel(nomb
 | `catalog` | ✅ Conectado: comunas y categorías |
 | `professionals` | ✅ Conectado: búsqueda con filtros en la URL y perfil |
 | `favorites` | ✅ Conectado — **módulo de referencia** |
-| `bookings` | ✅ Conectado: solicitar con horas libres, aceptar/rechazar con aviso en tiempo real (HU004), confirmación del cliente (HU036), inicio y fin del servicio (HU027, HU028), listado, detalle, cancelación con motivo |
+| `bookings` | ✅ Conectado: solicitar con horas libres, aceptar/rechazar con aviso en tiempo real (HU004), confirmación del cliente (HU036), inicio y fin del servicio (HU027, HU028), estado en tiempo real e historial (HU026, `useBookingUpdates`), listado, detalle, cancelación con motivo |
 | `home` | 🟡 Maqueta: categorías y destacados de muestra |
 | `dashboard` | 🟡 Maqueta: paneles de cliente y profesional con datos de muestra. Conectado: "Por responder" del profesional (`PendingRequestsPanel` de `bookings`) |
 | `professional-profile` | 🟡 Maqueta: "Sobre mí" y "Mis servicios" |

@@ -12,6 +12,7 @@ export const bookingKeys = {
     ['bookings', 'list', page, status ?? 'all'] as const,
   pending: ['bookings', 'pending'] as const,
   detail: (id: number) => ['bookings', 'detail', id] as const,
+  history: (id: number) => ['bookings', 'history', id] as const,
 }
 
 /** Reservas del usuario según su rol (el backend filtra). */
@@ -35,6 +36,14 @@ export function useBooking(id: MaybeRefOrGetter<number>) {
   return useQuery({
     key: () => bookingKeys.detail(toValue(id)),
     query: async () => (await bookingsApi.find(toValue(id))).data,
+  })
+}
+
+/** HU026: historial de cambios de estado de una reserva. */
+export function useBookingHistory(id: MaybeRefOrGetter<number>) {
+  return useQuery({
+    key: () => bookingKeys.history(toValue(id)),
+    query: async () => (await bookingsApi.history(toValue(id))).data,
   })
 }
 

@@ -1,6 +1,6 @@
 import { http } from '@/shared/http/client'
 import type { ApiPaginated, ApiSuccess, PageQuery } from '@/shared/types/api'
-import type { Booking, BookingStatus } from '@/shared/types/models'
+import type { Booking, BookingStatus, BookingStatusChange } from '@/shared/types/models'
 
 /** Contrato: backend/docs/api/endpoints.md § Reservas */
 
@@ -21,6 +21,7 @@ export const bookingsApi = {
   list: (query: BookingListQuery) =>
     http.get<ApiPaginated<Booking>>('/bookings', { query: { ...query } }),
   find: (id: number) => http.get<ApiSuccess<Booking>>(`/bookings/${id}`),
+  history: (id: number) => http.get<ApiSuccess<BookingStatusChange[]>>(`/bookings/${id}/history`),
   create: (payload: CreateBookingPayload) => http.post<ApiSuccess<Booking>>('/bookings', payload),
   accept: (id: number) => http.post<ApiSuccess<Booking>>(`/bookings/${id}/accept`),
   reject: (id: number, reason?: string) =>
