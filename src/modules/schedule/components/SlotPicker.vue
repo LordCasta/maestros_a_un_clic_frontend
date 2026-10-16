@@ -7,6 +7,7 @@ import { formatTime } from '@/shared/utils/format'
 
 import { upcomingDays } from '../dates'
 import { useProfessionalSlots } from '../queries'
+import { useAvailabilityUpdates } from '../realtime'
 
 /**
  * HU025: elegir día y hora libres de un profesional para un servicio.
@@ -28,6 +29,9 @@ const {
   date,
   () => props.serviceId,
 )
+
+// Si otro cliente reserva o el profesional cambia su agenda, las horas se refrescan solas.
+useAvailabilityUpdates(() => props.professionalId)
 
 // Otro día u otro servicio: la hora elegida ya no aplica.
 watch([date, () => props.serviceId], () => {

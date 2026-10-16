@@ -1,102 +1,77 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { CalendarClock, Coffee, Info } from '@lucide/vue'
+import { computed } from 'vue'
 
-const days = [
-  { key: 'monday', label: 'Lunes' },
-  { key: 'tuesday', label: 'Martes' },
-  { key: 'wednesday', label: 'Miércoles' },
-  { key: 'thursday', label: 'Jueves' },
-  { key: 'friday', label: 'Viernes' },
-  { key: 'saturday', label: 'Sábado' },
-  { key: 'sunday', label: 'Domingo' },
-]
+import { BaseAlert, BaseCard, BaseSkeleton } from '@/shared/ui'
+import { formatDuration } from '@/shared/utils/format'
 
-const availability = ref(
-  days.map((day, index) => ({
-    day: day.key,
-    hours: index < 5 ? '09:00-13:00,14:00-18:00' : '',
-    available: index < 5,
-  })),
+import BlocksManager from '../components/BlocksManager.vue'
+import WeeklyScheduleEditor from '../components/WeeklyScheduleEditor.vue'
+import { useMyAvailability } from '../queries'
+
+/**
+ * HU003: el profesional configura cuándo atiende, el descanso entre servicios y las horas
+ * ocupadas. Los clientes ven los cambios al instante en las horas libres (HU025).
+ */
+const { data: availability, isPending, error } = useMyAvailability()
+
+const activeDays = computed(
+  () => new Set((availability.value?.rules ?? []).map((rule) => rule.weekday)).size,
 )
-
-const summary = computed(() => availability.value.filter((slot) => slot.available).length)
-
-const save = () => {
-  alert('Vista visual: la disponibilidad no se guarda todavía.')
-}
 </script>
 
 <template>
-  <div class="min-h-screen bg-canvas px-4 py-8">
-    <div class="mx-auto max-w-4xl space-y-6">
-      <section class="rounded-4xl border border-neutral-100 bg-white p-6 shadow-sm">
-        <div class="flex flex-wrap items-center justify-between gap-4">
+  <div class="mx-auto max-w-4xl space-y-6 px-4 py-8 sm:px-6 lg:px-8">
+    <header>
+      <h1 class="text-3xl font-black text-neutral-900">Mi disponibilidad</h1>
+      <p class="mt-1 text-neutral-500">
+        Define cuándo pueden reservarte. Las reservas que ya tienes no cambian.
+      </p>
+    </header>
+
+    <div v-if="isPending" class="space-y-6">
+      <BaseSkeleton class="h-24" />
+      <BaseSkeleton class="h-96" />
+    </div>
+
+    <BaseAlert v-else-if="error" tone="danger" title="No pudimos cargar tu agenda">
+      {{ error.message }}
+    </BaseAlert>
+
+    <template v-else-if="availability">
+      <div class="grid gap-4 sm:grid-cols-2">
+        <BaseCard padding="sm" class="flex items-center gap-4">
+          <CalendarClock class="size-8 shrink-0 text-primary-600" />
           <div>
-            <h1 class="text-3xl font-black text-neutral-900">Mi Disponibilidad</h1>
-            <p class="mt-1 text-neutral-600">
-              Maqueta visual para revisar bloques horarios por día.
+            <p class="text-sm text-neutral-500">Días en que atiendes</p>
+            <p class="text-2xl font-black text-neutral-900">{{ activeDays }} de 7</p>
+          </div>
+        </BaseCard>
+        <BaseCard padding="sm" class="flex items-center gap-4">
+          <Coffee class="size-8 shrink-0 text-primary-600" />
+          <div>
+            <p class="text-sm text-neutral-500">Descanso entre servicios</p>
+            <p class="text-2xl font-black text-neutral-900">
+              {{
+                availability.buffer_minutes
+                  ? formatDuration(availability.buffer_minutes)
+                  : 'Sin descanso'
+              }}
             </p>
           </div>
+        </BaseCard>
+      </div>
 
-          <button
-            class="rounded-2xl bg-primary-600 px-4 py-3 font-semibold text-white"
-            @click="save"
-          >
-            Guardar
-          </button>
-        </div>
+      <BaseAlert v-if="activeDays === 0" tone="warning">
+        <span class="inline-flex items-start gap-2">
+          <Info class="mt-0.5 size-4 shrink-0" />
+          Aún no tienes días de atención: los clientes no pueden reservarte hasta que actives al
+          menos uno.
+        </span>
+      </BaseAlert>
 
-        <div class="mt-6 grid gap-3 sm:grid-cols-3">
-          <div class="rounded-3xl bg-surface-muted p-4">
-            <p class="text-sm text-neutral-500">Días activos</p>
-            <p class="mt-1 text-2xl font-black text-neutral-900">{{ summary }}</p>
-          </div>
-          <div class="rounded-3xl bg-surface-muted p-4">
-            <p class="text-sm text-neutral-500">Bloque sugerido</p>
-            <p class="mt-1 text-2xl font-black text-neutral-900">09:00 - 18:00</p>
-          </div>
-          <div class="rounded-3xl bg-surface-muted p-4">
-            <p class="text-sm text-neutral-500">Estado</p>
-            <p class="mt-1 text-2xl font-black text-neutral-900">Editable</p>
-          </div>
-        </div>
-      </section>
-
-      <section class="rounded-4xl border border-neutral-100 bg-white p-6 shadow-sm">
-        <div class="space-y-4">
-          <article
-            v-for="(day, idx) in days"
-            :key="day.key"
-            class="rounded-3xl border border-neutral-100 bg-surface-muted p-4"
-          >
-            <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-              <div class="min-w-40">
-                <p class="text-lg font-bold text-neutral-900">{{ day.label }}</p>
-                <p class="text-sm text-neutral-500">Bloque visual para agenda semanal</p>
-              </div>
-
-              <div class="flex-1 lg:max-w-2xl">
-                <input
-                  v-model="availability[idx].hours"
-                  class="w-full rounded-2xl border border-neutral-200 bg-white px-4 py-3 outline-none focus:border-primary-600"
-                  placeholder="Ej: 09:00-12:00,14:00-18:00"
-                />
-              </div>
-
-              <label
-                class="inline-flex items-center gap-2 rounded-2xl bg-white px-4 py-3 border border-neutral-200"
-              >
-                <input v-model="availability[idx].available" type="checkbox" />
-                <span class="text-sm font-semibold text-neutral-700">Disponible</span>
-              </label>
-            </div>
-          </article>
-        </div>
-      </section>
-
-      <section class="rounded-4xl border border-dashed border-neutral-300 bg-white p-6 text-center">
-        <p class="font-semibold text-neutral-800">Esta pantalla todavía no conecta con backend.</p>
-      </section>
-    </div>
+      <WeeklyScheduleEditor :availability="availability" />
+      <BlocksManager :blocks="availability.blocks" />
+    </template>
   </div>
 </template>

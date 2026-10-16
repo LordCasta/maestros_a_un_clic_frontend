@@ -145,6 +145,30 @@ export interface ProfessionalSlots {
   slots: AvailableSlot[]
 }
 
+/** AvailabilityRuleResource: franja del horario semanal. weekday: 0 = domingo … 6 = sábado. */
+export interface AvailabilityRule {
+  id: number
+  weekday: number
+  /** H:i */
+  start_time: string
+  end_time: string
+}
+
+/** AvailabilityBlockResource: intervalo marcado como ocupado. */
+export interface AvailabilityBlock {
+  id: number
+  starts_at: string
+  ends_at: string
+  reason: string | null
+}
+
+/** GET /professional/availability (HU003) */
+export interface ProfessionalAvailability {
+  buffer_minutes: number
+  rules: AvailabilityRule[]
+  blocks: AvailabilityBlock[]
+}
+
 /** Tipos de notificación. Contrato: backend/docs/api/endpoints.md § Notificaciones */
 export type NotificationType =
   | 'booking.requested'

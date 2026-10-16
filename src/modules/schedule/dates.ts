@@ -37,6 +37,14 @@ export function dateKey(date: Date): string {
   return keyFormat.format(date)
 }
 
+/**
+ * "2026-10-20" + "09:30" → "2026-10-20T09:30:00-05:00". Colombia no tiene horario de verano,
+ * así que el desfase es siempre -05:00.
+ */
+export function toColombiaIso(date: string, time: string): string {
+  return `${date}T${time}:00-05:00`
+}
+
 /** Los próximos `count` días desde `from` (incluido), para elegir fecha de reserva. */
 export function upcomingDays(count: number, from: Date = new Date()): DayOption[] {
   return Array.from({ length: count }, (_, index) => {
