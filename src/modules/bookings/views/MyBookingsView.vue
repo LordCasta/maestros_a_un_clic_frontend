@@ -1,5 +1,11 @@
 <script setup lang="ts">
+import { useRoute } from 'vue-router'
+
 import BookingList from '../components/BookingList.vue'
+
+/** HU016: reservas del cliente, con filtros por estado. */
+const route = useRoute()
+const initialFilter = typeof route.query.filtro === 'string' ? route.query.filtro : undefined
 </script>
 
 <template>
@@ -8,6 +14,6 @@ import BookingList from '../components/BookingList.vue'
       <h1 class="text-3xl font-black text-neutral-900">Mis reservas</h1>
       <p class="mt-1 text-neutral-500">Servicios que solicitaste, pendientes y realizados.</p>
     </header>
-    <BookingList viewer="client" />
+    <BookingList viewer="client" :initial-filter="initialFilter" />
   </div>
 </template>

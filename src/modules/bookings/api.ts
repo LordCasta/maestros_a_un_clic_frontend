@@ -1,6 +1,11 @@
 import { http } from '@/shared/http/client'
 import type { ApiPaginated, ApiSuccess, PageQuery } from '@/shared/types/api'
-import type { Booking, BookingStatus, BookingStatusChange } from '@/shared/types/models'
+import type {
+  Booking,
+  BookingStatus,
+  BookingStatusChange,
+  BookingSummary,
+} from '@/shared/types/models'
 
 /** Contrato: backend/docs/api/endpoints.md § Reservas */
 
@@ -14,12 +19,16 @@ export interface CreateBookingPayload {
 }
 
 export interface BookingListQuery extends PageQuery {
-  status?: BookingStatus
+  /** Uno o varios estados; la API los recibe separados por coma. */
+  status?: BookingStatus[]
 }
 
 export const bookingsApi = {
-  list: (query: BookingListQuery) =>
-    http.get<ApiPaginated<Booking>>('/bookings', { query: { ...query } }),
+  list: ({ status, ...query }: BookingListQuery) =>
+    http.get<ApiPaginated<Booking>>('/bookings', {
+      query: { ...query, ...(status?.length ? { status: status.join(',') } : {}) },
+    }),
+  summary: () => http.get<ApiSuccess<BookingSummary>>('/bookings/summary'),
   find: (id: number) => http.get<ApiSuccess<Booking>>(`/bookings/${id}`),
   history: (id: number) => http.get<ApiSuccess<BookingStatusChange[]>>(`/bookings/${id}/history`),
   create: (payload: CreateBookingPayload) => http.post<ApiSuccess<Booking>>('/bookings', payload),
