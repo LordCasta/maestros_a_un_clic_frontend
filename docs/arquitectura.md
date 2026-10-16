@@ -214,6 +214,8 @@ getRealtime()?.private(`App.Models.User.${userId}`).notification((n: AppNotifica
 
 Al desmontar se quita **solo el callback propio** (`stopListeningForNotification(callback)`), no el canal: otros módulos pueden estar escuchándolo.
 
+Los **canales públicos** (sin autorización) se escuchan con `echo.channel(nombre)`. Ejemplo: `useAvailabilityUpdates(professionalId)` de `schedule` escucha `.availability.changed` en `professional.{id}.availability` e invalida `scheduleKeys.professionalSlots(id)`; al desmontar, `stopListening(evento, callback)`.
+
 ## 11. Tests
 
 - Archivos en `__tests__/` junto al código: `src/modules/favorites/__tests__/FavoriteButton.spec.ts`.
@@ -234,7 +236,7 @@ Al desmontar se quita **solo el callback propio** (`stopListeningForNotification
 | `home` | 🟡 Maqueta: categorías y destacados de muestra |
 | `dashboard` | 🟡 Maqueta: paneles de cliente y profesional con datos de muestra. Conectado: "Por responder" del profesional (`PendingRequestsPanel` de `bookings`) |
 | `professional-profile` | 🟡 Maqueta: "Sobre mí" y "Mis servicios" |
-| `schedule` | ✅ Horas libres de un profesional (`SlotPicker`, HU025). 🟡 Maqueta: la vista de disponibilidad del profesional (HU003) |
+| `schedule` | ✅ Conectado: el profesional gestiona horario, descanso y bloqueos (HU003); horas libres de un profesional (`SlotPicker`, HU025) que se refrescan en tiempo real (`useAvailabilityUpdates`) |
 
 Las maquetas compilan y usan los tokens, pero sus datos están escritos en el código. Se conectan al implementar su módulo.
 
