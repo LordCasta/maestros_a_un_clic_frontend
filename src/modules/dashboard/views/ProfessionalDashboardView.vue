@@ -13,11 +13,11 @@ import {
   Plus,
   ShieldCheck,
   Sparkles,
-  Bell,
 } from '@lucide/vue'
 
-import { GoogleMapsEmbed } from '@/shared/ui'
 import { useAuthStore } from '@/modules/auth'
+import { PendingRequestsPanel } from '@/modules/bookings'
+import { GoogleMapsEmbed } from '@/shared/ui'
 
 const authStore = useAuthStore()
 
@@ -123,27 +123,6 @@ const todayAgenda = [
     location: 'Suba, Bogotá',
     status: 'Prioritaria',
     tone: 'bg-neutral-100 text-neutral-700 border-neutral-200',
-  },
-]
-
-const recentRequests = [
-  {
-    client: 'Camila López',
-    service: 'Diagnóstico de panel eléctrico',
-    when: 'Hace 14 min',
-    budget: '$180.000',
-  },
-  {
-    client: 'Felipe Castro',
-    service: 'Revisión de fuga en cocina',
-    when: 'Hace 32 min',
-    budget: '$120.000',
-  },
-  {
-    client: 'Sandra Molina',
-    service: 'Instalación de luminarias',
-    when: 'Hace 1 h',
-    budget: '$240.000',
   },
 ]
 
@@ -364,60 +343,7 @@ const services = [
             </div>
           </section>
 
-          <section class="rounded-4xl border border-neutral-100 bg-white p-6 shadow-sm">
-            <div class="flex items-center justify-between gap-4">
-              <div>
-                <p class="text-sm font-semibold uppercase tracking-[0.2em] text-primary-600">
-                  Solicitudes
-                </p>
-                <h2 class="mt-1 text-2xl font-black text-neutral-900">Pedidos recientes</h2>
-              </div>
-              <button
-                class="inline-flex items-center gap-2 text-sm font-semibold text-primary-600 transition hover:text-primary-700"
-              >
-                Revisar todas
-                <ChevronRight class="h-4 w-4" />
-              </button>
-            </div>
-
-            <div class="mt-6 grid gap-4 md:grid-cols-3">
-              <article
-                v-for="request in recentRequests"
-                :key="request.client"
-                class="rounded-3xl border border-neutral-100 bg-surface-muted p-5"
-              >
-                <div class="flex items-center justify-between gap-4">
-                  <div>
-                    <p class="font-bold text-neutral-900">{{ request.client }}</p>
-                    <p class="mt-1 text-sm text-neutral-600">{{ request.service }}</p>
-                  </div>
-                  <div
-                    class="flex h-11 w-11 items-center justify-center rounded-2xl bg-white text-primary-600 shadow-sm ring-1 ring-neutral-100"
-                  >
-                    <Bell class="h-5 w-5" />
-                  </div>
-                </div>
-
-                <div class="mt-4 flex items-center justify-between text-sm text-neutral-500">
-                  <span>{{ request.when }}</span>
-                  <span class="font-semibold text-neutral-900">{{ request.budget }}</span>
-                </div>
-
-                <div class="mt-5 flex gap-2">
-                  <button
-                    class="flex-1 rounded-2xl border border-neutral-200 bg-white px-3 py-2 text-sm font-semibold text-neutral-700 transition hover:border-primary-200 hover:text-primary-600"
-                  >
-                    Descartar
-                  </button>
-                  <button
-                    class="flex-1 rounded-2xl bg-primary-600 px-3 py-2 text-sm font-semibold text-white transition hover:bg-primary-700"
-                  >
-                    Responder
-                  </button>
-                </div>
-              </article>
-            </div>
-          </section>
+          <PendingRequestsPanel />
         </div>
 
         <aside class="space-y-8">

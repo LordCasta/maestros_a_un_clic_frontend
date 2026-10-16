@@ -4,15 +4,20 @@ import { computed, ref } from 'vue'
 import { useRoute } from 'vue-router'
 
 import { useAuthStore } from '@/modules/auth'
+import type { BookingStatus } from '@/shared/types/models'
 import { BaseAlert, BaseAvatar, BaseButton, BaseCard, BaseRating, BaseSkeleton } from '@/shared/ui'
 import { formatDateTime, formatDuration, formatMoney, formatTime } from '@/shared/utils/format'
 
+import BookingResponseActions from '../components/BookingResponseActions.vue'
 import BookingStatusBadge from '../components/BookingStatusBadge.vue'
 import CancelBookingModal from '../components/CancelBookingModal.vue'
 import { useBooking } from '../queries'
 import { CANCELLABLE } from '../status'
 
-/** HU026: detalle y estado. Las acciones de aceptar, iniciar, etc. llegan con su módulo. */
+/**
+ * HU026: detalle y estado. HU004: el profesional acepta o rechaza una solicitud pendiente.
+ * Las acciones de confirmar, iniciar, etc. llegan con su HU.
+ */
 const route = useRoute()
 const auth = useAuthStore()
 const id = computed(() => Number(route.params.id))
@@ -26,6 +31,24 @@ const canCancel = computed(
   () => booking.value !== undefined && CANCELLABLE.includes(booking.value.status),
 )
 const cancelOpen = ref(false)
+
+/** Qué ve el cliente según el estado de su solicitud (HU004). */
+const CLIENT_NOTICE: Partial<
+  Record<BookingStatus, { tone: 'info' | 'success' | 'warning'; text: string }>
+> = {
+  pending: {
+    tone: 'info',
+    text: 'Tu solicitud está esperando la respuesta del profesional. Te avisaremos apenas responda.',
+  },
+  accepted: { tone: 'success', text: 'El profesional aceptó tu solicitud.' },
+  rejected: {
+    tone: 'warning',
+    text: 'El profesional no puede atender esta solicitud. Puedes elegir otra hora o buscar otro profesional.',
+  },
+}
+const clientNotice = computed(() =>
+  booking.value && !isProfessional.value ? CLIENT_NOTICE[booking.value.status] : undefined,
+)
 </script>
 
 <template>
@@ -46,6 +69,33 @@ const cancelOpen = ref(false)
     }}</BaseAlert>
 
     <div v-else-if="booking && counterpart" class="space-y-6">
+      <section
+        v-if="isProfessional && booking.status === 'pending'"
+        class="flex flex-col gap-4 rounded-3xl border border-warning-200 bg-warning-50 p-6 sm:flex-row sm:items-center sm:justify-between"
+      >
+        <div>
+          <p class="font-bold text-neutral-900">Nueva solicitud</p>
+          <p class="text-sm text-neutral-600">
+            {{ booking.client.name }} espera tu respuesta. Si aceptas, la reserva queda a la espera
+            de su confirmación.
+          </p>
+        </div>
+        <BookingResponseActions :booking-id="booking.id" />
+      </section>
+
+      <BaseAlert v-if="clientNotice" :tone="clientNotice.tone">
+        {{ clientNotice.text }}
+        <BaseButton
+          v-if="booking.status === 'rejected'"
+          variant="ghost"
+          size="sm"
+          :to="{ name: 'professional-detail', params: { id: booking.professional.id } }"
+          class="mt-2"
+        >
+          Ver otras horas de {{ booking.professional.name }}
+        </BaseButton>
+      </BaseAlert>
+
       <BaseCard as="header" padding="lg">
         <div class="flex flex-wrap items-start justify-between gap-4">
           <div>

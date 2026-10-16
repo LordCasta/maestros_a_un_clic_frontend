@@ -206,11 +206,20 @@ getRealtime()?.join(`booking.${id}`).listen('.message.sent', (message: Message) 
 
 Canales y eventos: repo del backend → `docs/tiempo-real.md`. Al recibir un evento, invalida la key correspondiente o actualiza la caché del módulo.
 
+Las **notificaciones** llegan por el canal privado del usuario con la forma `AppNotification` (`models.ts`). Cada módulo escucha las suyas con un composable que se monta una sola vez en el layout del área; ejemplo: `useBookingAlerts()` de `bookings` (toast + invalidar `bookingKeys.all`):
+
+```ts
+getRealtime()?.private(`App.Models.User.${userId}`).notification((n: AppNotification) => { … })
+```
+
+Al desmontar se quita **solo el callback propio** (`stopListeningForNotification(callback)`), no el canal: otros módulos pueden estar escuchándolo.
+
 ## 11. Tests
 
 - Archivos en `__tests__/` junto al código: `src/modules/favorites/__tests__/FavoriteButton.spec.ts`.
 - Mínimo por módulo: los esquemas Zod y un componente con su interacción principal.
 - Para componentes con datos: mockear `<modulo>Api` con `vi.mock('../api')` y montar con Pinia, Pinia Colada y un router de memoria (copiar el test de `FavoriteButton`).
+- Para simular un error de la API usa `mockImplementation(async () => { throw new ApiError('…', 409) })` y no llames `mockReset()` en un `beforeEach` del mismo mock: con Pinia Colada el rechazo termina reportado como error del test aunque el componente lo maneje (ver `BookingResponseActions.spec.ts`).
 - `npm run test:unit` en modo observador; `npx vitest run` una vez.
 
 ## 12. Estado de los módulos (fase 0)
@@ -221,11 +230,11 @@ Canales y eventos: repo del backend → `docs/tiempo-real.md`. Al recibir un eve
 | `catalog` | ✅ Conectado: comunas y categorías |
 | `professionals` | ✅ Conectado: búsqueda con filtros en la URL y perfil |
 | `favorites` | ✅ Conectado — **módulo de referencia** |
-| `bookings` | ✅ Conectado: listado, detalle, cancelación con motivo |
+| `bookings` | ✅ Conectado: solicitar con horas libres, aceptar/rechazar con aviso en tiempo real (HU004), listado, detalle, cancelación con motivo |
 | `home` | 🟡 Maqueta: categorías y destacados de muestra |
-| `dashboard` | 🟡 Maqueta: paneles de cliente y profesional con datos de muestra |
+| `dashboard` | 🟡 Maqueta: paneles de cliente y profesional con datos de muestra. Conectado: "Por responder" del profesional (`PendingRequestsPanel` de `bookings`) |
 | `professional-profile` | 🟡 Maqueta: "Sobre mí" y "Mis servicios" |
-| `schedule` | 🟡 Maqueta: disponibilidad |
+| `schedule` | ✅ Horas libres de un profesional (`SlotPicker`, HU025). 🟡 Maqueta: la vista de disponibilidad del profesional (HU003) |
 
 Las maquetas compilan y usan los tokens, pero sus datos están escritos en el código. Se conectan al implementar su módulo.
 
