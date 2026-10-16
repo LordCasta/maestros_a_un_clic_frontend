@@ -91,6 +91,26 @@ export function useConfirmBooking() {
   })
 }
 
+/** HU027: el profesional inicia el servicio (desde la hora pactada). */
+export function useStartBooking() {
+  const invalidate = useInvalidateBookings()
+
+  return useMutation({
+    mutation: (id: number) => bookingsApi.start(id),
+    onSettled: invalidate,
+  })
+}
+
+/** HU028: el profesional finaliza el servicio. */
+export function useCompleteBooking() {
+  const invalidate = useInvalidateBookings()
+
+  return useMutation({
+    mutation: (id: number) => bookingsApi.complete(id),
+    onSettled: invalidate,
+  })
+}
+
 /** HU012. El manejo del error (toast o alerta) lo decide quien la usa. */
 export function useCancelBooking() {
   const invalidate = useInvalidateBookings()

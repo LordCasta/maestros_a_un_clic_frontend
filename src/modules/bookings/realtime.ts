@@ -13,12 +13,14 @@ const BOOKING_NOTIFICATIONS: NotificationType[] = [
   'booking.accepted',
   'booking.rejected',
   'booking.confirmed',
+  'booking.started',
+  'booking.completed',
 ]
 
 /**
  * Avisos de reservas al instante: nueva solicitud y confirmación para el profesional
- * (HU004, HU036); aceptada o rechazada para el cliente (HU004). Muestra un toast y refresca
- * las reservas en pantalla.
+ * (HU004, HU036); aceptada, rechazada, iniciada o finalizada para el cliente (HU004, HU027,
+ * HU028). Muestra un toast y refresca las reservas en pantalla.
  * Se usa una sola vez, en el layout de cada área. Sin Reverb configurado no hace nada.
  */
 export function useBookingAlerts() {

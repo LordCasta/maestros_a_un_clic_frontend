@@ -4,7 +4,7 @@ import { computed, ref } from 'vue'
 import { useRoute } from 'vue-router'
 
 import { useAuthStore } from '@/modules/auth'
-import type { BookingStatus } from '@/shared/types/models'
+import type { Booking, BookingStatus } from '@/shared/types/models'
 import { BaseAlert, BaseAvatar, BaseButton, BaseCard, BaseRating, BaseSkeleton } from '@/shared/ui'
 import { formatDateTime, formatDuration, formatMoney, formatTime } from '@/shared/utils/format'
 
@@ -12,12 +12,14 @@ import BookingResponseActions from '../components/BookingResponseActions.vue'
 import BookingStatusBadge from '../components/BookingStatusBadge.vue'
 import CancelBookingModal from '../components/CancelBookingModal.vue'
 import ConfirmBookingButton from '../components/ConfirmBookingButton.vue'
+import ServiceProgressCard from '../components/ServiceProgressCard.vue'
 import { useBooking } from '../queries'
 import { CANCELLABLE } from '../status'
 
 /**
  * HU026: detalle y estado. HU004: el profesional acepta o rechaza una solicitud pendiente.
- * HU036: el cliente confirma la reserva aceptada. Iniciar y finalizar llegan con su HU.
+ * HU036: el cliente confirma la reserva aceptada. HU027, HU028: el profesional inicia y
+ * finaliza el servicio.
  */
 const route = useRoute()
 const auth = useAuthStore()
@@ -35,37 +37,59 @@ const cancelOpen = ref(false)
 
 type Notice = { tone: 'info' | 'success' | 'warning'; text: string }
 
+const finished = (b: Booking): Notice => ({
+  tone: 'success',
+  text: `Servicio finalizado${b.completed_at ? ` el ${formatDateTime(b.completed_at)}` : ''}.`,
+})
+
 /**
- * Qué ve cada uno según el estado (HU004, HU036). Los estados con acción propia
- * (pendiente para el profesional, aceptada para el cliente) tienen su tarjeta aparte.
+ * Qué ve cada uno según el estado (HU004, HU036, HU027, HU028). Los estados con acción propia
+ * tienen su tarjeta aparte: pendiente, confirmada y en proceso para el profesional; aceptada
+ * para el cliente.
  */
-const NOTICES: Record<'client' | 'professional', Partial<Record<BookingStatus, Notice>>> = {
+const NOTICES: Record<
+  'client' | 'professional',
+  Partial<Record<BookingStatus, (booking: Booking) => Notice>>
+> = {
   client: {
-    pending: {
+    pending: () => ({
       tone: 'info',
       text: 'Tu solicitud está esperando la respuesta del profesional. Te avisaremos apenas responda.',
-    },
-    confirmed: {
+    }),
+    confirmed: () => ({
       tone: 'success',
       text: 'Reserva confirmada. El profesional ya la tiene en su agenda.',
-    },
-    rejected: {
+    }),
+    in_progress: (b) => ({
+      tone: 'info',
+      text: `${b.professional.name} inició el servicio${b.started_at ? ` a las ${formatTime(b.started_at)}` : ''}.`,
+    }),
+    // HU005 (calificaciones) agrega aquí el botón para calificar.
+    completed: finished,
+    rejected: () => ({
       tone: 'warning',
       text: 'El profesional no puede atender esta solicitud. Puedes elegir otra hora o buscar otro profesional.',
-    },
+    }),
   },
   professional: {
-    accepted: {
+    accepted: () => ({
       tone: 'info',
       text: 'Aceptaste la solicitud. Falta que el cliente la confirme; te avisaremos cuando lo haga.',
-    },
-    confirmed: { tone: 'success', text: 'El cliente confirmó la reserva.' },
+    }),
+    completed: finished,
   },
 }
-const notice = computed(() =>
-  booking.value
-    ? NOTICES[isProfessional.value ? 'professional' : 'client'][booking.value.status]
-    : undefined,
+const notice = computed(() => {
+  if (!booking.value) return undefined
+  return NOTICES[isProfessional.value ? 'professional' : 'client'][booking.value.status]?.(
+    booking.value,
+  )
+})
+const showProgress = computed(
+  () =>
+    isProfessional.value &&
+    booking.value !== undefined &&
+    ['confirmed', 'in_progress'].includes(booking.value.status),
 )
 </script>
 
@@ -115,6 +139,8 @@ const notice = computed(() =>
         </div>
         <ConfirmBookingButton :booking-id="booking.id" />
       </section>
+
+      <ServiceProgressCard v-if="showProgress" :booking="booking" />
 
       <BaseAlert v-if="notice" :tone="notice.tone">
         {{ notice.text }}
