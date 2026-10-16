@@ -1,6 +1,6 @@
 /**
- * Módulo de reservas: solicitud y respuesta (HU004), listado, detalle y cancelación
- * (HU012, HU016, HU017, HU026).
+ * Módulo de reservas: solicitud y respuesta (HU004), confirmación (HU036), inicio y fin del
+ * servicio (HU027, HU028), listado, detalle y cancelación (HU012, HU016, HU017, HU026).
  * API pública del módulo: lo que no se exporta aquí es interno.
  */
 export type { CreateBookingPayload } from './api'
