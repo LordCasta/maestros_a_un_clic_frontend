@@ -107,6 +107,8 @@ export interface Professional {
   description: string | null
   experience_years: number | null
   hourly_rate: number | null
+  distance_km?: number | null
+  is_suggested?: boolean
   categories?: Category[]
   services?: ProfessionalService[]
   portfolio?: PortfolioItem[]

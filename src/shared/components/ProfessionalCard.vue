@@ -37,6 +37,15 @@ defineProps<{ professional: Professional }>()
               <span v-if="professional.commune" class="inline-flex items-center gap-1">
                 <MapPin class="size-4" /> {{ professional.commune.name }}
               </span>
+              <span
+                v-if="professional.distance_km !== undefined && professional.distance_km !== null"
+                class="font-semibold text-primary-700"
+              >
+                · a {{ professional.distance_km }} km
+              </span>
+              <BaseBadge v-if="professional.is_suggested" tone="info" size="sm">
+                Comuna aledaña
+              </BaseBadge>
             </div>
           </div>
           <slot name="actions" />

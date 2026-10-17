@@ -9,7 +9,9 @@ export interface ProfessionalFilters extends PageQuery {
   category_id?: number
   min_price?: number
   max_price?: number
-  sort?: 'rating' | 'price_asc' | 'price_desc'
+  sort?: 'rating' | 'price_asc' | 'price_desc' | 'distance'
+  lat?: number
+  lng?: number
 }
 
 export const professionalsApi = {

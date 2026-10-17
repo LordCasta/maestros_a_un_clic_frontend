@@ -4,12 +4,13 @@ import {
   ChevronRight,
   Filter,
   Heart,
+  Locate,
   Search,
   SearchX,
   ShieldCheck,
   Sparkles,
 } from '@lucide/vue'
-import { computed, reactive, watch } from 'vue'
+import { computed, reactive, ref, watch } from 'vue'
 import { useRoute, useRouter, type LocationQuery } from 'vue-router'
 
 import { useAuthStore } from '@/modules/auth'
@@ -32,7 +33,7 @@ import type { ProfessionalFilters } from '../api'
 import { useProfessionalSearch } from '../queries'
 
 /**
- * HU010, HU033, HU039, HU046. Los filtros viven en la URL (?q=&category_id=…):
+ * HU002, HU010, HU033, HU039, HU046. Los filtros viven en la URL (?q=&category_id=…):
  * se pueden compartir, y atrás/adelante del navegador funcionan.
  */
 const route = useRoute()
@@ -41,8 +42,12 @@ const auth = useAuthStore()
 const { options: communeOptions } = useCommunes()
 const { data: categories } = useCategories()
 
+const isLocating = ref(false)
+const geoError = ref<string | null>(null)
+
 const SORT_OPTIONS: SelectOption[] = [
   { value: 'rating', label: 'Mejor calificados' },
+  { value: 'distance', label: 'Más cercanos' },
   { value: 'price_asc', label: 'Precio: menor a mayor' },
   { value: 'price_desc', label: 'Precio: mayor a menor' },
 ]
@@ -70,6 +75,8 @@ function filtersFrom(query: LocationQuery): ProfessionalFilters {
     sort: SORT_OPTIONS.some((option) => option.value === query.sort)
       ? (query.sort as ProfessionalFilters['sort'])
       : undefined,
+    lat: numberParam(query.lat),
+    lng: numberParam(query.lng),
     page: numberParam(query.page) ?? 1,
     per_page: 10,
   }
@@ -94,6 +101,39 @@ function apply(changes: Partial<ProfessionalFilters> = {}) {
 
 function clearFilters() {
   router.push({ name: 'search' })
+}
+
+function useMyLocation() {
+  if (typeof navigator === 'undefined' || !navigator.geolocation) {
+    geoError.value = 'Tu navegador no admite geolocalización. Selecciona tu comuna manualmente.'
+    return
+  }
+
+  isLocating.value = true
+  geoError.value = null
+
+  navigator.geolocation.getCurrentPosition(
+    (position) => {
+      isLocating.value = false
+      const lat = Math.round(position.coords.latitude * 100000) / 100000
+      const lng = Math.round(position.coords.longitude * 100000) / 100000
+      apply({ lat, lng, sort: 'distance', page: 1 })
+    },
+    (err) => {
+      isLocating.value = false
+      if (err.code === err.PERMISSION_DENIED) {
+        geoError.value =
+          'Permiso de ubicación denegado. Puedes seleccionar tu comuna en los filtros.'
+      } else {
+        geoError.value = 'No pudimos obtener tu ubicación actual. Intenta seleccionando tu comuna.'
+      }
+    },
+    { enableHighAccuracy: true, timeout: 10000 },
+  )
+}
+
+function clearLocation() {
+  apply({ lat: undefined, lng: undefined, sort: form.sort === 'distance' ? 'rating' : form.sort })
 }
 
 const page = computed({
@@ -137,12 +177,24 @@ const page = computed({
             />
           </label>
           <button
+            type="button"
+            :disabled="isLocating"
+            class="inline-flex h-14 items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/10 px-5 font-semibold text-white backdrop-blur-md transition hover:bg-white/20 disabled:opacity-50"
+            @click="activeFilters.lat ? clearLocation() : useMyLocation()"
+          >
+            <Locate class="size-4" :class="{ 'animate-spin': isLocating }" />
+            {{ activeFilters.lat ? 'Cerca de mí ✓' : 'Cerca de mí' }}
+          </button>
+          <button
             type="submit"
             class="inline-flex h-14 items-center justify-center gap-2 rounded-2xl bg-white px-6 font-semibold text-neutral-900 transition hover:bg-primary-50"
           >
             Buscar <ChevronRight class="size-4" />
           </button>
         </form>
+        <BaseAlert v-if="geoError" tone="warning" class="max-w-3xl">
+          {{ geoError }}
+        </BaseAlert>
       </div>
     </section>
 
@@ -191,6 +243,15 @@ const page = computed({
             <div class="flex flex-wrap items-center gap-3">
               <BaseButton type="submit">Aplicar filtros</BaseButton>
               <BaseButton variant="outline" @click="clearFilters">Limpiar</BaseButton>
+              <BaseButton
+                type="button"
+                variant="outline"
+                :loading="isLocating"
+                @click="activeFilters.lat ? clearLocation() : useMyLocation()"
+              >
+                <Locate class="size-4" />
+                {{ activeFilters.lat ? 'Quitar geolocalización' : 'Cerca de mí' }}
+              </BaseButton>
               <span v-if="result" class="text-sm text-neutral-500">
                 {{ result.meta.total }} {{ result.meta.total === 1 ? 'resultado' : 'resultados' }}
               </span>
@@ -205,6 +266,15 @@ const page = computed({
               <ShieldCheck class="size-4 text-primary-600" /> Todos verificados
             </span>
           </div>
+
+          <BaseAlert
+            v-if="result?.data.some((p) => p.is_suggested)"
+            tone="info"
+            title="Sin profesionales directos en esta comuna"
+          >
+            No encontramos profesionales disponibles en la comuna seleccionada. Te mostramos los más
+            cercanos en comunas aledañas.
+          </BaseAlert>
 
           <template v-if="isPending">
             <BaseSkeleton v-for="n in 3" :key="n" class="h-44" />
