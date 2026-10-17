@@ -27,3 +27,21 @@ export const rejectSchema = z.object({
     .refine((value) => value.length === 0 || value.length >= 5, 'Debe tener al menos 5 caracteres.')
     .optional(),
 })
+
+export const reviewSchema = z.object({
+  rating: z
+    .number({
+      required_error: 'Elige una calificación.',
+      invalid_type_error: 'Elige una calificación.',
+    })
+    .int('Debe ser un número entero.')
+    .min(1, 'La calificación mínima es 1 estrella.')
+    .max(5, 'La calificación máxima es 5 estrellas.'),
+  comment: z
+    .string()
+    .trim()
+    .max(1000, 'El comentario no puede superar 1000 caracteres.')
+    .optional(),
+})
+
+export type ReviewFormValues = z.infer<typeof reviewSchema>
