@@ -48,7 +48,7 @@ src/
 │   ├── types/              Espejo de la API: envelope, modelos, rutas
 │   └── utils/              Formatos de dinero, fechas, duración; tokenColor() para colores en JS
 └── modules/                Un módulo por funcionalidad: lo que se reparte entre el equipo
-    ├── auth/  catalog/  professionals/  favorites/  bookings/
+    ├── auth/  catalog/  professionals/  favorites/  bookings/  chat/
     ├── dashboard/  professional-profile/  schedule/  home/
     └── styleguide/         /_ui, solo en desarrollo
 ```
@@ -235,7 +235,7 @@ Los **canales públicos** (sin autorización) se escuchan con `echo.channel(nomb
 | `catalog` | ✅ Conectado: comunas y categorías |
 | `professionals` | ✅ Conectado: búsqueda con filtros en la URL y perfil |
 | `favorites` | ✅ Conectado — **módulo de referencia** |
-| `chat` | ✅ Conectado: chat de la reserva con imágenes e indicador de en línea (HU011, HU041, HU042), dentro del detalle de la reserva |
+| `chat` | ✅ Conectado: chat de la reserva con imágenes, indicador de en línea y eliminar mensajes (HU011, HU041, HU042, HU043), dentro del detalle de la reserva |
 | `bookings` | ✅ Conectado: solicitar con horas libres, aceptar/rechazar con aviso en tiempo real (HU004), confirmación del cliente (HU036), inicio y fin del servicio (HU027, HU028), estado en tiempo real e historial (HU026, `useBookingUpdates`), reprogramar (HU012), listado con filtros por estado y totales (HU017, `?filtro=`), detalle, cancelación con motivo |
 | `home` | 🟡 Maqueta: categorías y destacados de muestra |
 | `dashboard` | 🟡 Maqueta: paneles de cliente y profesional con datos de muestra. Conectado: "En proceso" en los dos (`InProgressPanel`, HU049) y "Por responder" del profesional (`PendingRequestsPanel`), ambos de `bookings` |
