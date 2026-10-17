@@ -25,14 +25,13 @@ const emit = defineEmits<{
 const toast = useToastStore()
 const { mutateAsync } = useReviewBooking()
 
-const { defineField, errors, handleSubmit, isSubmitting, setErrors, resetForm } =
-  useForm({
-    validationSchema: toTypedSchema(reviewSchema),
-    initialValues: {
-      rating: 5,
-      comment: '',
-    },
-  })
+const { defineField, errors, handleSubmit, isSubmitting, setErrors, resetForm } = useForm({
+  validationSchema: toTypedSchema(reviewSchema),
+  initialValues: {
+    rating: 5,
+    comment: '',
+  },
+})
 
 const [rating, ratingAttrs] = defineField('rating')
 const [comment, commentAttrs] = defineField('comment')
