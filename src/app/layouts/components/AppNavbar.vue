@@ -4,6 +4,7 @@ import { computed, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 import { homeRouteFor, useAuthStore } from '@/modules/auth'
+import { NotificationBell } from '@/modules/notifications'
 import { BaseAvatar, BaseButton, BrandMark } from '@/shared/ui'
 
 import { NAV_ITEMS } from '../navigation'
@@ -73,6 +74,8 @@ async function logout() {
 
       <div class="ml-auto flex items-center gap-2 md:ml-0">
         <template v-if="auth.user">
+          <!-- HU018: notificaciones -->
+          <NotificationBell />
           <BaseAvatar
             :name="auth.user.name"
             :src="auth.user.avatar_url"

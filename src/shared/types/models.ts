@@ -222,6 +222,17 @@ export interface BookingStatusChange {
   created_at: string
 }
 
+/** NotificationResource: una notificación guardada (HU018). */
+export interface NotificationItem {
+  id: string
+  type: NotificationType
+  booking_id: number | null
+  title: string
+  body: string
+  read_at: string | null
+  created_at: string
+}
+
 /** MessageResource: un mensaje del chat de una reserva (HU011, HU042). */
 export interface Message {
   id: number
