@@ -14,5 +14,11 @@ export const professionalProfileRoutes: ModuleRoutes = {
       component: () => import('./views/MyServicesView.vue'),
       meta: { title: 'Mis servicios' },
     },
+    {
+      path: 'earnings',
+      name: 'professional-earnings',
+      component: () => import('./views/EarningsView.vue'),
+      meta: { title: 'Ingresos' },
+    },
   ],
 }

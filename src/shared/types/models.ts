@@ -159,6 +159,18 @@ export interface MyProfessionalProfile {
   verification_status: VerificationStatus
 }
 
+/** GET /professional/earnings (HU037): ingresos por servicios finalizados en un rango. */
+export interface Earnings {
+  /** Y-m-d */
+  from: string
+  to: string
+  total: number
+  count: number
+  average: number
+  by_day: { date: string; total: number; count: number }[]
+  bookings: Booking[]
+}
+
 /** AvailabilityRuleResource: franja del horario semanal. weekday: 0 = domingo … 6 = sábado. */
 export interface AvailabilityRule {
   id: number

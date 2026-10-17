@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryCache } from '@pinia/colada'
+import { toValue, type MaybeRefOrGetter } from 'vue'
 
 import { professionalKeys } from '@/modules/professionals'
 
@@ -9,6 +10,7 @@ export const professionalProfileKeys = {
   profile: ['professional-profile', 'profile'] as const,
   services: ['professional-profile', 'services'] as const,
   portfolio: ['professional-profile', 'portfolio'] as const,
+  earnings: (from: string, to: string) => ['professional-profile', 'earnings', from, to] as const,
 }
 
 /**
@@ -78,6 +80,21 @@ export function useDeleteService() {
   return useMutation({
     mutation: (id: number) => professionalProfileApi.deleteService(id),
     onSettled: invalidate,
+  })
+}
+
+/**
+ * HU037: ingresos del rango (Y-m-d). Se vuelven a pedir al abrir la vista y al volver a la
+ * pestaña, así que reflejan los servicios recién finalizados.
+ */
+export function useEarnings(range: MaybeRefOrGetter<{ from: string; to: string }>) {
+  return useQuery({
+    key: () => professionalProfileKeys.earnings(toValue(range).from, toValue(range).to),
+    query: async () =>
+      (await professionalProfileApi.earnings(toValue(range).from, toValue(range).to)).data,
+    staleTime: 0,
+    refetchOnWindowFocus: true,
+    placeholderData: (previous) => previous,
   })
 }
 

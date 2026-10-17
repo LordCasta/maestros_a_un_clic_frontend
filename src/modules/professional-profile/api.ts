@@ -1,6 +1,7 @@
 import { http, toFormData } from '@/shared/http/client'
 import type { ApiSuccess } from '@/shared/types/api'
 import type {
+  Earnings,
   MyProfessionalProfile,
   PortfolioItem,
   PriceType,
@@ -45,6 +46,9 @@ export const professionalProfileApi = {
   updateService: (id: number, payload: Partial<ServicePayload>) =>
     http.patch<ApiSuccess<ProfessionalService>>(`/professional/services/${id}`, payload),
   deleteService: (id: number) => http.delete<ApiSuccess<null>>(`/professional/services/${id}`),
+
+  earnings: (from: string, to: string) =>
+    http.get<ApiSuccess<Earnings>>('/professional/earnings', { query: { from, to } }),
 
   portfolio: () => http.get<ApiSuccess<PortfolioItem[]>>('/professional/portfolio'),
   addPortfolioItem: (image: File, description?: string) =>
