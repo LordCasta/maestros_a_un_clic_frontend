@@ -16,6 +16,7 @@ vi.mock('../api', () => ({
     conversation: vi.fn<Api['conversation']>(),
     send: vi.fn<Api['send']>(),
     markAsRead: vi.fn<Api['markAsRead']>(),
+    remove: vi.fn<Api['remove']>(),
   },
 }))
 // Sin Reverb en los tests: el canal de presencia no se conecta.
@@ -65,7 +66,7 @@ async function mountChat(conversation: Conversation) {
 
   const wrapper = mount(BookingChat, {
     props: { booking },
-    global: { plugins: [pinia, PiniaColada] },
+    global: { plugins: [pinia, PiniaColada], stubs: { teleport: true } },
   })
   await flushPromises()
   return wrapper
@@ -116,6 +117,33 @@ describe('BookingChat', () => {
 
     expect(wrapper.text()).toContain('Usa una imagen JPG, PNG o WEBP.')
     expect(chatApi.send).not.toHaveBeenCalled()
+  })
+
+  it('deletes an own message after confirming', async () => {
+    vi.mocked(chatApi.remove).mockResolvedValue({
+      success: true,
+      message: 'Mensaje eliminado.',
+      data: null,
+    })
+    const wrapper = await mountChat({
+      can_send: true,
+      messages: [message(1, client, { body: 'Por error' }), message(2, professional)],
+    })
+
+    // Solo los mensajes propios tienen el botón.
+    const buttons = wrapper.findAll('[aria-label="Eliminar mensaje"]')
+    expect(buttons).toHaveLength(1)
+
+    await buttons[0]!.trigger('click')
+    await wrapper
+      .findAll('button')
+      .find((b) => b.text() === 'Eliminar')!
+      .trigger('click')
+    await flushPromises()
+
+    expect(chatApi.remove).toHaveBeenCalledWith(1)
+    expect(wrapper.text()).not.toContain('Por error')
+    expect(wrapper.text()).toContain('Mensaje 2')
   })
 
   it('becomes read-only when the booking is over', async () => {

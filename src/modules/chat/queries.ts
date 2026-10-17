@@ -31,6 +31,28 @@ export function appendMessage(
   )
 }
 
+/** HU043: quita un mensaje de la conversación en caché (lo borró el autor). */
+export function removeMessage(
+  queryCache: ReturnType<typeof useQueryCache>,
+  bookingId: number,
+  messageId: number,
+): void {
+  queryCache.setQueryData(
+    chatKeys.conversation(bookingId),
+    (current: Conversation | undefined) =>
+      current && { ...current, messages: current.messages.filter((item) => item.id !== messageId) },
+  )
+}
+
+export function useDeleteMessage(bookingId: MaybeRefOrGetter<number>) {
+  const queryCache = useQueryCache()
+
+  return useMutation({
+    mutation: (messageId: number) => chatApi.remove(messageId),
+    onSuccess: (_response, messageId) => removeMessage(queryCache, toValue(bookingId), messageId),
+  })
+}
+
 export function useSendMessage(bookingId: MaybeRefOrGetter<number>) {
   const queryCache = useQueryCache()
 

@@ -11,6 +11,7 @@ export const chatApi = {
       `/bookings/${bookingId}/messages`,
       attachment ? toFormData({ body, attachment }) : { body },
     ),
+  remove: (messageId: number) => http.delete<ApiSuccess<null>>(`/messages/${messageId}`),
   markAsRead: (bookingId: number) =>
     http.post<ApiSuccess<{ marked: number }>>(`/bookings/${bookingId}/messages/read`),
 }

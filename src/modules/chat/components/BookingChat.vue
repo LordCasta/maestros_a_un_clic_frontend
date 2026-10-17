@@ -1,21 +1,27 @@
 <script setup lang="ts">
 import { useQueryCache } from '@pinia/colada'
-import { Check, CheckCheck, ImagePlus, Lock, SendHorizontal, X } from '@lucide/vue'
+import { Check, CheckCheck, ImagePlus, Lock, SendHorizontal, Trash2, X } from '@lucide/vue'
 import { computed, nextTick, ref, watch } from 'vue'
 
 import { useAuthStore } from '@/modules/auth'
 import { ApiError } from '@/shared/http/client'
 import { usePresenceChannel } from '@/shared/realtime/presence'
 import type { Booking, Message } from '@/shared/types/models'
-import { BaseAlert, BaseAvatar, BaseButton, BaseCard, BaseSkeleton } from '@/shared/ui'
+import { BaseAlert, BaseAvatar, BaseButton, BaseCard, BaseModal, BaseSkeleton } from '@/shared/ui'
 import { formatDateTime, formatTime } from '@/shared/utils/format'
 
 import { chatApi } from '../api'
-import { appendMessage, useConversation, useSendMessage } from '../queries'
+import {
+  appendMessage,
+  removeMessage,
+  useConversation,
+  useDeleteMessage,
+  useSendMessage,
+} from '../queries'
 import { attachmentSchema, MAX_BODY_LENGTH } from '../schemas'
 
 /**
- * HU011, HU041, HU042: chat de la reserva entre el cliente y el profesional.
+ * HU011, HU041, HU042, HU043: chat de la reserva entre el cliente y el profesional.
  * Los mensajes llegan al instante por el canal de presencia `booking.{id}`, que también dice
  * si la otra persona está conectada.
  */
@@ -43,6 +49,30 @@ listen<Message>('.message.sent', (message) => {
   appendMessage(queryCache, message)
   if (message.sender.id !== me.value) markAsRead()
 })
+listen<{ id: number; booking_id: number }>('.message.deleted', ({ id, booking_id }) =>
+  removeMessage(queryCache, booking_id, id),
+)
+
+// HU043: borrar un mensaje propio, con confirmación.
+const { mutateAsync: deleteMessage, isLoading: deleting } = useDeleteMessage(() => props.booking.id)
+const toDelete = ref<Message | null>(null)
+const deleteOpen = computed({
+  get: () => toDelete.value !== null,
+  set: (open) => {
+    if (!open) toDelete.value = null
+  },
+})
+async function confirmDelete() {
+  if (!toDelete.value) return
+  try {
+    await deleteMessage(toDelete.value.id)
+  } catch (failure) {
+    formError.value =
+      failure instanceof ApiError ? failure.message : 'No pudimos eliminar el mensaje.'
+  } finally {
+    toDelete.value = null
+  }
+}
 
 // Al abrir el chat, lo recibido queda leído.
 watch(
@@ -142,8 +172,21 @@ function onKeydown(event: KeyboardEvent) {
         <div
           v-for="message in conversation.messages"
           :key="message.id"
-          :class="['flex', message.sender.id === me ? 'justify-end' : 'justify-start']"
+          :class="[
+            'group flex items-center gap-1',
+            message.sender.id === me ? 'justify-end' : 'justify-start',
+          ]"
         >
+          <BaseButton
+            v-if="message.sender.id === me"
+            variant="ghost"
+            size="sm"
+            class="opacity-0 group-hover:opacity-100 focus-visible:opacity-100"
+            aria-label="Eliminar mensaje"
+            @click="toDelete = message"
+          >
+            <Trash2 class="size-4" />
+          </BaseButton>
           <div
             :class="[
               'max-w-4/5 rounded-2xl px-4 py-2.5 text-sm shadow-sm',
@@ -183,6 +226,20 @@ function onKeydown(event: KeyboardEvent) {
         </div>
       </template>
     </div>
+
+    <BaseModal
+      v-model:open="deleteOpen"
+      size="sm"
+      title="¿Eliminar este mensaje?"
+      description="Desaparece del chat para las dos partes."
+    >
+      <template #footer>
+        <BaseButton variant="outline" @click="toDelete = null">Volver</BaseButton>
+        <BaseButton variant="danger" :loading="deleting" @click="confirmDelete"
+          >Eliminar</BaseButton
+        >
+      </template>
+    </BaseModal>
 
     <footer class="border-t border-neutral-100 px-5 py-4">
       <p
