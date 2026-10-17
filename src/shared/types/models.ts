@@ -145,6 +145,20 @@ export interface ProfessionalSlots {
   slots: AvailableSlot[]
 }
 
+/** MyProfessionalProfileResource: el perfil propio para editarlo (HU009). */
+export interface MyProfessionalProfile {
+  description: string | null
+  experience_years: number | null
+  hourly_rate: number | null
+  service_radius_km: number | null
+  commune: Commune | null
+  address: string | null
+  latitude: number | null
+  longitude: number | null
+  categories: Category[]
+  verification_status: VerificationStatus
+}
+
 /** AvailabilityRuleResource: franja del horario semanal. weekday: 0 = domingo … 6 = sábado. */
 export interface AvailabilityRule {
   id: number
