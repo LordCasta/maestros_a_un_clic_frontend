@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ArrowLeft, CalendarDays, Clock3, FileText, MapPin } from '@lucide/vue'
+import { ArrowLeft, CalendarDays, Clock3, FileText, MapPin, Star } from '@lucide/vue'
 import { computed, ref } from 'vue'
 import { useRoute } from 'vue-router'
 
@@ -15,6 +15,7 @@ import BookingStatusBadge from '../components/BookingStatusBadge.vue'
 import CancelBookingModal from '../components/CancelBookingModal.vue'
 import ConfirmBookingButton from '../components/ConfirmBookingButton.vue'
 import RescheduleBookingModal from '../components/RescheduleBookingModal.vue'
+import ReviewBookingModal from '../components/ReviewBookingModal.vue'
 import ServiceProgressCard from '../components/ServiceProgressCard.vue'
 import { useBooking } from '../queries'
 import { useBookingUpdates } from '../realtime'
@@ -47,6 +48,18 @@ const canReschedule = computed(
 )
 const cancelOpen = ref(false)
 const rescheduleOpen = ref(false)
+const reviewOpen = ref(false)
+
+const userReview = computed(() =>
+  booking.value?.reviews?.find((r) => r.reviewer.id === auth.user?.id),
+)
+const canReview = computed(
+  () =>
+    booking.value !== undefined &&
+    booking.value.status === 'completed' &&
+    !userReview.value &&
+    !isAdmin.value,
+)
 
 type Notice = { tone: 'info' | 'success' | 'warning'; text: string }
 
@@ -153,6 +166,22 @@ const showProgress = computed(
         <ConfirmBookingButton :booking-id="booking.id" />
       </section>
 
+      <section
+        v-if="canReview && counterpart"
+        class="flex flex-col gap-4 rounded-3xl border border-primary-200 bg-primary-50 p-6 sm:flex-row sm:items-center sm:justify-between"
+      >
+        <div>
+          <p class="font-bold text-neutral-900">Servicio finalizado</p>
+          <p class="text-sm text-neutral-600">
+            Califica tu experiencia con {{ counterpart.name }} para actualizar su reputación en la
+            plataforma.
+          </p>
+        </div>
+        <BaseButton @click="reviewOpen = true">
+          <Star class="size-4 fill-white text-white" /> Calificar servicio
+        </BaseButton>
+      </section>
+
       <ServiceProgressCard v-if="showProgress" :booking="booking" />
 
       <BaseAlert v-if="notice" :tone="notice.tone">
@@ -236,6 +265,26 @@ const showProgress = computed(
         </div>
       </BaseCard>
 
+      <BaseCard v-if="booking.reviews?.length" as="section">
+        <h2 class="mb-4 text-sm font-semibold text-neutral-500 uppercase">
+          Calificaciones del servicio
+        </h2>
+        <div class="space-y-4 divide-y divide-neutral-200">
+          <div v-for="rev in booking.reviews" :key="rev.id" class="pt-4 first:pt-0">
+            <div class="flex items-center justify-between gap-3">
+              <div class="flex items-center gap-2">
+                <BaseAvatar :name="rev.reviewer.name" :src="rev.reviewer.avatar_url" size="sm" />
+                <span class="font-bold text-neutral-900">{{ rev.reviewer.name }}</span>
+              </div>
+              <BaseRating :rating="{ average: rev.rating, count: 1 }" />
+            </div>
+            <p v-if="rev.comment" class="mt-2 text-sm text-neutral-700">
+              {{ rev.comment }}
+            </p>
+          </div>
+        </div>
+      </BaseCard>
+
       <div v-if="canCancel || canReschedule" class="flex flex-wrap justify-end gap-2">
         <BaseButton v-if="canReschedule" variant="outline" @click="rescheduleOpen = true">
           Reprogramar
@@ -257,6 +306,12 @@ const showProgress = computed(
 
       <CancelBookingModal v-model:open="cancelOpen" :booking-id="booking.id" />
       <RescheduleBookingModal v-model:open="rescheduleOpen" :booking="booking" />
+      <ReviewBookingModal
+        v-if="counterpart"
+        v-model:open="reviewOpen"
+        :booking-id="booking.id"
+        :counterpart-name="counterpart.name"
+      />
     </div>
   </div>
 </template>

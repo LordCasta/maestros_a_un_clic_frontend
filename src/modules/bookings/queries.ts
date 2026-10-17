@@ -152,3 +152,19 @@ export function useCancelBooking() {
     onSettled: invalidate,
   })
 }
+
+/** HU005: calificar la reserva tras completarse. */
+export function useReviewBooking() {
+  const queryCache = useQueryCache()
+
+  return useMutation({
+    mutation: ({ id, rating, comment }: { id: number; rating: number; comment?: string | null }) =>
+      bookingsApi.review(id, { rating, comment }),
+    onSettled: (_data, _error, variables) => {
+      if (variables?.id) {
+        void queryCache.invalidateQueries({ key: bookingKeys.detail(variables.id) })
+      }
+      void queryCache.invalidateQueries({ key: bookingKeys.all })
+    },
+  })
+}

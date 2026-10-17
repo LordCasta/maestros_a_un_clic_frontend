@@ -129,6 +129,18 @@ export interface Booking {
   agreed_price: number
   started_at: string | null
   completed_at: string | null
+  reviews?: Review[]
+  created_at: string
+}
+
+/** ReviewResource (HU005) */
+export interface Review {
+  id: number
+  booking_id: number
+  reviewer: UserSummary
+  reviewee: UserSummary
+  rating: number
+  comment: string | null
   created_at: string
 }
 

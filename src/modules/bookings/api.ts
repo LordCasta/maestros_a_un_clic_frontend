@@ -5,6 +5,7 @@ import type {
   BookingStatus,
   BookingStatusChange,
   BookingSummary,
+  Review,
 } from '@/shared/types/models'
 
 /** Contrato: backend/docs/api/endpoints.md § Reservas */
@@ -42,4 +43,6 @@ export const bookingsApi = {
     http.post<ApiSuccess<Booking>>(`/bookings/${id}/reschedule`, { starts_at: startsAt }),
   cancel: (id: number, reason: string) =>
     http.post<ApiSuccess<Booking>>(`/bookings/${id}/cancel`, { reason }),
+  review: (id: number, payload: { rating: number; comment?: string | null }) =>
+    http.post<ApiSuccess<Review>>(`/bookings/${id}/review`, payload),
 }
