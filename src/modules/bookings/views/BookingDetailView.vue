@@ -4,6 +4,7 @@ import { computed, ref } from 'vue'
 import { useRoute } from 'vue-router'
 
 import { useAuthStore } from '@/modules/auth'
+import { BookingChat } from '@/modules/chat'
 import type { Booking, BookingStatus } from '@/shared/types/models'
 import { BaseAlert, BaseAvatar, BaseButton, BaseCard, BaseRating, BaseSkeleton } from '@/shared/ui'
 import { formatDateTime, formatDuration, formatMoney, formatTime } from '@/shared/utils/format'
@@ -32,6 +33,7 @@ const { data: booking, isPending, error } = useBooking(id)
 useBookingUpdates(id)
 
 const isProfessional = computed(() => auth.role === 'professional')
+const isAdmin = computed(() => auth.role === 'admin')
 const counterpart = computed(() =>
   booking.value ? (isProfessional.value ? booking.value.client : booking.value.professional) : null,
 )
@@ -247,6 +249,9 @@ const showProgress = computed(
           Cancelar reserva
         </BaseButton>
       </div>
+
+      <!-- HU011: chat con la otra parte (solo cliente y profesional). -->
+      <BookingChat v-if="!isAdmin" :booking="booking" />
 
       <BookingHistory :booking-id="booking.id" />
 

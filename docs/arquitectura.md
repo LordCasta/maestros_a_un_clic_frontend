@@ -201,8 +201,11 @@ Cada módulo exporta un `ModuleRoutes` desde su `index.ts` y `app/router/index.t
 `src/shared/realtime/echo.ts`: la sesión conecta y desconecta Echo. Para escuchar un canal:
 
 ```ts
-getRealtime()?.join(`booking.${id}`).listen('.message.sent', (message: Message) => { … })
+const { members, listen } = usePresenceChannel(() => `booking.${id}`)   // @/shared/realtime/presence
+listen<Message>('.message.sent', (message) => { … })
 ```
+
+Los **canales de presencia** se usan siempre con `usePresenceChannel`: comparte una sola suscripción entre los componentes de la vista (en el detalle de la reserva, el estado en vivo y el chat usan `booking.{id}`), expone `members` (quién está conectado, HU041) y abandona el canal cuando se desmonta el último. No llames `echo.join()` / `echo.leave()` directamente.
 
 Canales y eventos: repo del backend → `docs/tiempo-real.md`. Al recibir un evento, invalida la key correspondiente o actualiza la caché del módulo.
 
@@ -232,6 +235,7 @@ Los **canales públicos** (sin autorización) se escuchan con `echo.channel(nomb
 | `catalog` | ✅ Conectado: comunas y categorías |
 | `professionals` | ✅ Conectado: búsqueda con filtros en la URL y perfil |
 | `favorites` | ✅ Conectado — **módulo de referencia** |
+| `chat` | ✅ Conectado: chat de la reserva con imágenes e indicador de en línea (HU011, HU041, HU042), dentro del detalle de la reserva |
 | `bookings` | ✅ Conectado: solicitar con horas libres, aceptar/rechazar con aviso en tiempo real (HU004), confirmación del cliente (HU036), inicio y fin del servicio (HU027, HU028), estado en tiempo real e historial (HU026, `useBookingUpdates`), reprogramar (HU012), listado con filtros por estado y totales (HU017, `?filtro=`), detalle, cancelación con motivo |
 | `home` | 🟡 Maqueta: categorías y destacados de muestra |
 | `dashboard` | 🟡 Maqueta: paneles de cliente y profesional con datos de muestra. Conectado: "En proceso" en los dos (`InProgressPanel`, HU049) y "Por responder" del profesional (`PendingRequestsPanel`), ambos de `bookings` |

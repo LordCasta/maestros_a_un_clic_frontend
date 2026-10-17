@@ -193,6 +193,7 @@ export type NotificationType =
   | 'booking.completed'
   | 'booking.cancelled'
   | 'booking.rescheduled'
+  | 'message.received'
 
 /** Notificación recibida por el canal privado App.Models.User.{id}. */
 export interface AppNotification {
@@ -219,6 +220,24 @@ export interface BookingStatusChange {
   previous_starts_at: string | null
   changed_by: { id: number; name: string } | null
   created_at: string
+}
+
+/** MessageResource: un mensaje del chat de una reserva (HU011, HU042). */
+export interface Message {
+  id: number
+  booking_id: number
+  sender: UserSummary
+  body: string | null
+  /** URL firmada que vence: se renueva al pedir el historial. */
+  attachment_url: string | null
+  read_at: string | null
+  created_at: string
+}
+
+/** GET /bookings/{id}/messages */
+export interface Conversation {
+  can_send: boolean
+  messages: Message[]
 }
 
 /** FavoriteResource */

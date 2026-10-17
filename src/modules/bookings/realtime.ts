@@ -1,8 +1,10 @@
 import { useQueryCache } from '@pinia/colada'
-import { onBeforeUnmount, onMounted, toValue, watch, type MaybeRefOrGetter } from 'vue'
+import { onBeforeUnmount, onMounted, toValue, type MaybeRefOrGetter } from 'vue'
+import { useRouter } from 'vue-router'
 
 import { useAuthStore } from '@/modules/auth'
 import { getRealtime } from '@/shared/realtime/echo'
+import { usePresenceChannel } from '@/shared/realtime/presence'
 import { useToastStore } from '@/shared/stores/toast'
 import type { AppNotification, Booking, NotificationType } from '@/shared/types/models'
 
@@ -17,13 +19,14 @@ const BOOKING_NOTIFICATIONS: NotificationType[] = [
   'booking.completed',
   'booking.cancelled',
   'booking.rescheduled',
+  'message.received',
 ]
 
 /**
  * Avisos de reservas al instante: nueva solicitud y confirmación para el profesional
  * (HU004, HU036); aceptada, rechazada, iniciada o finalizada para el cliente (HU004, HU027,
- * HU028), y cancelación o reprogramación para la otra parte (HU012). Muestra un toast y
- * refresca las reservas en pantalla.
+ * HU028), cancelación o reprogramación para la otra parte (HU012) y mensajes nuevos del chat
+ * (HU011). Muestra un toast y refresca las reservas en pantalla.
  * Se usa una sola vez, en el layout de cada área. Sin Reverb configurado no hace nada.
  */
 export function useBookingAlerts() {
@@ -32,8 +35,17 @@ export function useBookingAlerts() {
   const queryCache = useQueryCache()
   let channel: string | null = null
 
+  const router = useRouter()
+
   function onNotification(notification: AppNotification) {
     if (!BOOKING_NOTIFICATIONS.includes(notification.type)) return
+
+    // Mensaje nuevo con ese chat abierto: ya se ve en pantalla, no hace falta el aviso.
+    const route = router.currentRoute.value
+    const viewingThatBooking =
+      route.name?.toString().endsWith('booking-detail') &&
+      Number(route.params.id) === notification.booking_id
+    if (notification.type === 'message.received' && viewingThatBooking) return
 
     toast.info(`${notification.title}. ${notification.body}`)
     void queryCache.invalidateQueries({ key: bookingKeys.all })
@@ -56,36 +68,18 @@ export function useBookingAlerts() {
  * HU026: mientras el detalle de una reserva está abierto, su estado se actualiza solo.
  * Escucha `.booking.status-changed` en el canal de presencia `booking.{id}`: el evento trae el
  * mismo BookingResource de la API, así que reemplaza la reserva en caché sin pedirla de nuevo.
- *
- * Al salir se abandona el canal. El chat (HU011) usará el mismo canal desde esta misma vista:
- * cuando llegue, ambos deben compartir una sola suscripción en lugar de unirse cada uno.
+ * El canal se comparte con el chat (usePresenceChannel).
  */
 export function useBookingUpdates(bookingId: MaybeRefOrGetter<number>) {
   const queryCache = useQueryCache()
-  let channel: string | null = null
+  const { listen } = usePresenceChannel(() => {
+    const id = toValue(bookingId)
+    return id ? `booking.${id}` : null
+  })
 
-  function onStatusChanged(booking: Booking) {
+  listen<Booking>('.booking.status-changed', (booking) => {
     // Se muestra al instante y luego se refrescan historial y listados.
     queryCache.setQueryData(bookingKeys.detail(booking.id), booking)
     void queryCache.invalidateQueries({ key: bookingKeys.all })
-  }
-
-  function leave() {
-    if (channel) getRealtime()?.leave(channel)
-    channel = null
-  }
-
-  watch(
-    () => toValue(bookingId),
-    (id) => {
-      leave()
-      const echo = getRealtime()
-      if (!echo || !id) return
-      channel = `booking.${id}`
-      echo.join(channel).listen('.booking.status-changed', onStatusChanged)
-    },
-    { immediate: true },
-  )
-
-  onBeforeUnmount(leave)
+  })
 }
