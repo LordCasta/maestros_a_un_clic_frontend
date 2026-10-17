@@ -240,7 +240,7 @@ Los **canales públicos** (sin autorización) se escuchan con `echo.channel(nomb
 | `bookings` | ✅ Conectado: solicitar con horas libres, aceptar/rechazar con aviso en tiempo real (HU004), confirmación del cliente (HU036), inicio y fin del servicio (HU027, HU028), estado en tiempo real e historial (HU026, `useBookingUpdates`), reprogramar (HU012), listado con filtros por estado y totales (HU017, `?filtro=`), detalle, cancelación con motivo |
 | `home` | 🟡 Maqueta: categorías y destacados de muestra |
 | `dashboard` | 🟡 Maqueta: paneles de cliente y profesional con datos de muestra. Conectado: "En proceso" en los dos (`InProgressPanel`, HU049) y "Por responder" del profesional (`PendingRequestsPanel`), ambos de `bookings` |
-| `professional-profile` | ✅ Conectado: "Mi perfil" (datos, ubicación, especialidades y portafolio, HU009) y "Mis servicios" con duración estimada (HU047) |
+| `professional-profile` | ✅ Conectado: "Mi perfil" (datos, ubicación, especialidades y portafolio, HU009) "Mis servicios" con duración estimada (HU047) e "Ingresos" por fechas (HU037) |
 | `schedule` | ✅ Conectado: el profesional gestiona horario, descanso y bloqueos (HU003); horas libres de un profesional (`SlotPicker`, HU025) que se refrescan en tiempo real (`useAvailabilityUpdates`) |
 
 Las maquetas compilan y usan los tokens, pero sus datos están escritos en el código. Se conectan al implementar su módulo.

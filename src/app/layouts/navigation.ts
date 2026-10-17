@@ -5,6 +5,7 @@ import {
   LayoutDashboard,
   Search,
   UserRound,
+  Wallet,
   Wrench,
 } from '@lucide/vue'
 import type { Component } from 'vue'
@@ -32,6 +33,7 @@ export const NAV_ITEMS: Record<Role | 'guest', NavItem[]> = {
     { label: 'Reservas', to: { name: 'professional-bookings' }, icon: CalendarDays },
     { label: 'Servicios', to: { name: 'professional-services' }, icon: Wrench },
     { label: 'Disponibilidad', to: { name: 'professional-availability' }, icon: CalendarClock },
+    { label: 'Ingresos', to: { name: 'professional-earnings' }, icon: Wallet },
     { label: 'Mi perfil', to: { name: 'professional-about' }, icon: UserRound },
   ],
   // El panel de administración llega con el módulo de verificación y administración.
