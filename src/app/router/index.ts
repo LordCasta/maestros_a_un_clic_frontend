@@ -9,6 +9,7 @@ import { professionalProfileRoutes } from '@/modules/professional-profile'
 import { professionalsRoutes } from '@/modules/professionals'
 import { scheduleRoutes } from '@/modules/schedule'
 import { styleguideRoutes } from '@/modules/styleguide'
+import { verificationRoutes } from '@/modules/verification'
 import type { ModuleRoutes } from '@/shared/types/router'
 
 import AuthLayout from '../layouts/AuthLayout.vue'
@@ -30,6 +31,7 @@ const MODULES: ModuleRoutes[] = [
   dashboardRoutes,
   professionalProfileRoutes,
   scheduleRoutes,
+  verificationRoutes,
   ...(import.meta.env.DEV ? [styleguideRoutes] : []),
 ]
 
