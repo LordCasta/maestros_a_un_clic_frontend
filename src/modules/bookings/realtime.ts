@@ -48,6 +48,7 @@ export function useBookingAlerts() {
     if (notification.type === 'message.received' && viewingThatBooking) return
 
     toast.info(`${notification.title}. ${notification.body}`)
+    // La campana (HU018) escucha su propio canal; aquí solo se refrescan las reservas.
     void queryCache.invalidateQueries({ key: bookingKeys.all })
   }
 
