@@ -11,6 +11,10 @@ export type Role = 'client' | 'professional' | 'admin'
 
 export type VerificationStatus = 'unverified' | 'pending' | 'approved' | 'rejected'
 
+export type DocumentType = 'id_document' | 'selfie' | 'certificate' | 'work_evidence'
+
+export type DocumentStatus = 'pending' | 'approved' | 'rejected'
+
 export type BookingStatus =
   | 'pending'
   | 'accepted'
@@ -282,4 +286,35 @@ export interface Favorite {
   id: number
   professional: Professional
   created_at: string
+}
+
+/** VerificationDocumentResource (HU008, HU013) */
+export interface VerificationDocument {
+  id: number
+  type: DocumentType
+  title: string | null
+  status: DocumentStatus
+  rejection_reason: string | null
+  file_url: string | null
+  created_at: string
+  updated_at?: string
+}
+
+/** VerificationRequestResource (HU008, HU013) */
+export interface VerificationRequest {
+  id: number
+  status: VerificationStatus
+  rejection_reason: string | null
+  background_check_status: 'not_checked' | 'clear' | 'flagged'
+  submitted_at: string
+  reviewed_at: string | null
+  documents: VerificationDocument[]
+  created_at: string
+  updated_at?: string
+}
+
+/** GET /verification response data */
+export interface VerificationState {
+  verification_status: VerificationStatus
+  latest_request: VerificationRequest | null
 }

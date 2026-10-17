@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { RouterLink } from 'vue-router'
+
 import { BaseAlert, BaseSkeleton } from '@/shared/ui'
 
 import PortfolioManager from '../components/PortfolioManager.vue'
@@ -29,7 +31,10 @@ const { data: profile, isPending, error } = useMyProfile()
     <template v-else-if="profile">
       <BaseAlert v-if="profile.verification_status !== 'approved'" tone="info">
         Tu perfil aún no es público: aparecerá en las búsquedas cuando el equipo apruebe tus
-        documentos. Puedes ir dejándolo listo.
+        documentos. Puedes consultar o subir tus documentos en
+        <RouterLink :to="{ name: 'professional-verification' }" class="font-bold underline">
+          Verificación de perfil </RouterLink
+        >.
       </BaseAlert>
       <ProfileForm :profile="profile" />
       <SpecialtiesForm :profile="profile" />
