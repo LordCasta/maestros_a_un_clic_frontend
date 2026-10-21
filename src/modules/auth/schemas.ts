@@ -59,7 +59,30 @@ export const registerProfessionalSteps = [
   }),
 ] as const
 
+export const forgotPasswordSchema = z.object({
+  email: z
+    .string()
+    .trim()
+    .min(1, 'Ingresa tu correo electrónico.')
+    .email('Ingresa un correo electrónico válido.'),
+})
+
+export const resetPasswordSchema = z
+  .object({
+    token: z.string().min(1, 'El token es obligatorio.'),
+    email: z
+      .string()
+      .trim()
+      .min(1, 'Ingresa tu correo electrónico.')
+      .email('Ingresa un correo electrónico válido.'),
+    password,
+    password_confirmation: z.string().min(1, 'Confirma tu contraseña.'),
+  })
+  .refine(passwordsMatch.check, passwordsMatch.error)
+
 export type LoginForm = z.infer<typeof loginSchema>
+export type ForgotPasswordForm = z.infer<typeof forgotPasswordSchema>
+export type ResetPasswordForm = z.infer<typeof resetPasswordSchema>
 export type RegisterClientForm = z.infer<typeof registerClientSchema>
 export type RegisterProfessionalForm = z.infer<(typeof registerProfessionalSteps)[0]> &
   z.infer<(typeof registerProfessionalSteps)[1]>

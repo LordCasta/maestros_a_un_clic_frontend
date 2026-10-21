@@ -3,7 +3,7 @@ import { Briefcase, Eye, EyeOff, Lock, Mail, ShieldCheck, User } from '@lucide/v
 import { toTypedSchema } from '@vee-validate/zod'
 import { useForm } from 'vee-validate'
 import { ref } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { RouterLink, useRoute, useRouter } from 'vue-router'
 
 import { applyServerErrors } from '@/shared/forms'
 import { BaseAlert, BaseButton, BaseInput, BrandMark } from '@/shared/ui'
@@ -93,6 +93,15 @@ const onSubmit = handleSubmit(async (values) => {
           </button>
         </template>
       </BaseInput>
+
+      <div class="flex items-center justify-end">
+        <RouterLink
+          :to="{ name: 'forgot-password' }"
+          class="text-xs font-semibold text-primary-600 transition hover:text-primary-700"
+        >
+          ¿Olvidaste tu contraseña?
+        </RouterLink>
+      </div>
 
       <BaseButton type="submit" size="lg" block :loading="isSubmitting">Iniciar sesión</BaseButton>
     </form>

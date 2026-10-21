@@ -1,6 +1,11 @@
 import { describe, expect, it } from 'vitest'
 
-import { registerClientSchema, registerProfessionalSteps } from '../schemas'
+import {
+  forgotPasswordSchema,
+  registerClientSchema,
+  registerProfessionalSteps,
+  resetPasswordSchema,
+} from '../schemas'
 
 const account = {
   name: 'Camila Restrepo',
@@ -42,5 +47,35 @@ describe('auth schemas', () => {
       'description',
       'hourly_rate',
     ])
+  })
+
+  it('validates forgotPasswordSchema (HU020)', () => {
+    expect(forgotPasswordSchema.safeParse({ email: 'usuario@example.com' }).success).toBe(true)
+    expect(forgotPasswordSchema.safeParse({ email: 'correo-invalido' }).success).toBe(false)
+    expect(forgotPasswordSchema.safeParse({ email: '' }).success).toBe(false)
+  })
+
+  it('validates resetPasswordSchema (HU020)', () => {
+    const valid = {
+      token: 'token123',
+      email: 'usuario@example.com',
+      password: 'password123',
+      password_confirmation: 'password123',
+    }
+    expect(resetPasswordSchema.safeParse(valid).success).toBe(true)
+
+    // Token faltante
+    expect(resetPasswordSchema.safeParse({ ...valid, token: '' }).success).toBe(false)
+
+    // Contraseña corta
+    expect(
+      resetPasswordSchema.safeParse({ ...valid, password: 'corta', password_confirmation: 'corta' })
+        .success,
+    ).toBe(false)
+
+    // Confirmación no coincide
+    expect(
+      resetPasswordSchema.safeParse({ ...valid, password_confirmation: 'otra-diferente' }).success,
+    ).toBe(false)
   })
 })
