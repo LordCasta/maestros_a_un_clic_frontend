@@ -10,7 +10,11 @@ export const verificationKeys = {
   status: () => ['verification', 'status'] as const,
   adminAll: ['admin-verifications'] as const,
   adminList: (filters?: MaybeRefOrGetter<AdminVerificationFilters | undefined>) =>
-    ['admin-verifications', 'list', (toValue(filters) ?? {}) as Record<string, string | number | undefined>] as const,
+    [
+      'admin-verifications',
+      'list',
+      (toValue(filters) ?? {}) as Record<string, string | number | undefined>,
+    ] as const,
   adminDetail: (id: MaybeRefOrGetter<number>) =>
     ['admin-verifications', 'detail', toValue(id)] as const,
 }
