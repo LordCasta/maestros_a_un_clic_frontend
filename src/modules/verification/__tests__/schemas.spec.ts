@@ -1,6 +1,12 @@
 import { describe, expect, it } from 'vitest'
 
-import { documentFileSchema, replaceDocumentSchema, selfieFileSchema } from '../schemas'
+import {
+  documentFileSchema,
+  rejectDocumentSchema,
+  rejectVerificationSchema,
+  replaceDocumentSchema,
+  selfieFileSchema,
+} from '../schemas'
 
 describe('verification schemas', () => {
   it('accepts valid PDF and image files for documentFileSchema', () => {
@@ -45,6 +51,27 @@ describe('verification schemas', () => {
       title: 'Cédula de ciudadanía legible',
     })
 
+    expect(valid.success).toBe(true)
+  })
+
+  it('validates rejectVerificationSchema requires a reason of at least 5 chars', () => {
+    const short = rejectVerificationSchema.safeParse({ reason: 'abc' })
+    expect(short.success).toBe(false)
+    expect(short.error?.issues[0]?.message).toBe('Ingresa un motivo de al menos 5 caracteres.')
+
+    const valid = rejectVerificationSchema.safeParse({
+      reason: 'Los documentos adjuntos no corresponden a la persona registrada.',
+    })
+    expect(valid.success).toBe(true)
+  })
+
+  it('validates rejectDocumentSchema requires a reason of at least 5 chars', () => {
+    const empty = rejectDocumentSchema.safeParse({ rejection_reason: '' })
+    expect(empty.success).toBe(false)
+
+    const valid = rejectDocumentSchema.safeParse({
+      rejection_reason: 'El documento de identidad está borroso o incompleto.',
+    })
     expect(valid.success).toBe(true)
   })
 })

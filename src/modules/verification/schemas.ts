@@ -38,3 +38,21 @@ export const replaceDocumentSchema = z.object({
 })
 
 export type ReplaceDocumentFormValues = z.infer<typeof replaceDocumentSchema>
+
+export const rejectVerificationSchema = z.object({
+  reason: z
+    .string()
+    .min(5, 'Ingresa un motivo de al menos 5 caracteres.')
+    .max(1000, 'El motivo no puede superar los 1000 caracteres.'),
+})
+
+export type RejectVerificationFormValues = z.infer<typeof rejectVerificationSchema>
+
+export const rejectDocumentSchema = z.object({
+  rejection_reason: z
+    .string()
+    .min(5, 'Ingresa el motivo de rechazo del documento.')
+    .max(1000, 'El motivo no puede superar los 1000 caracteres.'),
+})
+
+export type RejectDocumentFormValues = z.infer<typeof rejectDocumentSchema>

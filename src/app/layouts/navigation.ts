@@ -29,6 +29,7 @@ export const NAV_ITEMS: Record<Role | 'guest', NavItem[]> = {
     { label: 'Mis reservas', to: { name: 'client-bookings' }, icon: CalendarDays },
     { label: 'Favoritos', to: { name: 'client-favorites' }, icon: Heart },
     { label: 'Seguridad', to: { name: 'client-security' }, icon: ShieldCheck },
+    { label: 'Verificación', to: { name: 'client-verification' }, icon: ShieldCheck },
   ],
   professional: [
     { label: 'Panel', to: { name: 'professional-dashboard' }, icon: LayoutDashboard },
@@ -40,6 +41,8 @@ export const NAV_ITEMS: Record<Role | 'guest', NavItem[]> = {
     { label: 'Seguridad', to: { name: 'professional-security' }, icon: ShieldCheck },
     { label: 'Verificación', to: { name: 'professional-verification' }, icon: ShieldCheck },
   ],
-  // El panel de administración llega con el módulo de verificación y administración.
-  admin: [{ label: 'Buscar profesionales', to: { name: 'search' }, icon: Search }],
+  admin: [
+    { label: 'Verificaciones', to: { name: 'admin-verifications' }, icon: ShieldCheck },
+    { label: 'Buscar profesionales', to: { name: 'search' }, icon: Search },
+  ],
 }

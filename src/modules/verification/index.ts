@@ -4,8 +4,13 @@
  */
 export { verificationApi } from './api'
 export {
+  useAdminVerificationDetail,
+  useAdminVerifications,
+  useApproveVerification,
+  useRejectVerification,
   useReplaceVerificationDocument,
   useSubmitVerification,
+  useUpdateVerificationDocument,
   useVerificationStatus,
   verificationKeys,
 } from './queries'

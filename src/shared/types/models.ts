@@ -301,14 +301,17 @@ export interface VerificationDocument {
   updated_at?: string
 }
 
-/** VerificationRequestResource (HU008, HU013) */
+/** VerificationRequestResource (HU008, HU013, HU014) */
 export interface VerificationRequest {
   id: number
   status: VerificationStatus
   rejection_reason: string | null
   background_check_status: 'not_checked' | 'clear' | 'flagged'
+  background_check_notes?: string | null
   submitted_at: string
   reviewed_at: string | null
+  user?: User
+  reviewer?: UserSummary | null
   documents: VerificationDocument[]
   created_at: string
   updated_at?: string
@@ -318,4 +321,24 @@ export interface VerificationRequest {
 export interface VerificationState {
   verification_status: VerificationStatus
   latest_request: VerificationRequest | null
+}
+
+export interface AdminVerificationFilters {
+  status?: string
+  document_type?: string
+  role?: string
+  search?: string
+  date_from?: string
+  date_to?: string
+  per_page?: number
+  page?: number
+}
+
+export interface RejectVerificationPayload {
+  reason: string
+}
+
+export interface UpdateDocumentPayload {
+  status: 'approved' | 'rejected'
+  rejection_reason?: string
 }
