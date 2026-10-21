@@ -5,6 +5,7 @@ import {
   Filter,
   Heart,
   Locate,
+  MapPin,
   Search,
   SearchX,
   ShieldCheck,
@@ -169,6 +170,20 @@ function clearLocation() {
   apply({ lat: undefined, lng: undefined, sort: form.sort === 'distance' ? 'rating' : form.sort })
 }
 
+const hasSavedLocation = computed(() => Boolean(auth.user?.commune?.id || auth.user?.address))
+
+function useSavedLocation() {
+  if (auth.user?.commune?.id) {
+    apply({
+      commune_id: auth.user.commune.id,
+      lat: auth.user.latitude ?? undefined,
+      lng: auth.user.longitude ?? undefined,
+      sort: auth.user.latitude ? 'distance' : form.sort,
+      page: 1,
+    })
+  }
+}
+
 const page = computed({
   get: () => activeFilters.value.page ?? 1,
   set: (value: number) => apply({ ...activeFilters.value, page: value }),
@@ -245,6 +260,16 @@ const mapCenter = computed(() => {
           >
             <Locate class="size-4" :class="{ 'animate-spin': isLocating }" />
             {{ activeFilters.lat ? 'Cerca de mí ✓' : 'Cerca de mí' }}
+          </button>
+          <button
+            v-if="hasSavedLocation"
+            type="button"
+            class="inline-flex h-14 items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/10 px-4 font-semibold text-white backdrop-blur-md transition hover:bg-white/20"
+            :title="'Ubicación guardada: ' + (auth.user?.commune?.name || auth.user?.address)"
+            @click="useSavedLocation()"
+          >
+            <MapPin class="size-4 text-primary-200" />
+            <span class="max-w-36 truncate">{{ auth.user?.commune?.name || 'Mi ubicación' }}</span>
           </button>
           <button
             type="submit"

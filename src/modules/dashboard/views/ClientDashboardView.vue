@@ -22,9 +22,20 @@ import {
 } from '@lucide/vue'
 
 import { InProgressPanel } from '@/modules/bookings'
+import { useAuthStore } from '@/modules/auth'
 import { GoogleMapsEmbed } from '@/shared/ui'
 
+const auth = useAuthStore()
 const search = ref('')
+
+const clientMapQuery = computed(() => {
+  const communeName = auth.user?.commune?.name
+  const addr = auth.user?.address
+  if (addr && communeName) return `${addr}, ${communeName}, Medellín`
+  if (addr) return `${addr}, Medellín`
+  if (communeName) return `${communeName}, Medellín`
+  return 'Medellín, Colombia'
+})
 
 const categories = [
   { id: 1, name: 'Plomería', icon: Wrench, jobs: '120+ profesionales', to: '/search' },
@@ -168,9 +179,30 @@ const filteredProfessionals = computed(() => {
         </div>
       </section>
 
-      <div class="mb-8">
+      <div class="mb-8 space-y-3">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <div class="flex items-center gap-2 text-sm text-neutral-600">
+            <MapPin class="size-4 text-primary-600" />
+            <span class="font-medium text-neutral-800">Ubicación de referencia:</span>
+            <span>
+              {{ auth.user?.commune?.name || 'Medellín' }}
+              <template v-if="auth.user?.address"> · {{ auth.user.address }}</template>
+            </span>
+          </div>
+          <RouterLink
+            to="/client/location"
+            class="inline-flex items-center gap-1 text-xs font-semibold text-primary-700 hover:text-primary-800"
+          >
+            Configurar ubicación manual
+            <ChevronRight class="size-3.5" />
+          </RouterLink>
+        </div>
+
         <GoogleMapsEmbed
           title="Mapa de tu zona"
+          :query="clientMapQuery"
+          :lat="auth.user?.latitude"
+          :lng="auth.user?.longitude"
           description="Visualiza la referencia geográfica para encontrar profesionales y reservas cercanas."
         />
       </div>
