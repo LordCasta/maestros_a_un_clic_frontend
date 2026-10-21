@@ -342,3 +342,52 @@ export interface UpdateDocumentPayload {
   status: 'approved' | 'rejected'
   rejection_reason?: string
 }
+
+export type ReportStatus = 'open' | 'resolved' | 'dismissed'
+
+/** ReportResource (HU024) */
+export interface Report {
+  id: number
+  reporter?: UserSummary
+  reported_user?: UserSummary
+  booking_id: number | null
+  reason: string
+  description: string
+  status: ReportStatus
+  resolver?: UserSummary | null
+  resolution_notes: string | null
+  created_at: string
+  updated_at?: string
+}
+
+export type AlertType = 'low_rating' | 'report'
+
+/** AdminAlertResource (HU045) */
+export interface AdminAlert {
+  id: number
+  user?: UserSummary
+  type: AlertType
+  data: Record<string, unknown>
+  resolver?: UserSummary | null
+  resolved_at: string | null
+  created_at: string
+}
+
+/** AdminUserResource (HU038) */
+export interface AdminUser extends User {
+  is_blocked: boolean
+  blocked_at: string | null
+  blocked_reason: string | null
+  blocked_by?: UserSummary | null
+}
+
+/** ClientProfileResource (HU044) */
+export interface ClientProfile {
+  id: number
+  name: string
+  avatar_url: string | null
+  commune: Commune | null
+  rating: Rating
+  completed_bookings_count: number
+  member_since: string
+}

@@ -7,6 +7,8 @@ export const professionalKeys = {
   all: ['professionals'] as const,
   search: (filters: ProfessionalFilters) => ['professionals', 'search', { ...filters }] as const,
   detail: (id: number) => ['professionals', 'detail', id] as const,
+  reviews: (id: number, page: number) => ['professionals', 'reviews', id, page] as const,
+  clientProfile: (id: number) => ['clients', 'detail', id] as const,
 }
 
 /** Búsqueda paginada. Mantiene los resultados anteriores en pantalla mientras llegan los nuevos. */
@@ -22,5 +24,22 @@ export function useProfessional(id: MaybeRefOrGetter<number>) {
   return useQuery({
     key: () => professionalKeys.detail(toValue(id)),
     query: async () => (await professionalsApi.find(toValue(id))).data,
+  })
+}
+
+export function useProfessionalReviews(
+  id: MaybeRefOrGetter<number>,
+  page: MaybeRefOrGetter<number> = 1,
+) {
+  return useQuery({
+    key: () => professionalKeys.reviews(toValue(id), toValue(page)),
+    query: () => professionalsApi.reviews(toValue(id), toValue(page)),
+  })
+}
+
+export function useClientProfile(id: MaybeRefOrGetter<number>) {
+  return useQuery({
+    key: () => professionalKeys.clientProfile(toValue(id)),
+    query: async () => (await professionalsApi.clientProfile(toValue(id))).data,
   })
 }

@@ -1,9 +1,13 @@
 <script setup lang="ts">
-import { Info, Lock, ShieldCheck } from '@lucide/vue'
+import { AlertTriangle, Info, Lock, ShieldCheck, Trash2 } from '@lucide/vue'
+import { ref } from 'vue'
 
-import { BaseAlert } from '@/shared/ui'
+import { BaseAlert, BaseButton } from '@/shared/ui'
 
 import ChangePasswordForm from '../components/ChangePasswordForm.vue'
+import DeleteAccountModal from '../components/DeleteAccountModal.vue'
+
+const showDeleteModal = ref(false)
 </script>
 
 <template>
@@ -46,6 +50,37 @@ import ChangePasswordForm from '../components/ChangePasswordForm.vue'
         </div>
 
         <ChangePasswordForm />
+      </section>
+
+      <!-- HU023: Zona de peligro / Eliminar cuenta -->
+      <section class="rounded-3xl border border-danger-200 bg-white p-6 shadow-card sm:p-8">
+        <div class="mb-6 flex items-center gap-3 border-b border-neutral-100 pb-5">
+          <div
+            class="flex size-10 shrink-0 items-center justify-center rounded-xl bg-danger-50 text-danger-600"
+          >
+            <AlertTriangle class="size-5" />
+          </div>
+          <div>
+            <h2 class="text-lg font-bold text-neutral-900">Eliminar cuenta permanentemente</h2>
+            <p class="text-xs text-neutral-500">
+              Esta acción es irreversible y eliminará tu acceso a la plataforma.
+            </p>
+          </div>
+        </div>
+
+        <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <p class="text-sm text-neutral-600">
+            Una vez eliminada la cuenta, no podrás volver a acceder a tus reservas ni historial.
+            Recuerda que no debes tener reservas activas ni pendientes.
+          </p>
+
+          <BaseButton variant="danger" size="md" @click="showDeleteModal = true">
+            <Trash2 class="size-4" />
+            Eliminar cuenta
+          </BaseButton>
+        </div>
+
+        <DeleteAccountModal v-model:open="showDeleteModal" />
       </section>
     </div>
   </div>

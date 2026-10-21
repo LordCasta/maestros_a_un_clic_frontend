@@ -1,10 +1,21 @@
 <script setup lang="ts">
-import { ArrowLeft, BadgeCheck, Briefcase, CalendarDays, Clock3, MapPin, UserX } from '@lucide/vue'
-import { computed } from 'vue'
+import {
+  ArrowLeft,
+  BadgeCheck,
+  Briefcase,
+  CalendarDays,
+  Clock3,
+  Flag,
+  MapPin,
+  Star,
+  UserX,
+} from '@lucide/vue'
+import { computed, ref } from 'vue'
 import { useRoute } from 'vue-router'
 
 import { useAuthStore } from '@/modules/auth'
 import { FavoriteButton } from '@/modules/favorites'
+import ReportUserModal from '@/shared/components/ReportUserModal.vue'
 import { ApiError } from '@/shared/http/client'
 import {
   BaseAlert,
@@ -17,14 +28,16 @@ import {
   BaseSkeleton,
   ImageWithFallback,
 } from '@/shared/ui'
-import { formatDuration, formatMoney } from '@/shared/utils/format'
+import { formatDateTime, formatDuration, formatMoney } from '@/shared/utils/format'
 
-import { useProfessional } from '../queries'
+import { useProfessional, useProfessionalReviews } from '../queries'
 
 const route = useRoute()
 const id = computed(() => Number(route.params.id))
 const { data: professional, isPending, error } = useProfessional(id)
+const { data: reviewsData, isPending: loadingReviews } = useProfessionalReviews(id)
 
+const showReportModal = ref(false)
 const notFound = computed(() => error.value instanceof ApiError && error.value.status === 404)
 
 // HU004: reservan los clientes. Sin sesión, el guard lleva al login y vuelve aquí después.
@@ -90,9 +103,29 @@ const bookingRoute = (serviceId?: number) => ({
                       <Briefcase class="size-4" /> {{ professional.experience_years }} años de
                       experiencia
                     </span>
+                    <span
+                      v-if="
+                        professional.distance_km !== undefined && professional.distance_km !== null
+                      "
+                      class="font-semibold text-primary-700"
+                    >
+                      · a {{ professional.distance_km }} km
+                    </span>
                   </div>
                 </div>
-                <FavoriteButton :professional-id="professional.id" />
+                <div class="flex items-center gap-2">
+                  <BaseButton
+                    v-if="auth.isAuthenticated && auth.user?.id !== professional.id"
+                    variant="ghost"
+                    size="sm"
+                    class="text-neutral-500 hover:text-danger-600"
+                    @click="showReportModal = true"
+                  >
+                    <Flag class="size-4" />
+                    <span class="hidden sm:inline">Reportar</span>
+                  </BaseButton>
+                  <FavoriteButton :professional-id="professional.id" />
+                </div>
               </div>
               <div v-if="professional.categories?.length" class="flex flex-wrap gap-1.5">
                 <BaseBadge
@@ -168,6 +201,54 @@ const bookingRoute = (serviceId?: number) => ({
             />
           </div>
         </BaseCard>
+
+        <!-- HU029: Opiniones y valoraciones -->
+        <BaseCard as="section">
+          <div class="mb-4 flex items-center justify-between">
+            <h2 class="text-xl font-black text-neutral-900">Opiniones de clientes</h2>
+            <BaseRating :rating="professional.rating" />
+          </div>
+
+          <div v-if="loadingReviews" class="space-y-3">
+            <BaseSkeleton v-for="n in 2" :key="n" class="h-20" />
+          </div>
+
+          <BaseEmptyState
+            v-else-if="!reviewsData?.data?.length"
+            :icon="Star"
+            title="Aún no hay opiniones"
+            description="Este profesional aún no ha recibido calificaciones de clientes."
+          />
+
+          <ul v-else class="space-y-4">
+            <li
+              v-for="review in reviewsData.data"
+              :key="review.id"
+              class="rounded-2xl border border-neutral-100 bg-surface-muted p-4"
+            >
+              <div class="flex items-center justify-between gap-3">
+                <div class="flex items-center gap-3">
+                  <BaseAvatar
+                    :name="review.reviewer.name"
+                    :src="review.reviewer.avatar_url"
+                    size="sm"
+                  />
+                  <div>
+                    <p class="font-semibold text-neutral-900">{{ review.reviewer.name }}</p>
+                    <p class="text-xs text-neutral-500">{{ formatDateTime(review.created_at) }}</p>
+                  </div>
+                </div>
+                <div class="flex items-center gap-1 text-warning-500">
+                  <Star class="size-4 fill-current" />
+                  <span class="text-sm font-bold text-neutral-800">{{ review.rating }}.0</span>
+                </div>
+              </div>
+              <p v-if="review.comment" class="mt-3 text-sm text-neutral-700">
+                {{ review.comment }}
+              </p>
+            </li>
+          </ul>
+        </BaseCard>
       </div>
 
       <aside>
@@ -200,5 +281,12 @@ const bookingRoute = (serviceId?: number) => ({
         </BaseCard>
       </aside>
     </div>
+
+    <ReportUserModal
+      v-if="professional"
+      v-model:open="showReportModal"
+      :reported-user-id="professional.id"
+      :reported-user-name="professional.name"
+    />
   </div>
 </template>

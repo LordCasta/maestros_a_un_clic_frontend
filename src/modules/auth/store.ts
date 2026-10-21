@@ -50,7 +50,24 @@ export const useAuthStore = defineStore('auth', () => {
     sessionStorage.saveUser(data)
   }
 
+  /** Actualiza los datos del usuario en memoria y en localStorage. */
+  function updateUser(updated: User) {
+    user.value = updated
+    sessionStorage.saveUser(updated)
+  }
+
   if (token.value) connectRealtime(token.value)
 
-  return { token, user, isAuthenticated, role, isVerified, start, clear, logout, refreshUser }
+  return {
+    token,
+    user,
+    isAuthenticated,
+    role,
+    isVerified,
+    start,
+    clear,
+    logout,
+    refreshUser,
+    updateUser,
+  }
 })

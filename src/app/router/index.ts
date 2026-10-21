@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
 
 import { accountRoutes } from '@/modules/account'
+import { adminRoutes } from '@/modules/admin'
 import { authRoutes } from '@/modules/auth'
 import { bookingsRoutes } from '@/modules/bookings'
 import { dashboardRoutes } from '@/modules/dashboard'
@@ -28,6 +29,7 @@ const MODULES: ModuleRoutes[] = [
   homeRoutes,
   authRoutes,
   accountRoutes,
+  adminRoutes,
   professionalsRoutes,
   favoritesRoutes,
   bookingsRoutes,
