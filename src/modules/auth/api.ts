@@ -2,7 +2,13 @@ import { http, toFormData } from '@/shared/http/client'
 import type { ApiSuccess } from '@/shared/types/api'
 import type { User } from '@/shared/types/models'
 
-import type { LoginForm, RegisterClientForm, RegisterProfessionalForm } from './schemas'
+import type {
+  ForgotPasswordForm,
+  LoginForm,
+  RegisterClientForm,
+  RegisterProfessionalForm,
+  ResetPasswordForm,
+} from './schemas'
 
 /** Endpoints: backend/docs/api/endpoints.md § Autenticación */
 
@@ -23,4 +29,10 @@ export const authApi = {
   logout: () => http.post<ApiSuccess<null>>('/auth/logout'),
 
   me: () => http.get<ApiSuccess<User>>('/auth/me'),
+
+  forgotPassword: (data: ForgotPasswordForm) =>
+    http.post<ApiSuccess<null>>('/auth/forgot-password', data),
+
+  resetPassword: (data: ResetPasswordForm) =>
+    http.post<ApiSuccess<null>>('/auth/reset-password', data),
 }
