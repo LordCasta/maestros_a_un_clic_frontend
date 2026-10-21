@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { changePasswordSchema, updateLocationSchema } from '../schemas'
+import { changePasswordSchema, updateLocationSchema, updateProfileSchema } from '../schemas'
 
 const validPayload = {
   current_password: 'ContrasenaActual123!',
@@ -126,6 +126,53 @@ describe('account updateLocationSchema (HU022)', () => {
     expect(result.success).toBe(false)
     expect(result.error?.flatten().fieldErrors.address).toEqual([
       'La dirección no puede superar 255 caracteres.',
+    ])
+  })
+})
+
+describe('account updateProfileSchema (HU031)', () => {
+  it('accepts a valid profile payload', () => {
+    const result = updateProfileSchema.safeParse({
+      name: 'Carlos Pérez',
+      phone: '3001234567',
+      commune_id: 11,
+      address: 'Circular 4 # 70-15',
+    })
+
+    expect(result.success).toBe(true)
+  })
+
+  it('accepts profile with optional empty values', () => {
+    const result = updateProfileSchema.safeParse({
+      name: 'María Gómez',
+      phone: '',
+      commune_id: null,
+      address: null,
+    })
+
+    expect(result.success).toBe(true)
+  })
+
+  it('rejects name shorter than 2 characters', () => {
+    const result = updateProfileSchema.safeParse({
+      name: 'M',
+    })
+
+    expect(result.success).toBe(false)
+    expect(result.error?.flatten().fieldErrors.name).toEqual([
+      'El nombre debe tener al menos 2 caracteres.',
+    ])
+  })
+
+  it('rejects phone longer than 20 characters', () => {
+    const result = updateProfileSchema.safeParse({
+      name: 'Laura Restrepo',
+      phone: '123456789012345678901',
+    })
+
+    expect(result.success).toBe(false)
+    expect(result.error?.flatten().fieldErrors.phone).toEqual([
+      'El teléfono no puede superar 20 caracteres.',
     ])
   })
 })

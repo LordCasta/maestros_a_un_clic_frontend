@@ -1,10 +1,21 @@
 <script setup lang="ts">
-import { ArrowLeft, CalendarDays, Clock3, FileText, MapPin, Star } from '@lucide/vue'
+import {
+  ArrowLeft,
+  CalendarDays,
+  Clock3,
+  FileText,
+  Flag,
+  MapPin,
+  Star,
+  User as UserIcon,
+} from '@lucide/vue'
 import { computed, ref } from 'vue'
 import { useRoute } from 'vue-router'
 
 import { useAuthStore } from '@/modules/auth'
 import { BookingChat } from '@/modules/chat'
+import ClientProfileModal from '@/shared/components/ClientProfileModal.vue'
+import ReportUserModal from '@/shared/components/ReportUserModal.vue'
 import type { Booking, BookingStatus } from '@/shared/types/models'
 import { BaseAlert, BaseAvatar, BaseButton, BaseCard, BaseRating, BaseSkeleton } from '@/shared/ui'
 import { formatDateTime, formatDuration, formatMoney, formatTime } from '@/shared/utils/format'
@@ -49,6 +60,8 @@ const canReschedule = computed(
 const cancelOpen = ref(false)
 const rescheduleOpen = ref(false)
 const reviewOpen = ref(false)
+const clientProfileOpen = ref(false)
+const reportUserOpen = ref(false)
 
 const userReview = computed(() =>
   booking.value?.reviews?.find((r) => r.reviewer.id === auth.user?.id),
@@ -253,15 +266,36 @@ const showProgress = computed(
       </BaseCard>
 
       <BaseCard as="section">
-        <h2 class="mb-4 text-sm font-semibold text-neutral-500 uppercase">
-          {{ isProfessional ? 'Cliente' : 'Profesional' }}
-        </h2>
-        <div class="flex items-center gap-4">
-          <BaseAvatar :name="counterpart.name" :src="counterpart.avatar_url" size="lg" />
-          <div>
-            <p class="text-lg font-bold text-neutral-900">{{ counterpart.name }}</p>
-            <BaseRating :rating="counterpart.rating" />
+        <div class="mb-4 flex items-center justify-between">
+          <h2 class="text-sm font-semibold text-neutral-500 uppercase">
+            {{ isProfessional ? 'Cliente' : 'Profesional' }}
+          </h2>
+          <BaseButton
+            v-if="!isAdmin"
+            variant="ghost"
+            size="sm"
+            class="text-neutral-500 hover:text-danger-600"
+            @click="reportUserOpen = true"
+          >
+            <Flag class="size-4" /> Reportar
+          </BaseButton>
+        </div>
+        <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div class="flex items-center gap-4">
+            <BaseAvatar :name="counterpart.name" :src="counterpart.avatar_url" size="lg" />
+            <div>
+              <p class="text-lg font-bold text-neutral-900">{{ counterpart.name }}</p>
+              <BaseRating :rating="counterpart.rating" />
+            </div>
           </div>
+          <BaseButton
+            v-if="isProfessional"
+            variant="outline"
+            size="sm"
+            @click="clientProfileOpen = true"
+          >
+            <UserIcon class="size-4" /> Ver perfil del cliente
+          </BaseButton>
         </div>
       </BaseCard>
 
@@ -311,6 +345,18 @@ const showProgress = computed(
         v-model:open="reviewOpen"
         :booking-id="booking.id"
         :counterpart-name="counterpart.name"
+      />
+      <ClientProfileModal
+        v-if="isProfessional && counterpart"
+        v-model:open="clientProfileOpen"
+        :client-id="counterpart.id"
+      />
+      <ReportUserModal
+        v-if="counterpart"
+        v-model:open="reportUserOpen"
+        :reported-user-id="counterpart.id"
+        :reported-user-name="counterpart.name"
+        :booking-id="booking.id"
       />
     </div>
   </div>

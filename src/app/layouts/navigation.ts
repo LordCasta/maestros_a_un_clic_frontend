@@ -1,12 +1,15 @@
 import {
+  AlertTriangle,
   CalendarClock,
   CalendarDays,
+  Flag,
   Heart,
   LayoutDashboard,
   MapPin,
   Search,
   ShieldCheck,
   UserRound,
+  Users,
   Wallet,
   Wrench,
 } from '@lucide/vue'
@@ -29,6 +32,7 @@ export const NAV_ITEMS: Record<Role | 'guest', NavItem[]> = {
     { label: 'Buscar', to: { name: 'search' }, icon: Search },
     { label: 'Mis reservas', to: { name: 'client-bookings' }, icon: CalendarDays },
     { label: 'Favoritos', to: { name: 'client-favorites' }, icon: Heart },
+    { label: 'Mi perfil', to: { name: 'client-profile' }, icon: UserRound },
     { label: 'Mi ubicación', to: { name: 'client-location' }, icon: MapPin },
     { label: 'Seguridad', to: { name: 'client-security' }, icon: ShieldCheck },
     { label: 'Verificación', to: { name: 'client-verification' }, icon: ShieldCheck },
@@ -45,6 +49,9 @@ export const NAV_ITEMS: Record<Role | 'guest', NavItem[]> = {
   ],
   admin: [
     { label: 'Verificaciones', to: { name: 'admin-verifications' }, icon: ShieldCheck },
+    { label: 'Usuarios', to: { name: 'admin-users' }, icon: Users },
+    { label: 'Reportes', to: { name: 'admin-reports' }, icon: Flag },
+    { label: 'Alertas', to: { name: 'admin-alerts' }, icon: AlertTriangle },
     { label: 'Buscar profesionales', to: { name: 'search' }, icon: Search },
   ],
 }

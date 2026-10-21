@@ -3,5 +3,12 @@
  * API pública del módulo: lo que no se exporta aquí es interno.
  */
 export type { ProfessionalFilters } from './api'
-export { professionalKeys, useProfessional, useProfessionalSearch } from './queries'
+export { professionalsApi } from './api'
+export {
+  professionalKeys,
+  useClientProfile,
+  useProfessional,
+  useProfessionalReviews,
+  useProfessionalSearch,
+} from './queries'
 export { professionalsRoutes } from './routes'

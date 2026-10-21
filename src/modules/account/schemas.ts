@@ -43,5 +43,23 @@ export const updateLocationSchema = z
     path: ['commune_id'],
   })
 
+export const updateProfileSchema = z.object({
+  name: z.string().min(2, 'El nombre debe tener al menos 2 caracteres.').max(255),
+  phone: z
+    .string()
+    .max(20, 'El teléfono no puede superar 20 caracteres.')
+    .nullable()
+    .optional()
+    .or(z.literal('')),
+  commune_id: z.number().nullable().optional(),
+  address: z
+    .string()
+    .max(255, 'La dirección no puede superar 255 caracteres.')
+    .nullable()
+    .optional()
+    .or(z.literal('')),
+})
+
 export type ChangePasswordPayload = z.infer<typeof changePasswordSchema>
 export type UpdateLocationPayload = z.infer<typeof updateLocationSchema>
+export type UpdateProfilePayload = z.infer<typeof updateProfileSchema>

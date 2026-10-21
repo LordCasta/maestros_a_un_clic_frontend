@@ -95,6 +95,7 @@ function filtersFrom(query: LocationQuery): ProfessionalFilters {
       : undefined,
     lat: numberParam(query.lat),
     lng: numberParam(query.lng),
+    available_now: query.available_now === '1' || query.available_now === 'true' ? true : undefined,
     page: numberParam(query.page) ?? 1,
     per_page: 10,
   }
@@ -118,17 +119,26 @@ function apply(changes: Partial<ProfessionalFilters> = {}) {
   }
 
   const next = { ...form, ...changes, page: changes.page ?? 1, per_page: undefined }
-  const query = Object.fromEntries(
-    Object.entries(next).filter(
-      ([, value]) => value !== undefined && value !== null && value !== '',
-    ),
-  )
+  const query: Record<string, string | number> = {}
+  for (const [key, value] of Object.entries(next)) {
+    if (value === undefined || value === null || value === '' || value === false) continue
+    if (typeof value === 'boolean') {
+      if (value) query[key] = '1'
+    } else {
+      query[key] = value as string | number
+    }
+  }
   router.push({ name: 'search', query })
 }
 
 function clearFilters() {
   priceError.value = null
   router.push({ name: 'search' })
+}
+
+function toggleAvailableNow() {
+  form.available_now = form.available_now ? undefined : true
+  apply({ available_now: form.available_now })
 }
 
 function onSortChange(sort: string | number | null | undefined) {
@@ -357,6 +367,14 @@ const mapCenter = computed(() => {
               >
                 <Locate class="size-4" />
                 {{ activeFilters.lat ? 'Quitar geolocalización' : 'Cerca de mí' }}
+              </BaseButton>
+              <BaseButton
+                type="button"
+                :variant="form.available_now ? 'primary' : 'outline'"
+                @click="toggleAvailableNow"
+              >
+                <CalendarDays class="size-4" />
+                {{ form.available_now ? 'Disponible ahora ✓' : 'Disponible ahora' }}
               </BaseButton>
               <span v-if="result" class="text-sm text-neutral-500">
                 {{ result.meta.total }} {{ result.meta.total === 1 ? 'resultado' : 'resultados' }}
