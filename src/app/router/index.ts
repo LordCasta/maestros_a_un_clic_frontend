@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
 
+import { accountRoutes } from '@/modules/account'
 import { authRoutes } from '@/modules/auth'
 import { bookingsRoutes } from '@/modules/bookings'
 import { dashboardRoutes } from '@/modules/dashboard'
@@ -25,6 +26,7 @@ import { installGuards } from './guards'
 const MODULES: ModuleRoutes[] = [
   homeRoutes,
   authRoutes,
+  accountRoutes,
   professionalsRoutes,
   favoritesRoutes,
   bookingsRoutes,
