@@ -112,6 +112,7 @@ export interface Professional {
   experience_years: number | null
   hourly_rate: number | null
   distance_km?: number | null
+  next_available_at?: string | null
   is_suggested?: boolean
   categories?: Category[]
   services?: ProfessionalService[]

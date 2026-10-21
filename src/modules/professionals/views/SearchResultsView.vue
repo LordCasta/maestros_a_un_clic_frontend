@@ -26,6 +26,7 @@ import {
   BasePagination,
   BaseSelect,
   BaseSkeleton,
+  GoogleMapsEmbed,
   type SelectOption,
 } from '@/shared/ui'
 
@@ -44,6 +45,7 @@ const { data: categories } = useCategories()
 
 const isLocating = ref(false)
 const geoError = ref<string | null>(null)
+const priceError = ref<string | null>(null)
 
 const SORT_OPTIONS: SelectOption[] = [
   { value: 'rating', label: 'Mejor calificados' },
@@ -52,13 +54,27 @@ const SORT_OPTIONS: SelectOption[] = [
   { value: 'price_desc', label: 'Precio: mayor a menor' },
 ]
 
-// Categorías y subcategorías en un solo select ("Plomería", "  · Reparación de fugas").
+// Categorías principales
 const categoryOptions = computed<SelectOption[]>(() =>
-  (categories.value ?? []).flatMap((category) => [
-    { value: category.id, label: category.name },
-    ...(category.children ?? []).map((child) => ({ value: child.id, label: `   · ${child.name}` })),
-  ]),
+  (categories.value ?? []).map((category) => ({
+    value: category.id,
+    label: category.name,
+  })),
 )
+
+// Subcategorías según la categoría seleccionada
+const selectedCategory = computed(() => categories.value?.find((c) => c.id === form.category_id))
+
+const subcategoryOptions = computed<SelectOption[]>(() =>
+  (selectedCategory.value?.children ?? []).map((child) => ({
+    value: child.id,
+    label: child.name,
+  })),
+)
+
+function onCategoryChange() {
+  form.subcategory_id = undefined
+}
 
 function numberParam(value: unknown): number | undefined {
   const number = Number(value)
@@ -70,6 +86,7 @@ function filtersFrom(query: LocationQuery): ProfessionalFilters {
     q: typeof query.q === 'string' && query.q ? query.q : undefined,
     commune_id: numberParam(query.commune_id),
     category_id: numberParam(query.category_id),
+    subcategory_id: numberParam(query.subcategory_id),
     min_price: numberParam(query.min_price),
     max_price: numberParam(query.max_price),
     sort: SORT_OPTIONS.some((option) => option.value === query.sort)
@@ -90,6 +107,15 @@ const form = reactive<ProfessionalFilters>({})
 watch(activeFilters, (filters) => Object.assign(form, filters), { immediate: true })
 
 function apply(changes: Partial<ProfessionalFilters> = {}) {
+  priceError.value = null
+  const min = changes.min_price !== undefined ? changes.min_price : form.min_price
+  const max = changes.max_price !== undefined ? changes.max_price : form.max_price
+
+  if (min !== undefined && max !== undefined && min !== null && max !== null && max < min) {
+    priceError.value = 'La tarifa máxima debe ser mayor o igual a la tarifa mínima.'
+    return
+  }
+
   const next = { ...form, ...changes, page: changes.page ?? 1, per_page: undefined }
   const query = Object.fromEntries(
     Object.entries(next).filter(
@@ -100,7 +126,14 @@ function apply(changes: Partial<ProfessionalFilters> = {}) {
 }
 
 function clearFilters() {
+  priceError.value = null
   router.push({ name: 'search' })
+}
+
+function onSortChange(sort: string | number | null | undefined) {
+  if (sort === 'distance' && !form.lat && !activeFilters.value.lat) {
+    useMyLocation()
+  }
 }
 
 function useMyLocation() {
@@ -139,6 +172,34 @@ function clearLocation() {
 const page = computed({
   get: () => activeFilters.value.page ?? 1,
   set: (value: number) => apply({ ...activeFilters.value, page: value }),
+})
+
+const mapCenter = computed(() => {
+  if (activeFilters.value.lat && activeFilters.value.lng) {
+    return {
+      lat: activeFilters.value.lat,
+      lng: activeFilters.value.lng,
+      query: null,
+      title: 'Tu ubicación y alrededores',
+    }
+  }
+  if (activeFilters.value.commune_id) {
+    const commune = (communeOptions.value ?? []).find(
+      (c) => c.value === activeFilters.value.commune_id,
+    )
+    return {
+      lat: null,
+      lng: null,
+      query: commune?.label ?? null,
+      title: commune?.label ? `Zona: ${commune.label}` : 'Mapa de la zona',
+    }
+  }
+  return {
+    lat: null,
+    lng: null,
+    query: null,
+    title: 'Medellín y área metropolitana',
+  }
 })
 </script>
 
@@ -198,7 +259,7 @@ const page = computed({
       </div>
     </section>
 
-    <div class="grid gap-8 xl:grid-cols-[1fr_340px]">
+    <div class="grid gap-8 xl:grid-cols-[1fr_380px]">
       <div class="space-y-6">
         <BaseCard as="section">
           <div class="mb-5 flex items-center justify-between gap-4">
@@ -220,17 +281,33 @@ const page = computed({
               />
               <BaseSelect
                 v-model="form.category_id"
-                label="Especialidad"
+                label="Categoría de servicio"
                 placeholder="Todas"
                 :options="categoryOptions"
+                @update:model-value="onCategoryChange"
               />
-              <BaseSelect v-model="form.sort" label="Ordenar por" :options="SORT_OPTIONS" />
+              <BaseSelect
+                v-model="form.subcategory_id"
+                label="Subcategoría"
+                :placeholder="
+                  form.category_id ? 'Todas las subcategorías' : 'Elige una categoría primero'
+                "
+                :options="subcategoryOptions"
+                :disabled="!form.category_id || !subcategoryOptions.length"
+              />
+              <BaseSelect
+                v-model="form.sort"
+                label="Ordenar por"
+                :options="SORT_OPTIONS"
+                @update:model-value="onSortChange"
+              />
               <BaseInput
                 v-model.number="form.min_price"
                 label="Tarifa mínima"
                 type="number"
                 min="0"
                 step="5000"
+                placeholder="$ 0"
               />
               <BaseInput
                 v-model.number="form.max_price"
@@ -238,8 +315,12 @@ const page = computed({
                 type="number"
                 min="0"
                 step="5000"
+                placeholder="Sin límite"
               />
             </div>
+            <BaseAlert v-if="priceError" tone="warning">
+              {{ priceError }}
+            </BaseAlert>
             <div class="flex flex-wrap items-center gap-3">
               <BaseButton type="submit">Aplicar filtros</BaseButton>
               <BaseButton variant="outline" @click="clearFilters">Limpiar</BaseButton>
@@ -311,8 +392,16 @@ const page = computed({
         </section>
       </div>
 
-      <aside v-if="auth.role === 'client'" class="space-y-4">
-        <BaseCard as="section">
+      <aside class="space-y-6">
+        <GoogleMapsEmbed
+          :title="mapCenter.title"
+          description="Visualiza la cobertura geográfica de profesionales."
+          :lat="mapCenter.lat"
+          :lng="mapCenter.lng"
+          :query="mapCenter.query"
+        />
+
+        <BaseCard v-if="auth.role === 'client'" as="section">
           <h2 class="mb-4 text-lg font-black text-neutral-900">Atajos</h2>
           <div class="space-y-3">
             <RouterLink

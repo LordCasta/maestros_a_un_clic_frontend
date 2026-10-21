@@ -7,6 +7,7 @@ export interface ProfessionalFilters extends PageQuery {
   q?: string
   commune_id?: number
   category_id?: number
+  subcategory_id?: number
   min_price?: number
   max_price?: number
   sort?: 'rating' | 'price_asc' | 'price_desc' | 'distance'

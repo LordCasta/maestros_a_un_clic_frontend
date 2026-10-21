@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { BadgeCheck, ChevronRight, MapPin } from '@lucide/vue'
+import { BadgeCheck, CalendarDays, ChevronRight, MapPin } from '@lucide/vue'
 
 import type { Professional } from '../types/models'
 import { BaseBadge, BaseButton, BaseCard, BaseRating, ImageWithFallback } from '../ui'
-import { formatMoney } from '../utils/format'
+import { formatDateTime, formatMoney } from '../utils/format'
 
 /**
  * Tarjeta de un profesional en listados (búsqueda, favoritos, dashboard).
@@ -66,12 +66,21 @@ defineProps<{ professional: Professional }>()
         </p>
 
         <div class="mt-auto flex flex-wrap items-center justify-between gap-3 pt-1">
-          <p>
-            <span class="text-xl font-black text-primary-700">{{
-              formatMoney(professional.hourly_rate)
-            }}</span>
-            <span v-if="professional.hourly_rate" class="text-sm text-neutral-500"> / hora</span>
-          </p>
+          <div>
+            <p>
+              <span class="text-xl font-black text-primary-700">{{
+                formatMoney(professional.hourly_rate)
+              }}</span>
+              <span v-if="professional.hourly_rate" class="text-sm text-neutral-500"> / hora</span>
+            </p>
+            <p
+              v-if="professional.next_available_at"
+              class="mt-1 inline-flex items-center gap-1.5 text-xs font-semibold text-primary-700"
+            >
+              <CalendarDays class="size-3.5" />
+              <span>Disponible: {{ formatDateTime(professional.next_available_at) }}</span>
+            </p>
+          </div>
           <BaseButton
             size="sm"
             :to="{ name: 'professional-detail', params: { id: professional.id } }"

@@ -76,4 +76,10 @@ describe('ProfessionalCard', () => {
     expect(wrapper.text()).toContain('· a 4.2 km')
     expect(wrapper.text()).toContain('Comuna aledaña')
   })
+
+  it('renders upcoming availability when next_available_at is present', () => {
+    const wrapper = mountCard({ next_available_at: '2026-10-25T14:00:00Z' })
+
+    expect(wrapper.text()).toContain('Disponible:')
+  })
 })
