@@ -15,6 +15,8 @@ export interface ModuleRoutes {
   client?: RouteRecordRaw[]
   /** ProfessionalLayout, bajo /professional. */
   professional?: RouteRecordRaw[]
+  /** AdminLayout, bajo /admin. */
+  admin?: RouteRecordRaw[]
 }
 
 declare module 'vue-router' {

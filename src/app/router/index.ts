@@ -13,6 +13,7 @@ import { styleguideRoutes } from '@/modules/styleguide'
 import { verificationRoutes } from '@/modules/verification'
 import type { ModuleRoutes } from '@/shared/types/router'
 
+import AdminLayout from '../layouts/AdminLayout.vue'
 import AuthLayout from '../layouts/AuthLayout.vue'
 import ClientLayout from '../layouts/ClientLayout.vue'
 import ProfessionalLayout from '../layouts/ProfessionalLayout.vue'
@@ -65,6 +66,12 @@ const routes: RouteRecordRaw[] = [
       { path: '', redirect: { name: 'professional-dashboard' } },
       ...collect('professional'),
     ],
+  },
+  {
+    path: '/admin',
+    component: AdminLayout,
+    meta: { requiresAuth: true, roles: ['admin'] },
+    children: [{ path: '', redirect: { name: 'admin-verifications' } }, ...collect('admin')],
   },
   {
     path: '/',

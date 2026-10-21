@@ -9,8 +9,9 @@ export function homeRouteFor(role: Role | null): RouteLocationRaw {
       return { name: 'professional-dashboard' }
     case 'client':
       return { name: 'client-dashboard' }
+    case 'admin':
+      return { name: 'admin-verifications' }
     default:
-      // El panel de administración llega con su módulo.
       return { name: 'home' }
   }
 }

@@ -14,6 +14,7 @@ import {
 } from '@lucide/vue'
 import { computed, ref } from 'vue'
 
+import { useAuthStore } from '@/modules/auth'
 import { useToastStore } from '@/shared/stores/toast'
 import type { DocumentType, VerificationDocument } from '@/shared/types/models'
 import {
@@ -28,6 +29,8 @@ import {
 import ReplaceDocumentModal from '../components/ReplaceDocumentModal.vue'
 import { useSubmitVerification, useVerificationStatus } from '../queries'
 
+const auth = useAuthStore()
+const isClient = computed(() => auth.role === 'client')
 const toast = useToastStore()
 const { data: verificationState, isPending, error, refetch } = useVerificationStatus()
 const { mutateAsync: submitVerification, isLoading: isSubmitting } = useSubmitVerification()
@@ -86,7 +89,11 @@ async function handleInitialSubmit() {
     return
   }
 
-  if (certificatesList.value.length === 0 && workEvidencesList.value.length === 0) {
+  if (
+    !isClient.value &&
+    certificatesList.value.length === 0 &&
+    workEvidencesList.value.length === 0
+  ) {
     submissionError.value = 'Debes adjuntar al menos un certificado o una evidencia de trabajo.'
     return
   }
@@ -397,8 +404,8 @@ async function handleInitialSubmit() {
             />
           </BaseCard>
 
-          <!-- 3. Certificados o diplomas -->
-          <BaseCard class="space-y-4 p-6">
+          <!-- 3. Certificados o diplomas (Solo profesionales) -->
+          <BaseCard v-if="!isClient" class="space-y-4 p-6">
             <div class="flex items-start gap-3">
               <div class="rounded-xl bg-primary-50 p-2.5 text-primary-600">
                 <Award class="size-6" />
@@ -420,8 +427,8 @@ async function handleInitialSubmit() {
             />
           </BaseCard>
 
-          <!-- 4. Evidencias de trabajo -->
-          <BaseCard class="space-y-4 p-6">
+          <!-- 4. Evidencias de trabajo (Solo profesionales) -->
+          <BaseCard v-if="!isClient" class="space-y-4 p-6">
             <div class="flex items-start gap-3">
               <div class="rounded-xl bg-primary-50 p-2.5 text-primary-600">
                 <Briefcase class="size-6" />
