@@ -40,7 +40,7 @@ src/
 ├── assets/brand/           Logos e imágenes con colores propios (no los revisa la guarda de colores)
 ├── shared/                 Lo que usan varios módulos. Cambios aquí los revisan los dos.
 │   ├── ui/                 Componentes base (BaseButton, BaseInput…) — index.ts
-│   ├── components/         Componentes de dominio presentacionales (ProfessionalCard)
+│   ├── components/         Componentes de dominio compartidos (ProfessionalCard, ClientProfileModal, ReportUserModal)
 │   ├── http/               Cliente HTTP único y ApiError
 │   ├── forms/              Mensajes de Zod en español y errores del servidor → campos
 │   ├── realtime/           Conexión con Reverb (Echo)
@@ -48,8 +48,9 @@ src/
 │   ├── types/              Espejo de la API: envelope, modelos, rutas
 │   └── utils/              Formatos de dinero, fechas, duración; tokenColor() para colores en JS
 └── modules/                Un módulo por funcionalidad: lo que se reparte entre el equipo
-    ├── auth/  catalog/  professionals/  favorites/  bookings/  chat/  notifications/
-    ├── dashboard/  professional-profile/  schedule/  home/
+    ├── auth/  account/  catalog/  professionals/  favorites/  bookings/  chat/
+    ├── notifications/  dashboard/  professional-profile/  schedule/  home/
+    ├── verification/  admin/
     └── styleguide/         /_ui, solo en desarrollo
 ```
 

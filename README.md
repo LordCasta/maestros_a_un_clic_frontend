@@ -6,6 +6,8 @@ Vue 3 · TypeScript · Vite · Tailwind CSS 4 · Pinia + Pinia Colada · VeeVali
 
 Backend: [maestros_a_un_clic_backend](https://github.com/LordCasta/maestros_a_un_clic_backend)
 
+**Estado:** las 49 historias de usuario están terminadas, con 158 pruebas de componentes y funciones. El detalle de cada una (pantallas, endpoints y pruebas) está en la [matriz de trazabilidad](https://github.com/LordCasta/maestros_a_un_clic_backend/blob/main/docs/proyecto/04-trazabilidad.md).
+
 ## Documentación del proyecto
 
 La documentación del proyecto completo (frontend y backend) vive en el repositorio del backend, junto a los issues:
@@ -44,7 +46,7 @@ cp .env.example .env     # URL de la API y datos de Reverb
 npm run dev              # http://localhost:5173
 ```
 
-Cuentas demo (contraseña `password`): `cliente@maestros.test`, `profesional@maestros.test`, `pendiente@maestros.test` (cliente sin verificar). Vienen del `DemoSeeder` del backend.
+Cuentas demo (contraseña `password`): `cliente@maestros.test`, `profesional@maestros.test`, `pendiente@maestros.test` (cliente sin verificar) y `admin@maestros.test` (panel de administración). Vienen del `DemoSeeder` del backend.
 
 ## Comandos
 
