@@ -78,7 +78,8 @@ describe('ForgotPasswordForm (HU020)', () => {
   it('sends reset link and displays success message', async () => {
     vi.mocked(authApi.forgotPassword).mockResolvedValueOnce({
       success: true,
-      message: 'Te enviamos por correo el enlace para restablecer tu contraseña.',
+      message:
+        'Si el correo está registrado, te enviamos el enlace para restablecer tu contraseña.',
       data: null,
     })
 
@@ -94,7 +95,7 @@ describe('ForgotPasswordForm (HU020)', () => {
     await vi.waitFor(() => {
       expect(authApi.forgotPassword).toHaveBeenCalledWith({ email: 'usuario@example.com' })
       expect(wrapper.text()).toContain(
-        'Te enviamos por correo el enlace para restablecer tu contraseña.',
+        'Si el correo está registrado, te enviamos el enlace para restablecer tu contraseña.',
       )
     })
   })
