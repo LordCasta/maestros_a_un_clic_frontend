@@ -26,7 +26,8 @@ const onSubmit = handleSubmit(async (values) => {
   try {
     const response = await authApi.forgotPassword(values)
     successMessage.value =
-      response.message ?? 'Te enviamos por correo el enlace para restablecer tu contraseña.'
+      response.message ??
+      'Si el correo está registrado, te enviamos el enlace para restablecer tu contraseña.'
   } catch (error) {
     formError.value = applyServerErrors(error, setErrors)
   }
