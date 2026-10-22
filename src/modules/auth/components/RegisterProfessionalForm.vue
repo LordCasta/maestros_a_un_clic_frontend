@@ -67,16 +67,21 @@ const ACCOUNT_FIELDS = [
   'avatar',
 ]
 
+// handleSubmit entrega solo los campos del esquema del paso actual (Zod descarta el resto),
+// así que los del primer paso se guardan al continuar y se unen al enviar.
+let accountValues: Partial<RegisterProfessionalForm> = {}
+
 const onSubmit = handleSubmit(async (values) => {
   formError.value = ''
 
   if (step.value < STEPS.length) {
+    accountValues = values
     step.value++
     return
   }
 
   try {
-    const { data } = await authApi.registerProfessional(values)
+    const { data } = await authApi.registerProfessional({ ...accountValues, ...values })
     auth.start(data)
     toast.success('¡Bienvenido! Tu perfil profesional quedó creado.')
     await router.push(homeRouteFor(data.user.role))
