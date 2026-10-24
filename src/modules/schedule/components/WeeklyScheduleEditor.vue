@@ -118,19 +118,23 @@ async function save() {
         <div v-else class="flex-1 space-y-2">
           <div v-for="(range, index) in day.ranges" :key="index" class="space-y-1">
             <div class="flex items-center gap-2">
-              <BaseInput
-                v-model="range.start_time"
-                type="time"
-                :aria-label="`${day.label}, franja ${index + 1}: desde`"
-                class="w-32"
-              />
+              <div class="min-w-0 flex-1 sm:w-32 sm:flex-none">
+                <BaseInput
+                  v-model="range.start_time"
+                  type="time"
+                  :aria-label="`${day.label}, franja ${index + 1}: desde`"
+                  class="w-full"
+                />
+              </div>
               <span class="text-sm text-neutral-400">a</span>
-              <BaseInput
-                v-model="range.end_time"
-                type="time"
-                :aria-label="`${day.label}, franja ${index + 1}: hasta`"
-                class="w-32"
-              />
+              <div class="min-w-0 flex-1 sm:w-32 sm:flex-none">
+                <BaseInput
+                  v-model="range.end_time"
+                  type="time"
+                  :aria-label="`${day.label}, franja ${index + 1}: hasta`"
+                  class="w-full"
+                />
+              </div>
               <BaseButton
                 variant="ghost"
                 size="sm"
