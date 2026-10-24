@@ -1,0 +1,79 @@
+# Despliegue continuo: cada vez que el CI de main termina con el check obligatorio en verde, se
+# compila el frontend con la configuración de producción y se publica en el servidor.
+# Ver backend: docs/proyecto/06-despliegue-y-operacion.md.
+#
+# Configuración del repositorio (Settings → Secrets and variables → Actions):
+#   secrets.DEPLOY_SSH_KEY      llave privada de despliegue (solo puede ejecutar deploy/ssh-gate.sh)
+#   secrets.DEPLOY_KNOWN_HOSTS  salida de `ssh-keyscan <host>`
+#   vars.DEPLOY_HOST            nombre DNS del servidor
+#   vars.DEPLOY_USER            usuario SSH del servidor
+#   vars.VITE_REVERB_APP_KEY    la misma REVERB_APP_KEY del .env del servidor (es pública)
+name: Despliegue
+
+on:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: produccion
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Publicar frontend
+    if: >-
+      vars.DEPLOY_HOST != '' &&
+      (github.event_name == 'workflow_dispatch' || github.event.workflow_run.event == 'push')
+    runs-on: ubuntu-latest
+    environment:
+      name: produccion
+      url: https://${{ vars.DEPLOY_HOST }}
+
+    steps:
+      # La auditoría de dependencias puede fallar por un aviso nuevo sin bloquear (igual que en los
+      # PRs): se exige solo el check obligatorio.
+      - name: Revisar que pasaron las pruebas
+        if: github.event_name == 'workflow_run'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          result=$(gh api "repos/${{ github.repository }}/actions/runs/${{ github.event.workflow_run.id }}/jobs" \
+            --jq '.jobs[] | select(.name == "Lint, tipos, tests y build") | .conclusion')
+          echo "Lint, tipos, tests y build: $result"
+          [ "$result" = success ]
+
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - run: npm ci
+
+      - name: Compilar para producción
+        run: npx vite build
+        env:
+          VITE_API_BASE_URL: https://${{ vars.DEPLOY_HOST }}/api/v1
+          VITE_REVERB_APP_KEY: ${{ vars.VITE_REVERB_APP_KEY }}
+          VITE_REVERB_HOST: ${{ vars.DEPLOY_HOST }}
+          VITE_REVERB_PORT: '443'
+          VITE_REVERB_SCHEME: https
+
+      - name: Llave SSH
+        run: |
+          install -m 700 -d ~/.ssh
+          echo "${{ secrets.DEPLOY_SSH_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          echo "${{ secrets.DEPLOY_KNOWN_HOSTS }}" > ~/.ssh/known_hosts
+
+      - name: Publicar
+        run: tar -czf - -C dist . | ssh ${{ vars.DEPLOY_USER }}@${{ vars.DEPLOY_HOST }} frontend
+
+      - name: Comprobar que responde
+        run: curl --fail --silent --show-error --retry 5 --retry-delay 3 https://${{ vars.DEPLOY_HOST }}/ > /dev/null
