@@ -18,6 +18,15 @@ const logoRoute = computed(() =>
   auth.isAuthenticated ? homeRouteFor(auth.role) : { name: 'home' },
 )
 
+/**
+ * Con sesión hay muchos enlaces (hasta 8): el menú completo solo cabe desde xl (1280 px) y
+ * no deja espacio para el buscador, que pasa al menú desplegable. Las clases van completas
+ * para que Tailwind las encuentre.
+ */
+const compact = computed(() => items.value.length > 2)
+const showFrom = computed(() => (compact.value ? 'hidden xl:flex' : 'hidden md:flex'))
+const hideFrom = computed(() => (compact.value ? 'xl:hidden' : 'md:hidden'))
+
 const query = ref('')
 const mobileOpen = ref(false)
 watch(
@@ -47,7 +56,12 @@ async function logout() {
         <BrandMark size="sm" :subtitle="null" />
       </RouterLink>
 
-      <form role="search" class="relative hidden max-w-md flex-1 lg:block" @submit.prevent="search">
+      <form
+        v-if="!compact"
+        role="search"
+        class="relative hidden max-w-md flex-1 lg:block"
+        @submit.prevent="search"
+      >
         <Search
           class="pointer-events-none absolute top-1/2 left-4 size-4.5 -translate-y-1/2 text-neutral-400"
         />
@@ -60,7 +74,7 @@ async function logout() {
         />
       </form>
 
-      <nav class="ml-auto hidden items-center gap-1 md:flex" aria-label="Principal">
+      <nav :class="['ml-auto items-center gap-1', showFrom]" aria-label="Principal">
         <RouterLink
           v-for="item in items"
           :key="item.label"
@@ -72,37 +86,27 @@ async function logout() {
         </RouterLink>
       </nav>
 
-      <div class="ml-auto flex items-center gap-2 md:ml-0">
+      <div :class="['flex items-center gap-2', compact ? 'ml-auto xl:ml-0' : 'ml-auto md:ml-0']">
+        <!-- Se ocultan con un contenedor: BaseButton y BaseAvatar traen su propio inline-flex,
+             que le gana a un "hidden" puesto en el componente. -->
         <template v-if="auth.user">
           <!-- HU018: notificaciones -->
           <NotificationBell />
-          <BaseAvatar
-            :name="auth.user.name"
-            :src="auth.user.avatar_url"
-            size="sm"
-            class="hidden md:inline-flex"
-          />
-          <BaseButton variant="ghost" size="sm" class="hidden md:inline-flex" @click="logout">
-            <LogOut class="size-4" /> Salir
-          </BaseButton>
+          <div :class="['items-center gap-2', showFrom]">
+            <BaseAvatar :name="auth.user.name" :src="auth.user.avatar_url" size="sm" />
+            <BaseButton variant="ghost" size="sm" @click="logout">
+              <LogOut class="size-4" /> Salir
+            </BaseButton>
+          </div>
         </template>
-        <template v-else>
-          <BaseButton
-            variant="ghost"
-            size="sm"
-            class="hidden md:inline-flex"
-            :to="{ name: 'login' }"
-          >
-            Iniciar sesión
-          </BaseButton>
-          <BaseButton size="sm" class="hidden md:inline-flex" :to="{ name: 'register-client' }">
-            Registrarse
-          </BaseButton>
-        </template>
+        <div v-else :class="['items-center gap-2', showFrom]">
+          <BaseButton variant="ghost" size="sm" :to="{ name: 'login' }">Iniciar sesión</BaseButton>
+          <BaseButton size="sm" :to="{ name: 'register-client' }">Registrarse</BaseButton>
+        </div>
 
         <button
           type="button"
-          class="flex size-10 items-center justify-center rounded-xl bg-neutral-100 md:hidden"
+          :class="['flex size-10 items-center justify-center rounded-xl bg-neutral-100', hideFrom]"
           :aria-expanded="mobileOpen"
           aria-label="Menú"
           @click="mobileOpen = !mobileOpen"
@@ -113,7 +117,7 @@ async function logout() {
       </div>
     </div>
 
-    <div v-if="mobileOpen" class="space-y-1 border-t border-neutral-100 px-4 py-4 md:hidden">
+    <div v-if="mobileOpen" :class="['space-y-1 border-t border-neutral-100 px-4 py-4', hideFrom]">
       <form role="search" class="relative mb-3" @submit.prevent="search">
         <Search
           class="pointer-events-none absolute top-1/2 left-4 size-4.5 -translate-y-1/2 text-neutral-400"

@@ -47,7 +47,8 @@ const chip = (selected: boolean) => [
 </script>
 
 <template>
-  <fieldset class="space-y-4" :aria-invalid="error ? true : undefined">
+  <!-- min-w-0: un fieldset mide por defecto lo que su contenido, y la fila de días lo desbordaría. -->
+  <fieldset class="min-w-0 space-y-4" :aria-invalid="error ? true : undefined">
     <legend class="mb-2 text-sm font-semibold text-neutral-800">Día y hora</legend>
 
     <div class="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1" role="group" aria-label="Día">

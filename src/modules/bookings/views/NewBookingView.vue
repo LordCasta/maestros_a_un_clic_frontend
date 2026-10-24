@@ -137,7 +137,7 @@ const onSubmit = handleSubmit(async (form) => {
       novalidate
       @submit="onSubmit"
     >
-      <div class="space-y-6">
+      <div class="min-w-0 space-y-6">
         <header>
           <h1 class="text-3xl font-black text-neutral-900">Solicitar reserva</h1>
           <p class="mt-1 text-neutral-500">
